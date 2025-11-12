@@ -1,13 +1,10 @@
 <template>
-  <div class="mx-auto w-full max-w-lg space-y-6 rounded-3xl border border-white/5 bg-slate-900/60 p-8 text-slate-100">
-    <header class="space-y-2 text-center">
-      <p class="text-sm uppercase tracking-[0.3em] text-brand-200/80">Access</p>
-      <h1 class="text-2xl font-semibold">Operator sign in</h1>
-      <p class="text-sm text-slate-300">
-        Authenticate with your identity provider to unlock orchestration tools and dashboards.
-      </p>
-    </header>
-
+  <AuthCard
+    eyebrow="Access"
+    title="Operator sign in"
+    description="Authenticate with your identity provider to unlock orchestration tools and dashboards."
+    footer="Federation supported with Azure AD, Auth0 and on-premise identity bridges."
+  >
     <form class="space-y-4" @submit.prevent="submit">
       <label class="block space-y-2 text-left">
         <span class="text-xs uppercase tracking-wide text-brand-200/80">Email</span>
@@ -30,11 +27,7 @@
         Sign in
       </n-button>
     </form>
-
-    <p class="text-center text-xs text-slate-400">
-      Federation supported with Azure AD, Auth0 and on-premise identity bridges.
-    </p>
-  </div>
+  </AuthCard>
 </template>
 
 <script setup lang="ts">
