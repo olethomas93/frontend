@@ -1,5 +1,5 @@
 {
-    "description": "This file is updated by bitbucket pipelines. Dont edit manually.",
-    "vers": "ux-0.0.0.0",
-    "release_name": "ux-name"
+  "description": "Updated automatically by deployment pipelines.",
+  "vers": "nuxt3-0.1.0",
+  "release_name": "modernized-frontend"
 }
