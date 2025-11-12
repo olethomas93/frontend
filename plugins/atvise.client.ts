@@ -1,8 +1,36 @@
 import { defineNuxtPlugin } from '#app'
 import lodash from 'lodash'
+import { storeToRefs } from 'pinia'
+import { watch } from 'vue'
 import { useAlertsStore } from '~/stores/alerts'
 import { useAtviseStore, mergeAuthStrategies } from '~/stores/atvise'
+import { useAuthStore } from '~/stores/auth'
 import { useTranslationStore } from '~/stores/translation'
+
+interface WebMIDataAPI {
+  addEventListener(event: string, handler: (payload: any) => void): void
+  login(
+    username: string,
+    password: string,
+    options: Record<string, any>,
+    callback: (response: any) => void
+  ): void
+  read(path: string, callback: (response: { value: any[] }) => void): void
+}
+
+interface WebMITrendFactory {
+  createTrend(options: Record<string, any>, config?: Record<string, any>): void
+}
+
+interface WebMI {
+  data: WebMIDataAPI
+  trendFactory?: WebMITrendFactory
+}
+
+interface AtviseEnvironment {
+  webMI: WebMI
+  webMIConfig?: { auth?: { strategies?: Record<string, any> } }
+}
 
 export default defineNuxtPlugin((nuxtApp) => {
   if (!process.client) { return }
@@ -10,60 +38,113 @@ export default defineNuxtPlugin((nuxtApp) => {
   const alertsStore = useAlertsStore()
   const atviseStore = useAtviseStore()
   const translationStore = useTranslationStore()
+  const authStore = useAuthStore()
   const auth = (nuxtApp as any).$auth
+  const { loggedIn } = storeToRefs(authStore)
 
-  if (auth?.loggedIn) {
-    loginAtvise(auth).catch(() => {})
-  }
+  waitForAtviseEnvironment()
+    .then((environment) => {
+      const { webMI } = environment
 
-  auth?.onAuthStateChanged?.((state: any) => {
-    if (state?.loggedIn) {
-      loginAtvise(auth).catch(() => {})
-    }
-  })
-
-  setTimeout(() => {
-    if (auth) {
-      setAuthStrategies(auth)
-    }
-    setColors(nuxtApp)
-  }, 1000)
-
-  top.webMI.data.addEventListener('clientvariableschange', (e: any) => {
-    if ('preferredlanguage' in e) {
-      atviseStore.setLanguage(e.preferredlanguage)
-    }
-    if (e.username?.length > 0) {
-      if (e.additionalInfo) {
-        try {
-          e.additionalInfo = JSON.parse(e.additionalInfo)
-        } catch (error) {
-          // ignore parse errors
+      const attemptLogin = () => {
+        if (auth?.loggedIn) {
+          loginAtvise(auth, webMI).catch(() => {})
         }
       }
-      atviseStore.setUserData({ ...e })
-      atviseStore.setLoggedIn(true)
-      translationStore.loadTranslations()
-      try {
-        top.webMI.trendFactory.createTrend({}, { additionalModules: ['highcharts/modules/sankey.js', 'highcharts/modules/draggable-points.js'] })
-      } catch (error) {
-        // Fail silently
-      }
-    } else if (e.username === '') {
-      atviseStore.setUserData({})
-      atviseStore.setLoggedIn(false)
-      alertsStore.setCustomAlert({ message: 'Login failed!' })
-    }
-  })
 
-  top.webMI.data.addEventListener('permissionnotification', (notification: any) => {
-    alertsStore.setCustomAlert({ message: notification })
-  })
+      attemptLogin()
+
+      auth?.onAuthStateChanged?.((state: any) => {
+        if (state?.loggedIn) {
+          loginAtvise(auth, webMI).catch(() => {})
+        }
+      })
+
+      watch(loggedIn, (isLoggedIn) => {
+        if (isLoggedIn) {
+          loginAtvise(auth, webMI).catch(() => {})
+        }
+      })
+
+      setTimeout(() => {
+        if (auth) {
+          setAuthStrategies(auth, environment)
+        }
+        setColors(nuxtApp, webMI)
+      }, 1000)
+
+      webMI.data?.addEventListener('clientvariableschange', (event: any) => {
+        handleClientVariablesChange({
+          event,
+          atviseStore,
+          translationStore,
+          alertsStore,
+          webMI
+        })
+      })
+
+      webMI.data?.addEventListener('permissionnotification', (notification: any) => {
+        alertsStore.setCustomAlert({ message: notification })
+      })
+    })
+    .catch((error) => {
+      if (process.dev) {
+        console.warn('[atvise] Failed to initialise Atvise integration:', error)
+      }
+    })
 })
 
-function getTheme (name = 'dark') {
-  return new Promise((resolve) => {
-    top.webMI.data.read('SYSTEM.GLOBALS.theme.' + name, (data: any) => {
+function handleClientVariablesChange ({
+  event,
+  atviseStore,
+  translationStore,
+  alertsStore,
+  webMI
+}: {
+  event: any
+  atviseStore: ReturnType<typeof useAtviseStore>
+  translationStore: ReturnType<typeof useTranslationStore>
+  alertsStore: ReturnType<typeof useAlertsStore>
+  webMI: WebMI
+}) {
+  if ('preferredlanguage' in event) {
+    atviseStore.setLanguage(event.preferredlanguage)
+  }
+  if (event.username?.length > 0) {
+    if (event.additionalInfo) {
+      try {
+        event.additionalInfo = JSON.parse(event.additionalInfo)
+      } catch (error) {
+        // ignore parse errors
+      }
+    }
+    atviseStore.setUserData({ ...event })
+    atviseStore.setLoggedIn(true)
+    translationStore.loadTranslations()
+    try {
+      webMI.trendFactory?.createTrend({}, { additionalModules: ['highcharts/modules/sankey.js', 'highcharts/modules/draggable-points.js'] })
+    } catch (error) {
+      // Fail silently
+    }
+  } else if (event.username === '') {
+    atviseStore.setUserData({})
+    atviseStore.setLoggedIn(false)
+    alertsStore.setCustomAlert({ message: 'Login failed!' })
+  }
+}
+
+function getTheme (webMI: WebMI, name = 'dark') {
+  return new Promise((resolve, reject) => {
+    if (!webMI.data?.read) {
+      reject(new Error('webMI data API is unavailable'))
+      return
+    }
+
+    webMI.data.read('SYSTEM.GLOBALS.theme.' + name, (data: any) => {
+      if (!Array.isArray(data?.value)) {
+        resolve({})
+        return
+      }
       let temp = '{'
       data.value.forEach((item: string, index: number, original: string[]) => {
         temp += item
@@ -72,25 +153,29 @@ function getTheme (name = 'dark') {
         }
       })
       temp += '}'
-      resolve(JSON.parse(temp))
+      try {
+        resolve(JSON.parse(temp))
+      } catch (error) {
+        reject(error)
+      }
     })
   })
 }
 
-async function setColors (nuxtApp: any) {
+async function setColors (nuxtApp: any, webMI: WebMI) {
   const vuetify = nuxtApp.vueApp.config.globalProperties.$vuetify
   if (!vuetify?.theme?.themes) { return }
-  const dark = await getTheme('dark')
+  const dark = await getTheme(webMI, 'dark').catch(() => ({}))
   Object.keys(dark).forEach((i) => {
     vuetify.theme.themes.dark[i] = dark[i].color
   })
-  const light = await getTheme('light')
+  const light = await getTheme(webMI, 'light').catch(() => ({}))
   Object.keys(light).forEach((i) => {
     vuetify.theme.themes.light[i] = light[i].color
   })
 }
 
-function loginAtvise (auth: any) {
+function loginAtvise (auth: any, webMI: WebMI) {
   return new Promise<void>(async (resolve, reject) => {
     if (!auth?.loggedIn) {
       return reject(new Error('Not logged in.'))
@@ -100,7 +185,11 @@ function loginAtvise (auth: any) {
     const token = auth.strategy?.token?.get?.()
     let idToken = lodash.get(auth.strategy, 'idToken', null)?.get?.()
 
-    const login = () => top.webMI.data.login(email, '', { token, idToken }, (data: any) => {
+    if (!webMI?.data?.login) {
+      return reject(new Error('Atvise login API is unavailable'))
+    }
+
+    const login = () => webMI.data.login(email, '', { token, idToken }, (data: any) => {
       if (data['']?.username?.length > 0) {
         resolve()
       } else {
@@ -128,9 +217,55 @@ function loginAtvise (auth: any) {
   })
 }
 
-function setAuthStrategies (auth: any) {
-  const strategies = top.webMIConfig?.auth?.strategies
+function setAuthStrategies (auth: any, environment: AtviseEnvironment) {
+  const strategies = environment.webMIConfig?.auth?.strategies
   if (strategies) {
     mergeAuthStrategies(auth, strategies)
+  }
+}
+
+function waitForAtviseEnvironment (timeout = 10000, interval = 100): Promise<AtviseEnvironment> {
+  return new Promise((resolve, reject) => {
+    const start = Date.now()
+
+    const poll = () => {
+      const environment = resolveAtviseEnvironment()
+      if (environment) {
+        resolve(environment)
+        return
+      }
+      if (Date.now() - start >= timeout) {
+        reject(new Error('Timed out waiting for Atvise runtime'))
+        return
+      }
+      setTimeout(poll, interval)
+    }
+
+    poll()
+  })
+}
+
+function resolveAtviseEnvironment (): AtviseEnvironment | null {
+  if (!process.client) { return null }
+
+  const topWindow = getTopWindow()
+  if (!topWindow) { return null }
+
+  const webMI = (topWindow as any).webMI as WebMI | undefined
+  if (!webMI?.data) { return null }
+
+  const webMIConfig = (topWindow as any).webMIConfig as AtviseEnvironment['webMIConfig']
+  return { webMI, webMIConfig }
+}
+
+function getTopWindow (): Window | null {
+  if (typeof window === 'undefined') { return null }
+  try {
+    return window.top || null
+  } catch (error) {
+    if (process.dev) {
+      console.warn('[atvise] Unable to access top window:', error)
+    }
+    return null
   }
 }
