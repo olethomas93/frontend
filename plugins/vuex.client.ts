@@ -2,7 +2,7 @@ import { defineNuxtPlugin } from '#app'
 import { createStore, Store } from 'vuex'
 import * as rootStore from '~/store/index.js'
 import * as alarmingModule from '~/store/alarming.js'
-import * as authModule from '~/store/auth.js'
+import * as authModule from '~/store/auth2.js'
 import * as translationModule from '~/store/translation.js'
 
 function normalizeModule (module: any) {
@@ -25,7 +25,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     actions: rootStore.actions || {},
     modules: {
       alarming: normalizeModule(alarmingModule),
-      auth: normalizeModule(authModule),
+      auth2: normalizeModule(authModule),
       translation: normalizeModule(translationModule)
     }
   }) as Store<RootState>

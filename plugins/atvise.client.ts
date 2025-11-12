@@ -40,13 +40,9 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const auth = (nuxtApp as any).$auth
 
-  if (auth?.loggedIn) {
-    loginAtvise(store, auth).catch(() => {})
-  }
-
-  auth?.onAuthStateChanged?.((state: any) => {
-    if (state?.loggedIn) {
-      loginAtvise(store, auth).catch(() => {})
+  store.subscribe(async (mutation: any) => {
+    if (mutation.type === 'auth/SET' && mutation.payload?.key === 'loggedIn' && mutation.payload?.value === true && auth) {
+      await loginAtvise(store, auth)
     }
   })
 

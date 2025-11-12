@@ -34,11 +34,11 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/logos/favicon.ico' }
       ],
       script: [
-        { src: '/webmicfg.js' },
-        { id: 'projectjs', src: '/project.js' },
-        { src: '/webmi.js', body: false },
-        { src: '/atviseStuff.js' },
-        { src: '/atviseStuff2.js' }
+        { src: 'webmicfg.js' },
+        { id: 'projectjs', src: 'project.js' },
+        { src: 'webmi.js', body: false },
+        { src: 'atviseStuff.js' },
+        { src: 'atviseStuff2.js' }
       ]
     }
   },
@@ -52,10 +52,8 @@ export default defineNuxtConfig({
     '~/plugins/vuetify.client',
     '~/plugins/vueStuff.client',
     '~/plugins/vue-grid-layout.client',
-    '~/plugins/vue-plotly.client',
     '~/plugins/eventBus.client',
     '~/plugins/browse.client',
-    '~/plugins/auth.client',
     '~/plugins/atvise.client',
     '~/plugins/translate.client',
     '~/plugins/sfcLoader.client',
