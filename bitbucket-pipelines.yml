@@ -1,0 +1,131 @@
+# This is a sample build configuration for Other.
+# Check our guides at https://confluence.atlassian.com/x/5Q4SMw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment..
+
+# https://hub.docker.com/r/capia/shiny_master/ 
+definitions:
+  services:
+    docker-build:
+      memory: 4096
+      type: docker
+pipelines:
+ branches:
+   production:
+    - step:
+         name: Tag deploy
+         script:
+           - VERSION=$AT_MAJOR_VER.${BITBUCKET_BUILD_NUMBER}
+           - git tag -am "[skip ci] Tagging for release ${VERSION}" ${VERSION}-rc
+           - git push origin ${VERSION}-rc
+    - step:
+        name: Build master container to dockerhub
+        services:
+          - docker
+        script:
+          # Build container and push with commit tag
+          - VERSION=$AT_MAJOR_VER.${BITBUCKET_BUILD_NUMBER}
+          - echo "Build docker container With tag:"
+          - echo $VERSION
+          - bash ./deploy_scripts/deploy_build.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $VERSION $VERSION sfinxen
+    - step:
+        name: Deploy container to JM Hansen server
+        deployment: Production
+        script:
+          #  push with commit tag
+          - VERSION=$AT_MAJOR_VER.${BITBUCKET_BUILD_NUMBER}
+          - ssh -T $SERVER_USER@$DEFAULT_SERVER -p $SERVER_PORT 'bash -s' < ./deploy_scripts/deploy_restart.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $VERSION atvise37-ux_production 10.110.0.6
+   staging:
+    - step:
+        name: Build master container to dockerhub
+        services:
+          - docker
+        script:
+          # Build container and push with commit tag
+          - echo "Build docker container With tag:"
+          - echo $BITBUCKET_COMMIT
+          - bash ./deploy_scripts/deploy_build.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $BITBUCKET_BRANCH $BITBUCKET_COMMIT sfinxen-staging
+    - step:
+        name: Deploy container to JM Hansen server
+        deployment: Staging
+        script:
+          #  push with commit tag
+          - ssh -T $SERVER_USER@$DEFAULT_SERVER -p $SERVER_PORT 'bash -s' < ./deploy_scripts/deploy_restart.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $BITBUCKET_BRANCH atvise37-ux_staging 10.110.0.6
+   production-fisk:
+    - step:
+         name: Tag deploy
+         script:
+           - VERSION=3.9.2.${BITBUCKET_BUILD_NUMBER}.fisk
+           - git tag -am "[skip ci] Tagging for release ${VERSION}" ${VERSION}-rc
+           - git push origin ${VERSION}-rc
+    - step:
+        name: Build master container to dockerhub
+        services:
+          - docker
+        script:
+          # Build container and push with commit tag
+          - VERSION=3.9.2.${BITBUCKET_BUILD_NUMBER}.fisk
+          - echo "Build docker container With tag:"
+          - echo $VERSION
+          - bash ./deploy_scripts/deploy_build.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $VERSION $VERSION sfinxen
+   production-ksat:
+    - step:
+         name: Tag deploy
+         script:
+           - VERSION=3.10.2.${BITBUCKET_BUILD_NUMBER}.ksat
+           - git tag -am "[skip ci] Tagging for release ${VERSION}" ${VERSION}-rc
+           - git push origin ${VERSION}-rc
+    - step:
+        name: Build master container to dockerhub
+        size: 2x
+        services:
+          - docker-build
+        script:
+          # Build container and push with commit tag
+          - VERSION=3.10.2.${BITBUCKET_BUILD_NUMBER}.ksat
+          - echo "Build docker container With tag:"
+          - echo $VERSION
+          - bash ./deploy_scripts/deploy_build.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $VERSION $VERSION sfinxen
+   production-avju:
+    - step:
+         name: Tag deploy
+         script:
+           - VERSION=$AT_MAJOR_VER.${BITBUCKET_BUILD_NUMBER}.avju
+           - git tag -am "[skip ci] Tagging for release ${VERSION}" ${VERSION}-rc
+           - git push origin ${VERSION}-rc
+    - step:
+        name: Build master container to dockerhub
+        services:
+          - docker
+        script:
+          # Build container and push with commit tag
+          - VERSION=$AT_MAJOR_VER.${BITBUCKET_BUILD_NUMBER}.avju
+          - echo "Build docker container With tag:"
+          - echo $VERSION
+          - bash ./deploy_scripts/deploy_build.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $VERSION $VERSION sfinxen
+    - step:
+        name: Deploy container to Avju server
+        deployment: Production
+        script:
+          #  push with commit tag
+          - VERSION=$AT_MAJOR_VER.${BITBUCKET_BUILD_NUMBER}.avju
+          - ssh -T $SERVER_USER@$AVJU_SERVER -p $SERVER_PORT 'bash -s' < ./deploy_scripts/deploy_restart.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $VERSION atvise37-ux_production 10.110.16.3
+   staging-avju:
+    - step:
+        name: Build master container to dockerhub
+        services:
+          - docker
+        script:
+          # Build container and push with commit tag
+          - echo "Build docker container With tag:"
+          - echo $BITBUCKET_COMMIT
+          - bash ./deploy_scripts/deploy_build.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $BITBUCKET_BRANCH $BITBUCKET_COMMIT sfinxen-staging
+    - step:
+        name: Deploy container to Avju server
+        script:
+          #  push with commit tag
+          - ssh -T $SERVER_USER@$AVJU_SERVER -p $SERVER_PORT 'bash -s' < ./deploy_scripts/deploy_restart.sh $DOCKER_HUB_USER $DOCKER_HUB_PASSWORD $BITBUCKET_BRANCH atvise37-ux_staging 10.110.16.3 
+options:
+  docker: true
+  size: 2x

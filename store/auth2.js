@@ -1,0 +1,50 @@
+export const state = () => ({
+  user: {}
+})
+
+export const getters = {
+  // // eslint-disable-next-line arrow-parens
+  // getTranslation: (state) => (text) => {
+  //   const trans = state.translations.find((element) => { return element.source === text })
+  //   if (trans) {
+  //     return trans.translation
+  //   } else {
+  //     return text
+  //   }
+  //   // return state.translations.find((element) => { return element.source === text })
+  // },
+  // // eslint-disable-next-line arrow-parens
+  // translateText: (state, getters) => (text) => {
+  //   let temp = text
+  //   // eslint-disable-next-line no-useless-escape
+  //   const arr = Array.from(text.matchAll(/\T{([^}]+)\}/g))
+  //   arr.map((trans) => {
+  //     const source = trans[0]
+  //     const translation = getters.getTranslation(trans[1]) // this.$store.getters['translation/getTranslation'](trans[1])
+  //     temp = temp.replaceAll(source, translation)
+  //     return translation
+  //   })
+  //   return temp
+  // }
+}
+
+export const mutations = {
+  SET_USER (state, user) {
+    state.user = user
+  }
+}
+
+export const actions = {
+  // loadTranslations ({ commit }) {
+  //   top.webMI.data.read('SYSTEM.TRANSLATIONS.nb', (data) => {
+  //     const parser = new DOMParser()
+  //     const doc = parser.parseFromString(data.value, 'text/xml')
+  //     console.log(data)
+  //     // const trans = Array.from(doc.querySelectorAll('source'))
+  //     const trans = Array.from(doc.querySelectorAll('source')).map((trans) => {
+  //       return { source: trans.innerHTML, translation: trans.nextElementSibling.innerHTML }
+  //     })
+  //     commit('SET_TRANS', trans)
+  //   })
+  // }
+}
