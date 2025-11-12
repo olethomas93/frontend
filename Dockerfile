@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:20
 
 # Maintainer
 LABEL maintainer Bjorn Ole Lindseth "jorgen@ctrl.as"
@@ -18,15 +18,17 @@ ARG prebuild="true"
 
 # Create dir and set timezone
 RUN mkdir -p /srv/node/app/node_modules && chown -R node:node /srv/node/app \
-    &&  ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
-    apt-get update \
-    apt-get install mc net-tools
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends mc net-tools \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working dir
 WORKDIR /srv/node/app
 
-# Lets Change the user uid if we are mounting the disc place outside the conmtainer
-# The user need tha same uid to get access to the disc
+# Lets Change the user uid if we are mounting the disc place outside the container
+# The user need the same uid to get access to the disc
 RUN groupmod -g $group_id node \
     && usermod -u $user_id -g $group_id node \
     && chown node:node -R /srv/node
@@ -47,13 +49,9 @@ RUN npm install
 # Make shure node is the owner
 COPY --chown=node:node . .
 
-RUN npm run build
-# RUN if [ "$prebuild" = "true" ]; then \
-#         echo "prebuild is true, running the command"; \
-#         npm run build; \
-#     else \
-#         echo "prebuild is not true, skipping the command"; \
-#     fi 
+RUN if [ "$prebuild" = "true" ]; then \
+        npm run build; \
+    fi
 
 
 # Expose the running app on port
@@ -63,4 +61,4 @@ EXPOSE 8654
 # We dont need a processmanager here sins its running in docker
 # So pm2 for example is not nessesary here
 # CMD [ "npm", "run", "as_docker1"]
-CMD [ "npm", "run", "start"]
+CMD [ "/usr/local/bin/entrypoint.sh" ]
