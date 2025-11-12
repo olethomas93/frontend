@@ -1,48 +1,24 @@
 import { defineNuxtPlugin } from '#app'
 import lodash from 'lodash'
-
-const atviseStore = {
-  namespaced: true,
-  state: () => ({
-    userData: {},
-    loggedIn: false,
-    language: 'en'
-  }),
-  mutations: {
-    SET_USERDATA (state: any, user: any) {
-      state.userData = user
-    },
-    SET_LOGGEDIN (state: any, loggedin: boolean) {
-      state.loggedIn = loggedin
-    },
-    SET_LANGUAGE (state: any, language: string) {
-      state.language = language
-    }
-  },
-  getters: {
-    getUserData: (state: any) => state.userData,
-    getLoggedIn: (state: any) => state.loggedIn,
-    getLanguage: (state: any) => state.language,
-    isSuperadmin: (state: any) => {
-      const rights = state.userData?.right || []
-      return Array.isArray(rights) ? rights.indexOf('USER.superadmin') !== -1 : false
-    }
-  }
-}
+import { useAlertsStore } from '~/stores/alerts'
+import { useAtviseStore, mergeAuthStrategies } from '~/stores/atvise'
+import { useTranslationStore } from '~/stores/translation'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const store = (nuxtApp as any).$store
-  if (!store) { return }
+  if (!process.client) { return }
 
-  if (!store.hasModule('atvise')) {
-    store.registerModule('atvise', atviseStore)
-  }
-
+  const alertsStore = useAlertsStore()
+  const atviseStore = useAtviseStore()
+  const translationStore = useTranslationStore()
   const auth = (nuxtApp as any).$auth
 
-  store.subscribe(async (mutation: any) => {
-    if (mutation.type === 'auth/SET' && mutation.payload?.key === 'loggedIn' && mutation.payload?.value === true && auth) {
-      await loginAtvise(store, auth)
+  if (auth?.loggedIn) {
+    loginAtvise(auth).catch(() => {})
+  }
+
+  auth?.onAuthStateChanged?.((state: any) => {
+    if (state?.loggedIn) {
+      loginAtvise(auth).catch(() => {})
     }
   })
 
@@ -55,7 +31,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   top.webMI.data.addEventListener('clientvariableschange', (e: any) => {
     if ('preferredlanguage' in e) {
-      store.commit('atvise/SET_LANGUAGE', e.preferredlanguage)
+      atviseStore.setLanguage(e.preferredlanguage)
     }
     if (e.username?.length > 0) {
       if (e.additionalInfo) {
@@ -65,23 +41,23 @@ export default defineNuxtPlugin((nuxtApp) => {
           // ignore parse errors
         }
       }
-      store.commit('atvise/SET_USERDATA', { ...e })
-      store.commit('atvise/SET_LOGGEDIN', true)
-      store.dispatch('translation/loadTranslations')
+      atviseStore.setUserData({ ...e })
+      atviseStore.setLoggedIn(true)
+      translationStore.loadTranslations()
       try {
         top.webMI.trendFactory.createTrend({}, { additionalModules: ['highcharts/modules/sankey.js', 'highcharts/modules/draggable-points.js'] })
       } catch (error) {
         // Fail silently
       }
     } else if (e.username === '') {
-      store.commit('atvise/SET_USERDATA', {})
-      store.commit('atvise/SET_LOGGEDIN', false)
-      store.commit('SET_CUSTOM_ALERT', { message: 'Login failed!' })
+      atviseStore.setUserData({})
+      atviseStore.setLoggedIn(false)
+      alertsStore.setCustomAlert({ message: 'Login failed!' })
     }
   })
 
   top.webMI.data.addEventListener('permissionnotification', (notification: any) => {
-    store.commit('SET_CUSTOM_ALERT', { message: notification })
+    alertsStore.setCustomAlert({ message: notification })
   })
 })
 
@@ -114,7 +90,7 @@ async function setColors (nuxtApp: any) {
   })
 }
 
-function loginAtvise (store: any, auth: any) {
+function loginAtvise (auth: any) {
   return new Promise<void>(async (resolve, reject) => {
     if (!auth?.loggedIn) {
       return reject(new Error('Not logged in.'))
@@ -155,8 +131,6 @@ function loginAtvise (store: any, auth: any) {
 function setAuthStrategies (auth: any) {
   const strategies = top.webMIConfig?.auth?.strategies
   if (strategies) {
-    Object.keys(strategies).forEach((i) => {
-      auth.strategies[i] = lodash.merge(auth.strategies[i], strategies[i])
-    })
+    mergeAuthStrategies(auth, strategies)
   }
 }

@@ -1,6 +1,7 @@
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import mitt from 'mitt'
 import { reactive } from 'vue'
+import { useAuthStore } from '~/stores/auth'
 
 interface AuthState {
   loggedIn: boolean
@@ -358,7 +359,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   const config = useRuntimeConfig()
-  const store = (nuxtApp as any).$store
+  const authStore = useAuthStore()
   const strategies: Record<string, AuthStrategy> = {}
 
   const authConfig = config.public?.auth?.strategies || {}
@@ -382,11 +383,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     state.strategy = strategyName
     state.loggedIn = true
     state.user = user || null
-    if (store?.commit) {
-      try { store.commit('auth/SET_STRATEGY', strategyName) } catch (error) { /* ignore */ }
-      try { store.commit('auth/SET_LOGGED_IN', true) } catch (error) { /* ignore */ }
-      try { store.commit('auth/SET_USER', user) } catch (error) { /* ignore */ }
-    }
+    authStore.setStrategy(strategyName)
+    authStore.setLoggedIn(true)
+    authStore.setUser(user)
     emitter.emit('stateChanged', { ...state })
   }
 
@@ -394,11 +393,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     state.strategy = null
     state.loggedIn = false
     state.user = null
-    if (store?.commit) {
-      try { store.commit('auth/SET_STRATEGY', null) } catch (error) { /* ignore */ }
-      try { store.commit('auth/SET_LOGGED_IN', false) } catch (error) { /* ignore */ }
-      try { store.commit('auth/SET_USER', null) } catch (error) { /* ignore */ }
-    }
+    authStore.setStrategy(null)
+    authStore.setLoggedIn(false)
+    authStore.setUser(null)
     emitter.emit('stateChanged', { ...state })
   }
 
@@ -469,9 +466,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         throw new Error(`Unknown auth strategy: ${name}`)
       }
       state.strategy = name
-      if (store?.commit) {
-        try { store.commit('auth/SET_STRATEGY', name) } catch (error) { /* ignore */ }
-      }
+      authStore.setStrategy(name)
       await strategy.login(options)
     },
     async logout() {

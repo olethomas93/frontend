@@ -1,14 +1,19 @@
 import { defineNuxtPlugin } from '#app'
+import { useTranslationStore } from '~/stores/translation'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const store = (nuxtApp as any).$store
+  const translationStore = useTranslationStore()
 
   const translate = (value?: string) => {
     if (!value) { return '' }
-    const getter = store?.getters?.['translation/translateText']
-    return typeof getter === 'function' ? getter(`T{${value}}`) : ''
+    return translationStore.translateText(`T{${value}}`)
   }
 
-  nuxtApp.provide('T', translate)
   nuxtApp.vueApp.config.globalProperties.$T = translate
+
+  return {
+    provide: {
+      T: translate
+    }
+  }
 })
