@@ -18,42 +18,13 @@
         </div>
       </template>
       <div class="grid gap-4 p-6 lg:grid-cols-[minmax(0,1fr)]">
-        <label class="space-y-3">
-          <span class="text-xs uppercase tracking-wide text-brand-200/70">YAML workflow definition</span>
-          <textarea
-            v-model="workflow"
-            spellcheck="false"
-            class="h-96 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 font-mono text-sm text-brand-100 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/60"
-          />
-        </label>
+        <WorkflowTextarea v-model="workflow" label="YAML workflow definition" />
       </div>
     </n-card>
 
     <div class="space-y-6">
-      <n-card class="border border-white/5 bg-slate-900/60">
-        <template #header>
-          <h2 class="text-base font-semibold text-white">Execution preview</h2>
-        </template>
-        <ul class="space-y-4 text-sm text-slate-200">
-          <li v-for="step in parsedSteps" :key="step.id" class="rounded-2xl border border-white/5 bg-white/5 p-4">
-            <p class="text-xs uppercase tracking-wide text-brand-200/70">{{ step.type }}</p>
-            <p class="mt-1 text-sm font-semibold text-white">{{ step.title }}</p>
-            <p class="mt-1 text-xs text-slate-400">{{ step.description }}</p>
-          </li>
-        </ul>
-        <div v-if="parsedSteps.length === 0" class="text-sm text-slate-400">
-          Provide a YAML definition to preview the resolved orchestration steps.
-        </div>
-      </n-card>
-
-      <n-card class="border border-white/5 bg-slate-900/60" size="small">
-        <template #header>
-          <h2 class="text-base font-semibold text-white">Validation</h2>
-        </template>
-        <p class="text-sm text-slate-300">
-          {{ validationMessage }}
-        </p>
-      </n-card>
+      <ExecutionStepList :steps="parsedSteps" />
+      <ValidationState :message="validationMessage" />
     </div>
   </div>
 </template>
