@@ -108,11 +108,11 @@
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
                       <template v-for="(item,index) in param.items">
-                        <editor-input-color v-if="item.valuetype === 'color'" :key="index" v-model="object.item.query[item.name]" :label="item.desc || item.name" :hint="item.scope" />
-                        <dashboard-input-address v-else-if="item.valuetype === 'address'" :key="index" v-model="object.item.query[item.name]" :label="item.desc || item.name" />
+                        <editor-input-color v-if="item.valuetype === 'color'" :key="`color-${param.name || i}-${index}`" v-model="object.item.query[item.name]" :label="item.desc || item.name" :hint="item.scope" />
+                        <dashboard-input-address v-else-if="item.valuetype === 'address'" :key="`address-${param.name || i}-${index}`" v-model="object.item.query[item.name]" :label="item.desc || item.name" />
                         <v-select
                           v-else-if="item.valuetype === 'enum'"
-                          :key="index"
+                          :key="`enum-${param.name || i}-${index}`"
                           _model="object.item.query[item.name]"
                           :value="object.item.query[item.name] || item.defaultvalue"
                           :label="item.desc || item.name"
@@ -122,7 +122,7 @@
                         />
                         <v-text-field
                           v-else
-                          :key="index"
+                          :key="`input-${param.name || i}-${index}`"
                           :value="object.item.query[item.name] || item.defaultvalue"
                           :label="item.desc || item.name"
                           :type="item.valuetype === 'number' ? 'number' : undefined"

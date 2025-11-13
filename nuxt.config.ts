@@ -53,7 +53,7 @@ export default defineNuxtConfig({
     '~/plugins/vuetify.client',
     '~/plugins/vueStuff.client',
     '~/plugins/vue-grid-layout.client',
-    '~/plugins/vue-plotly.client',
+    '~/plugins/plotly.client',
     '~/plugins/eventBus.client',
     '~/plugins/browse.client',
     '~/plugins/auth.client',
