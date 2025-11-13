@@ -1,41 +1,29 @@
 <template>
-  <v-app ref="test1" :style="{backgroundColor: !loggedIn ? 'grey' : 'white'}">
-    <template v-if="!loggedIn && local">
-      <snackbar />
-      <login />
+  <v-app :style="{ backgroundColor: !isLoggedIn ? 'grey' : 'white' }">
+    <template v-if="!isLoggedIn && isLocal">
+      <Snackbar />
+      <Login />
     </template>
-    <!-- <template v-if="loggedIn === false && local === false">
-      <loading />
-    </template> -->
-    <template v-else-if="loggedIn">
+    <template v-else-if="isLoggedIn">
       <v-navigation-drawer
-        v-if="!$lodash.get(navigationDrawer, 'disable', false)"
+        v-if="!lodashGet(navigationDrawer, 'disable', false)"
         v-model="drawer"
-        :mini-variant="$vuetify.breakpoint.lgAndUp"
-        :clipped="true"
-        :fixed="true"
-        :expand-on-hover="$vuetify.breakpoint.lgAndUp"
+        :rail="lgAndUp"
+        :expand-on-hover="lgAndUp"
         :temporary="false"
-        app
-        :dark="navigationDrawer.dark"
-        :light="!navigationDrawer.dark === false || undefined"
         :color="navigationDrawer.color"
         :width="navigationDrawer.width"
+        :class="{ 'navigation-drawer--dark': navigationDrawer.dark }"
+        app
       >
         <template #prepend>
-          <user-info />
+          <UserInfo />
         </template>
         <v-divider />
-        <nav-list style="height:80%" />
+        <NavList style="height:80%" />
         <template #append>
-          <v-footer
-            padless
-            style="color: grey; font-size: 12px"
-          >
-            <v-col
-              class="text-center"
-              cols="12"
-            >
+          <v-footer padless class="app-footer">
+            <v-col class="text-center" cols="12">
               <div class="app_cr">
                 {{ appCr }}
               </div>
@@ -49,443 +37,340 @@
           </v-footer>
         </template>
       </v-navigation-drawer>
-      <!-- WIP -->
-      <alarm-drawer v-if="$vuetify.breakpoint.mdAndUp && !hideAlarmDrawer" />
+      <AlarmDrawer v-if="mdAndUp && !hideAlarmDrawer" />
       <v-app-bar
         clipped-left
         :clipped-right="true"
         fixed
         app
-        :dark="appBar.dark"
-        :light="!appBar.dark === false || undefined"
         :color="appBar.color"
-        _prominent="$vuetify.breakpoint.smAndDown"
+        :class="{ 'app-bar--dark': appBar.dark }"
+        :prominent="smAndDown"
       >
-        <template v-if="$lodash.get(appBar, 'logo.position') === 'left' && $vuetify.breakpoint.mdAndUp">
-          <v-img max-width="180" :src="$lodash.get(appBar, 'logo.src', 'logo.png')" style="margin-right:24px;" />
+        <template v-if="lodashGet(appBar, 'logo.position') === 'left' && mdAndUp">
+          <v-img max-width="180" :src="lodashGet(appBar, 'logo.src', 'logo.png')" class="mr-6" />
           <v-divider vertical inset />
         </template>
-        <v-app-bar-nav-icon v-if="!$lodash.get(navigationDrawer, 'disable', false)" @click.stop="drawer = !drawer" />
-        <crumbs style="flex-wrap:nowrap;overflow:scroll;" :default-base="defaultBase" :iframe-path="iframePath" />
+        <v-app-bar-nav-icon v-if="!lodashGet(navigationDrawer, 'disable', false)" @click.stop="drawer = !drawer" />
+        <Crumbs style="flex-wrap:nowrap;overflow:scroll;" :default-base="defaultBase" :iframe-path="iframePath" />
         <v-spacer />
-        <server-time v-if="$lodash.get(appBar, 'time.show', false) === true && $vuetify.breakpoint.mdAndUp" />
-        <template v-if="$lodash.get(appBar, 'logo.position') === 'right' && $vuetify.breakpoint.mdAndUp">
-          <v-img max-width="180" :src="$lodash.get(appBar, 'logo.src', 'logo.png')" style="margin-right:0px;" />
+        <ServerTime v-if="lodashGet(appBar, 'time.show', false) === true && mdAndUp" />
+        <template v-if="lodashGet(appBar, 'logo.position') === 'right' && mdAndUp">
+          <v-img max-width="180" :src="lodashGet(appBar, 'logo.src', 'logo.png')" />
           <v-divider vertical inset />
         </template>
-        <v-item-group v-if="$lodash.get(appBar, 'zoom.show',false) && $vuetify.breakpoint.mdAndUp">
-          <v-tooltip bottom open-delay="500">
-            <template #activator="{ on }">
-              <v-btn icon v-on="on" @click="zoomIn">
+        <v-item-group v-if="lodashGet(appBar, 'zoom.show', false) && mdAndUp">
+          <v-tooltip location="bottom" :open-delay="500">
+            <template #activator="{ props }">
+              <v-btn icon v-bind="props" @click="zoomIn">
                 <v-icon>mdi-magnify-plus</v-icon>
               </v-btn>
             </template>
             <span>Zoom in</span>
           </v-tooltip>
-          <v-tooltip bottom open-delay="500">
-            <template #activator="{ on }">
-              <v-btn icon v-on="on" @click="zoomOut">
+          <v-tooltip location="bottom" :open-delay="500">
+            <template #activator="{ props }">
+              <v-btn icon v-bind="props" @click="zoomOut">
                 <v-icon>mdi-magnify-minus</v-icon>
               </v-btn>
             </template>
             <span>Zoom out</span>
           </v-tooltip>
-          <v-tooltip bottom open-delay="500">
-            <template #activator="{ on }">
-              <v-btn icon v-on="on" @click="zoomAll">
+          <v-tooltip location="bottom" :open-delay="500">
+            <template #activator="{ props }">
+              <v-btn icon v-bind="props" @click="zoomAll">
                 <v-icon>mdi-magnify-scan</v-icon>
               </v-btn>
             </template>
             <span>Zoom all</span>
           </v-tooltip>
         </v-item-group>
-        <!-- <div
-          v-if="$vuetify.breakpoint.lgAndUp"
-          class="caption intercom_launcher"
-          style="cursor:pointer;"
-          @click="$intercom('show')"
-        >
-          Brukerstøtte
-        </div>
-        <v-img v-if="$vuetify.breakpoint.lgAndUp" :src="$config.app_meta.logo_url" alt="fd" max-width="180" /> -->
-        <main-alarm v-if="$vuetify.breakpoint.smAndDown || hideAlarmDrawer" base="AGENT.OBJECTS" style="margin:0 14px;" />
-        <app-bar-menu>
-          <template v-if="$lodash.get(navigationDrawer, 'disable', false)" #user>
-            <user-info />
+        <MainAlarm v-if="smAndDown || hideAlarmDrawer" base="AGENT.OBJECTS" class="mx-3" />
+        <AppBarMenu>
+          <template v-if="lodashGet(navigationDrawer, 'disable', false)" #user>
+            <UserInfo />
           </template>
-        </app-bar-menu>
+        </AppBarMenu>
       </v-app-bar>
-      <v-main style="background-color:transparent;height:700px">
-        <atvise-dialog :dialog="true" />
-        <snackbar />
-        <!-- <div v-show="!$route.query.iframe" id="mainContainer" ref="mainContainer" class="mainContainerDefaultStyle">
-          <iframe
-            id="mainframe"
-            ref="mainframe"
-            style="position:absolute;top:0px;left:0;height:100%;width:100%;scroll"
-            name="mainframe"
-            _src="about:blank"
-            frameborder="0"
-            _load="load"
-          />
-          <div id="foreignobjects" style="position:absolute;top:0px;left:0;" @wheel.prevent="wheelEvent" />
-          <div id="extensions" style="position:absolute;top:0px;left:500px" :style="{top:extensionsTopOffset}" />
-          <div v-if="false" id="loadingscreen" />
-          <div v-if="false" id="errorscreen">
-            <div id="erroroverlay">
-            &nbsp;
-            </div><div id="errormessage">
-              <div id="errorbox">
-                <div><span id="errorrow1">A <b>connection error</b> may have occurred.</span><span id="errorrow2">Please <b>refresh</b> your browser or <a href="#" onclick="window.location.reload()">click here</a>.</span></div>
-              </div>
-            </div>
-          </div>
+      <v-main class="app-main">
+        <AtviseDialog :dialog="true" />
+        <Snackbar />
+        <div id="mainContainer" class="main-container">
+          <AtviseVisuV3 :style="{ zoom: zoom }" :settings="displaySettings" />
         </div>
-        <atvise-visu-v3 v-if="$route.query.iframe === 'visu'" :style="{zoom: zoom}" :settings="display" /> -->
-        <atvise-visu-v3 :style="{zoom: zoom}" :settings="display" />
       </v-main>
     </template>
-    <offline />
+    <Offline />
   </v-app>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter, useNuxtApp, useRuntimeConfig } from '#imports'
+import { useDisplay, useTheme } from 'vuetify'
+import { storeToRefs } from 'pinia'
+import get from 'lodash/get'
+import type { Emitter } from 'mitt'
 import MainAlarm from '~/components/common/alarm/mainAlarm.vue'
 import AlarmDrawer from '~/components/common/alarm/drawer.vue'
-import crumbs from '@/components/crumbs.vue'
-import userInfo from '@/components/userInfo.vue'
+import Crumbs from '@/components/crumbs.vue'
+import UserInfo from '@/components/userInfo.vue'
 import AtviseDialog from '~/components/atvise/atviseDialog.vue'
-import offline from '~/components/dialogOffline'
-import login from '~/components/login'
-import navList from '@/components/navList.vue'
-import appBarMenu from '@/components/appBarMenu.vue'
-// import serverTime from '@/components/serverTime.vue'
+import Offline from '~/components/dialogOffline.vue'
+import Login from '~/components/login.vue'
+import NavList from '@/components/navList.vue'
+import AppBarMenu from '@/components/appBarMenu.vue'
+import ServerTime from '@/components/serverTime.vue'
+import AtviseVisuV3 from '@/components/atviseVisuV3.vue'
+import Snackbar from '@/components/snackbar.vue'
 import version from '@/version.json'
-// import loading from '@/components/loading.vue'
+import { useAtviseStore } from '~/stores/atvise'
+import { useAuthStore } from '~/stores/auth'
 
-export default {
-  name: 'LayoutsDefault',
-  components: {
-    MainAlarm,
-    AlarmDrawer,
-    crumbs,
-    userInfo,
-    AtviseDialog,
-    offline,
-    login,
-    navList,
-    appBarMenu
-    // serverTime
-  },
-  data () {
-    return {
-      showBottomDrawer: true,
-      test: 1,
-      home: undefined,
-      drawer: true,
-      defaultBase: '',
-      dataTable: true,
-      dataTableBase: 'Views.Hjem',
-      treeBase: 'AGENT.OBJECTS',
-      base1: 'Views.Hjem',
-      items: [
-      ],
-      miniVariant: false,
-      extensionsTopOffset: '-0px',
-      contentFrame: undefined,
-      config: {},
-      isDark: false,
-      treeViewTypes: [],
-      treeViewSubtype: false,
-      navigationDrawer: {
-        width: 300,
-        color: undefined,
-        dark: undefined
-      },
-      appBar: {
-        color: undefined,
-        dark: undefined
-      },
-      iframePath: '',
-      snackbar: false,
-      zoom: 1,
-      hideAlarmDrawer: false
-    }
-  },
-  head () {
-    return {
-      title: this.$config.app_meta.title1 + '-' + this.$config.app_meta.title2
-    }
-  },
-  computed: {
-    local () {
-      return this.$config.atvise.local
-    },
-    loggedIn () {
-      // return this.$store.state.auth.loggedIn
-      return this.$store.state.atvise.loggedIn
-    },
-    defaultDisplay () {
-      return this.$store.state.atvise.userData.defaultdisplay
-    },
-    display () {
-      if (this.$route.query.display) {
-        return this.$route.query.display.split('/').join('.')
-      } else {
-        return ''
-      }
-    }
-  },
-  watch: {
-    defaultDisplay (val) {
-      setTimeout(() => {
-        this.$router.push(val)
-      }, 100)
-    },
-    loggedIn (val) {
-      if (val === true) {
-        setTimeout(() => {
-          this.navigateToDefaultPage()
-          this.resize()
-        }
-        , 1000)
-        this.$nuxt.$loading.finish()
-        this.navigateToDefaultPage()
-      }
-    },
-    isDark: {
-      immediate: true,
-      handler (value) {
-        this.$vuetify.theme.dark = value
-      }
-    },
-    $route (val) {
-      // this.iframePath = val.query.base
-      // const display = val.query.display
-      // const base = val.query.base
-      // top.webMI.display.openDisplay(display, { query: { base } }, this.$refs.mainframe.contentWindow)
-      setTimeout(() => {
-        this.resize()
-      }, 500)
-    }
-  },
-  mounted () {
-    this.config = window.webMIConfig.nuxt || {}
-    this.navigationDrawer = this.config.navigationDrawer
-    this.appBar = this.config.appBar
-    // this.$vuetify.theme.dark = this.config.defaultDark
-    this.isDark = this.config.defaultDark
-    this.defaultBase = this.config.defaultBase
-    this.dataTableBase = this.defaultBase
-    this.treeBase = this.defaultBase
-    this.hideAlarmDrawer = this.$lodash.get(this.config, 'alarmDrawer.disable', false)
-    this.navigationDrawerWidth = this.$lodash.get(this.config, 'navigationDrawer.width', 300)
+const runtimeConfig = useRuntimeConfig()
+const nuxtApp = useNuxtApp()
+const router = useRouter()
+const route = useRoute()
+const display = useDisplay()
+const theme = useTheme()
+const atviseStore = useAtviseStore()
+const authStore = useAuthStore()
+const { loggedIn, userData } = storeToRefs(atviseStore)
+const { currentUser } = storeToRefs(authStore)
 
-    setTimeout(() => {
-      this.resize()
-    }, 2000)
+const isLocal = computed(() => Boolean(get(runtimeConfig, 'atvise.local')))
+const isLoggedIn = computed(() => Boolean(loggedIn.value))
+const defaultDisplay = computed(() => userData.value?.defaultdisplay)
+const displaySettings = computed(() => {
+  const displayQuery = route.query.display
+  return displayQuery ? displayQuery.toString().split('/').join('.') : ''
+})
 
-    // TODO: Fix this (Ugly but works)
-    setTimeout(() => {
-      this.$vuetify.theme.dark = this.config.defaultDark
-      if (!this.local) {
-        this.$nuxt.$loading.start()
-      }
-    }, 100)
-    window.addEventListener('resize', (data) => {
-      setTimeout(() => {
-        this.resize(data)
-      }, 5)
-    })
-
-    // Listen for home key on advantech displays
-    window.addEventListener('keydown', (e) => {
-      if (e.altKey && e.shiftKey && e.ctrlKey && e.keyCode === 72) {
-        this.$router.push({ query: { display: 'AGENT.DISPLAYS.Main', base: 'AGENT.OBJECTS' }, replace: false })
-        // top.webMI.display.openDisplay('AGENT.DISPLAYS.Main', { base: 'AGENT.OBJECTS' })
-      }
-    })
-
-    // Version
-    this.appCr = this.$config.app_meta.cr
-    this.appVers = version.vers
-    this.appName = version.release_name
-
-    // if (this.local) {
-    top.webMI.trigger.connect('setContentType', (data) => {
-      setTimeout(() => {
-        const query = JSON.parse(JSON.stringify(this.$route.query))
-        if (query.iframe === data.value.type) {
-          // Noting to do, return
-          // console.log('***********************************************************************************')
-          return
-        }
-        query.iframe = data.value.type
-        const hash = '123'
-        // this.$router.push({ hash: '123', query: { iframe: query.iframe, base: query.base, display: query.display }, replace: false })
-        this.$router.replace({ query, hash })
-      }, 50)
-    })
-    top.webMI.trigger.connect('openDisplay', (data) => {
-      console.log('openDisplay', data)
-      this.$router.push({ query: data.value.query, replace: false })
-    })
-    this.$nuxt.$on('openDisplay', (data) => {
-      console.log('openDisplay', data)
-      this.$router.push({ query: data.query, replace: false })
-    })
-    // }
-
-    // Navigate to default page, set in webmicfg.js
-    this.navigateToDefaultPage()
-    const intercomEnable = this.$lodash.get(this.config, 'intercom.enable', false)
-    const intercomAppId = this.$lodash.get(this.config, 'intercom.appId')
-    if (intercomEnable) {
-      this.bootIntercom(intercomAppId)
-    }
-  },
-  beforeDestroy () {
-    window.removeEventListener('resize', (data) => {
-    })
-  },
-  methods: {
-    bootIntercom (appId) {
-      const user = this.$store.state.auth.user
-      const userName = user.given_name !== undefined ? `${user.given_name} ${user.family_name}` : user.name
-      this.$intercom('boot', {
-        app_id: appId || 'jktwl0q2',
-        name: userName,
-        email: user.email
-      })
-    },
-    reloadPage () {
-      top.location.reload()
-    },
-    logout () {
-      top.webMI.data.logout()
-    },
-    zoomIn () {
-      if (this.$route.query.iframe === 'visu') {
-        this.zoom += 0.1
-      }
-      top.webMI.trigger.fire('com.atvise.zoomIn_content')
-    },
-    zoomOut () {
-      if (this.$route.query.iframe === 'visu') {
-        this.zoom -= 0.1
-      }
-      top.webMI.trigger.fire('com.atvise.zoomOut_content')
-    },
-    zoomRect () {
-      top.webMI.trigger.fire('com.atvise.zoomRect_content')
-    },
-    zoomAll () {
-      if (this.$route.query.iframe === 'visu') {
-        this.zoom = 1
-      }
-      top.webMI.trigger.fire('com.atvise.zoom11_content')
-    },
-    wheelEvent (data) {
-      if (data.deltaY < 0) {
-        this.zoomIn()
-      } else {
-        this.zoomOut()
-      }
-      // console.log(data)
-    },
-    navigateToDefaultPage () {
-      if (this.$route.query.display) {
-        //
-      } else {
-        const display = this.$lodash.get(this.$store.state.atvise, 'userData.defaultdisplay') || this.config.home.display
-        const base = this.$lodash.get(this.$store.state.atvise, 'userData.additionalInfo.defaultBase', this.config.home.base)
-        let iframe
-        if (top.webMIConfig.nuxt.home.frame) {
-          iframe = top.webMIConfig.nuxt.home.frame || 'content'
-        }
-        // const iframe = top.webMIConfig.nuxt.defaultView || 'content'
-        this.$router.push({ query: { base, display, iframe } })
-      }
-    },
-    showDataTable (val) {
-      // const typeDefinition = val[0].typeDefinition
-      this.dataTable = true
-      this.dataTableBase = val.nodeid
-      this.$router.push(`/datatable?base=${val.nodeid}`)
-    },
-    // itemRowBackground (item) {
-    //   return 'red'
-    // },
-    resize (data) {
-      // Get available space on screen
-      const mainWrap = document.querySelector('div.v-main__wrap')
-      mainWrap.style.overflow = 'hidden'
-      const width = mainWrap.offsetWidth
-      const height = mainWrap.offsetHeight
-      // Calculate zoom to fit in available space
-      const main = this.$refs.mainContainer
-      if (main) {
-        const widthZoom = (width) / main.offsetWidth
-        const heightZoom = (height) / main.offsetHeight
-        const zoom = widthZoom < heightZoom ? widthZoom : heightZoom
-        main.style.zoom = zoom
-        // top.webMI.trigger.connect('getZoom', function () {
-        //   top.webMI.trigger.fire('zoomChanged', zoom)
-        // })
-        // top.webMI.trigger.fire('zoomChanged', zoom)
-        if (widthZoom < heightZoom) {
-          main.style.left = '0px'
-        } else {
-          // Ikke spør, bare funker
-          main.style.left = ((width - (main.offsetWidth * zoom)) / 2) / zoom + 'px'
-        }
-      }
-      // this.extensionsTopOffset = -110 // `-${100 * zoom}px`
-    },
-    load (data) {
-      this.contentFrame = document.querySelector('iframe[framename="content"]')
-      if (this.contentFrame) {
-        this.contentFrame.addEventListener('load', () => {
-          // this.iframePath = this.contentFrame.contentWindow.location.href
-        })
-      }
-    }
-  },
-  ready () {
-    window.addEventListener('resize', (data) => {
-      this.log(data)
-    })
+const config = ref<Record<string, any>>({})
+const navigationDrawer = ref<Record<string, any>>({ width: 300, color: undefined, dark: undefined })
+const appBar = ref<Record<string, any>>({ color: undefined, dark: undefined })
+const drawer = ref(true)
+const defaultBase = ref('')
+const iframePath = ref('')
+const zoom = ref(1)
+const hideAlarmDrawer = ref(false)
+const appCr = ref('')
+const appVers = ref('')
+const appName = ref('')
+let eventBus: Emitter<Record<string, any>> | undefined
+const openDisplayHandler = (data: any) => {
+  router.push({ query: data.query, replace: false })
+}
+const resizeListener = (event: UIEvent) => {
+  setTimeout(() => resize(event), 5)
+}
+const keyListener = (event: KeyboardEvent) => {
+  if (event.altKey && event.shiftKey && event.ctrlKey && event.key.toLowerCase() === 'h') {
+    router.push({ query: { display: 'AGENT.DISPLAYS.Main', base: 'AGENT.OBJECTS' }, replace: false })
   }
 }
+
+const lgAndUp = computed(() => display.lgAndUp.value)
+const mdAndUp = computed(() => display.mdAndUp.value)
+const smAndDown = computed(() => display.smAndDown.value)
+
+const lodashGet = get
+
+if (process.client) {
+  watch(defaultDisplay, (value) => {
+    if (!value) { return }
+    setTimeout(() => {
+      router.push(value as string)
+    }, 100)
+  })
+
+  watch(isLoggedIn, async (value) => {
+    if (!value) { return }
+    setTimeout(() => {
+      navigateToDefaultPage()
+      resize()
+    }, 1000)
+    const loading = (nuxtApp as any).$loading
+    if (loading?.finish) {
+      loading.finish()
+    }
+    await nextTick()
+    navigateToDefaultPage()
+  })
+}
+
+const isDark = ref(false)
+watch(isDark, (value) => {
+  theme.global.name.value = value ? 'dark' : 'light'
+}, { immediate: true })
+
+if (process.client) {
+  watch(() => route.fullPath, () => {
+    setTimeout(() => resize(), 500)
+  })
+}
+
+function resize (_event?: UIEvent) {
+  if (!process.client) { return }
+  const wrap = document.querySelector<HTMLDivElement>('div.v-main__wrap')
+  if (!wrap) { return }
+  wrap.style.overflow = 'hidden'
+  const width = wrap.offsetWidth
+  const height = wrap.offsetHeight
+  const main = document.querySelector<HTMLElement>('#mainContainer')
+  if (!main) { return }
+  const widthZoom = width / main.offsetWidth
+  const heightZoom = height / main.offsetHeight
+  const nextZoom = widthZoom < heightZoom ? widthZoom : heightZoom
+  main.style.zoom = `${nextZoom}`
+  if (widthZoom < heightZoom) {
+    main.style.left = '0px'
+  } else {
+    const offset = (width - (main.offsetWidth * nextZoom)) / 2 / nextZoom
+    main.style.left = `${offset}px`
+  }
+}
+
+function bootIntercom (appId?: string) {
+  const user = currentUser.value
+  if (!user) { return }
+  const userName = user.given_name !== undefined ? `${user.given_name} ${user.family_name}` : user.name
+  const intercom = (nuxtApp as any).$intercom
+  intercom?.('boot', {
+    app_id: appId || 'jktwl0q2',
+    name: userName,
+    email: user.email
+  })
+}
+
+function zoomIn () {
+  if (route.query.iframe === 'visu') {
+    zoom.value += 0.1
+  }
+  const webMI = typeof top !== 'undefined' ? (top as any).webMI : undefined
+  webMI?.trigger?.fire?.('com.atvise.zoomIn_content')
+}
+
+function zoomOut () {
+  if (route.query.iframe === 'visu') {
+    zoom.value -= 0.1
+  }
+  const webMI = typeof top !== 'undefined' ? (top as any).webMI : undefined
+  webMI?.trigger?.fire?.('com.atvise.zoomOut_content')
+}
+
+function zoomAll () {
+  if (route.query.iframe === 'visu') {
+    zoom.value = 1
+  }
+  const webMI = typeof top !== 'undefined' ? (top as any).webMI : undefined
+  webMI?.trigger?.fire?.('com.atvise.zoom11_content')
+}
+
+function navigateToDefaultPage () {
+  if (route.query.display) {
+    return
+  }
+  const userDefaultDisplay = lodashGet(atviseStore.userData, 'defaultdisplay')
+  const configHome = lodashGet(config.value, 'home', {})
+  const displayValue = userDefaultDisplay || configHome.display
+  const base = lodashGet(atviseStore.userData, 'additionalInfo.defaultBase', configHome.base)
+  const query: Record<string, any> = {
+    base,
+    display: displayValue
+  }
+  if (typeof top !== 'undefined') {
+    const frame = lodashGet((top as any).webMIConfig, 'nuxt.home.frame')
+    if (frame) {
+      query.iframe = frame
+    }
+  }
+  router.push({ query })
+}
+
+onMounted(() => {
+  if (!process.client) { return }
+  if (typeof window !== 'undefined') {
+    config.value = lodashGet(window, 'webMIConfig.nuxt', {})
+  }
+  navigationDrawer.value = { ...navigationDrawer.value, ...config.value.navigationDrawer }
+  appBar.value = { ...appBar.value, ...config.value.appBar }
+  isDark.value = Boolean(config.value.defaultDark)
+  defaultBase.value = config.value.defaultBase || ''
+  hideAlarmDrawer.value = Boolean(lodashGet(config.value, 'alarmDrawer.disable', false))
+  iframePath.value = ''
+
+  setTimeout(() => {
+    resize()
+  }, 2000)
+
+  setTimeout(() => {
+    if (!isLocal.value) {
+      const loading = (nuxtApp as any).$loading
+      loading?.start?.()
+    }
+  }, 100)
+
+  window.addEventListener('resize', resizeListener)
+  window.addEventListener('keydown', keyListener)
+
+  eventBus = (nuxtApp.vueApp.config.globalProperties as any)?.$eventBus as Emitter<Record<string, any>> | undefined
+  eventBus?.on?.('openDisplay', openDisplayHandler)
+
+  appCr.value = lodashGet(runtimeConfig, 'app_meta.cr', '')
+  appVers.value = (version as any).vers
+  appName.value = (version as any).release_name
+
+  const webMI = typeof top !== 'undefined' ? (top as any).webMI : undefined
+  webMI?.trigger?.connect?.('setContentType', (data: any) => {
+    window.setTimeout(() => {
+      const query = JSON.parse(JSON.stringify(route.query))
+      if (query.iframe === data.value.type) {
+        return
+      }
+      query.iframe = data.value.type
+      router.replace({ query, hash: '123' })
+    }, 50)
+  })
+  webMI?.trigger?.connect?.('openDisplay', (data: any) => {
+    router.push({ query: data.value.query, replace: false })
+  })
+
+  navigateToDefaultPage()
+  const intercomEnable = Boolean(lodashGet(config.value, 'intercom.enable', false))
+  const intercomAppId = lodashGet(config.value, 'intercom.appId')
+  if (intercomEnable) {
+    bootIntercom(intercomAppId)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (!process.client) { return }
+  window.removeEventListener('resize', resizeListener)
+  window.removeEventListener('keydown', keyListener)
+  eventBus?.off?.('openDisplay', openDisplayHandler)
+})
 </script>
 
-<style>
+<style scoped>
 .v-breadcrumbs::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
-.v-application{
-
-font-family: system-ui !important;
+.v-application {
+  font-family: system-ui !important;
 }
 
-.theme--dark.v-application {
-  background-color: var(--v-background-base, #121212) !important;
-}
-.theme--light.v-application {
-  background-color: var(--v-background-base, white) !important;
-}
-.v-navigation-drawer--mini-variant .v-footer{
+.v-navigation-drawer--rail .app-footer {
   background-color: transparent;
 }
-/* Fixed version style on closed */
-.v-navigation-drawer--mini-variant .v-footer .app_cr{
+
+.v-navigation-drawer--rail .app-footer .app_cr,
+.v-navigation-drawer--rail .app-footer .app_name {
   display: none;
 }
-.v-navigation-drawer--mini-variant .v-footer .app_name{
-  display: none;
-}
-.v-navigation-drawer--mini-variant .v-footer .app_vers{
+
+.v-navigation-drawer--rail .app-footer .app_vers {
   position: relative;
   right: -55px;
   width: 160px;
@@ -494,9 +379,23 @@ font-family: system-ui !important;
   color: #6b6a6a;
   text-align: left;
 }
-/* Fix alarm icon fix closed manu bar */
-/* .v-navigation-drawer--mini-variant .v-badge__badge{
-  position: static!important;
-  opacity: 0.8;
-} */
+
+.navigation-drawer--dark {
+  color: white;
+}
+
+.app-bar--dark {
+  color: white;
+}
+
+.app-main {
+  background-color: transparent;
+  min-height: 700px;
+}
+
+.main-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 </style>
