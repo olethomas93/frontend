@@ -3,15 +3,13 @@
   <v-dialog
     ref="dialog"
     v-model="modal2"
-    :return-value.sync="dateTime"
     persistent
     width="580px"
     :fullscreen="$vuetify.breakpoint.smAndDown"
-    _input="$emit('input', dateTime )"
   >
     <template #activator="{ on }">
       <v-text-field
-        v-model="value"
+        v-model="currentValue"
         prepend-icon="mdi-calendar"
         readonly
         v-bind="$attrs"
@@ -77,10 +75,15 @@
 
 <script>
 export default {
+  emits: ['update:modelValue', 'update:value', 'input'],
   props: {
+    modelValue: {
+      type: String,
+      default: ''
+    },
     value: {
       type: [String],
-      default: ''
+      default: undefined
     }
   },
   data: () => ({
@@ -89,24 +92,25 @@ export default {
     date: '2020-01-01'
   }),
   computed: {
-    // dateTime () {
-    //   return `${this.date} ${this.time}`
-    // }
-    dateTime: {
+    currentValue: {
       get () {
-        return `${this.date} ${this.time}`
+        return this.modelValue ?? this.value ?? ''
       },
       set (val) {
-        // this.time = this.value.split(' ')[1]
-        // this.date = this.value.split(' ')[0]
+        this.$emit('update:modelValue', val)
+        if (this.value !== undefined) {
+          this.$emit('update:value', val)
+        }
+        this.$emit('input', val)
       }
     }
   },
   watch: {
     modal2 (val) {
       if (val === true) {
-        this.time = this.value.split(' ')[1]
-        this.date = this.value.split(' ')[0]
+        const [date, time] = (this.currentValue || '').split(' ')
+        this.time = time || '00:00'
+        this.date = date || this.$moment().format('YYYY-MM-DD')
       }
     }
   },
@@ -118,8 +122,8 @@ export default {
   methods: {
     ok () {
       this.modal2 = false
-      // this.$refs.dialog.save(this.dateTime)
-      this.$emit('input', `${this.date} ${this.time}`)
+      const formatted = `${this.date} ${this.time}`
+      this.currentValue = formatted.trim()
     }
   }
 }

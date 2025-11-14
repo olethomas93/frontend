@@ -1,4 +1,8 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+
+const currentDir = dirname(fileURLToPath(import.meta.url))
 
 const development = process.env.NODE_ENV === 'development'
 const remote = true
@@ -145,6 +149,11 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ['vuetify']
+    },
+    resolve: {
+      alias: {
+        'vue2-leaflet': resolve(currentDir, 'shims/vue2Leaflet.ts')
+      }
     }
   }
 })

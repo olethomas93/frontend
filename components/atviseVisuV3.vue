@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import { defineAsyncComponent } from 'vue'
 import atviseDialog from '@/components/dialogs/atviseDialog'
 import { widget } from '@/global/mixin.js'
 import { APIdashboard } from '@/global/APIService.js'
@@ -218,13 +218,12 @@ const options = {
     onhover (val) {
       this.hover = val
     },
-    init () {
-      const self = this
-      this.myBase = this.base || this.$route.query.base
-      this.widget = Vue.component('Widget', function (resolve) {
-        self.get(resolve)
-      })
-    },
+      init () {
+        this.myBase = this.base || this.$route.query.base
+        this.widget = defineAsyncComponent(() => new Promise((resolve) => {
+          this.get(resolve)
+        }))
+      },
     get (resolve) {
       this.getSVG(this.settings, true, null, resolve)
     },

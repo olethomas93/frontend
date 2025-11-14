@@ -1,10 +1,9 @@
 <template>
   <v-form style="height:100%">
     <v-container fluid style="height:100%">
-      <template v-for="(item, key) in myitems">
+      <template v-for="(item, key) in myitems" :key="item?.nodeid || key">
         <component
           :is="getType(item)"
-          :key="key"
           v-model="item.value"
           :base="base"
           :settings="item.nodeid"

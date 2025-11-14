@@ -2,13 +2,13 @@
 <template>
   <v-edit-dialog
     ref="dialog"
-    :return-value.sync="value"
+    v-model:return-value="localValue"
     large
     _width="200"
     @update:return-value="$emit('save', $event)"
   >
     <v-text-field
-      v-model="value"
+      v-model="localValue"
       :label="label"
       :suffix="unit"
       outlined
@@ -23,16 +23,16 @@
       <v-card-title>
         Edit
       </v-card-title>
-      <slot name="input" :value="value">
+      <slot name="input" :value="localValue">
         <v-text-field
-          v-model="value"
+          v-model="localValue"
           :label="label"
           :suffix="unit"
           outlined
           counter
           :type="type"
           @focus="$event.target.select()"
-          @keydown.enter.stop="$refs.dialog.save(value)"
+          @keydown.enter.stop="$refs.dialog.save(localValue)"
           @keydown.esc.stop="$refs.dialog.cancel()"
           @keydown.stop=""
         />
@@ -43,6 +43,7 @@
 
 <script>
 export default {
+  emits: ['update:modelValue', 'update:value', 'input', 'save'],
   props: {
     base: {
       type: String,
@@ -51,6 +52,10 @@ export default {
     label: {
       type: String,
       default: ''
+    },
+    modelValue: {
+      type: [String, Number],
+      default: undefined
     },
     value: {
       type: [String, Number],
@@ -90,6 +95,20 @@ export default {
     return {
       modal: false
       // value: ''
+    }
+  },
+  computed: {
+    localValue: {
+      get () {
+        return this.modelValue ?? this.value
+      },
+      set (val) {
+        this.$emit('update:modelValue', val)
+        if (this.value !== undefined) {
+          this.$emit('update:value', val)
+        }
+        this.$emit('input', val)
+      }
     }
   },
   methods: {

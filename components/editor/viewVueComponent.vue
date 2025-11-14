@@ -43,7 +43,7 @@
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
-import MonacoEditor from 'monaco-editor-vue'
+import MonacoEditor from '~/components/common/MonacoEditor.client.vue'
 import PreviewVueComponent from './previewVueComponent.vue'
 import NodePicker from '@/components/editor/nodePicker.vue'
 // import { xml2json, json2xml } from 'xml-js'

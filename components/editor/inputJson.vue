@@ -50,7 +50,7 @@
 
 <script>
 // import CodeEditor from 'simple-code-editor'
-import MonacoEditor from 'monaco-editor-vue'
+import MonacoEditor from '~/components/common/MonacoEditor.client.vue'
 
 export default {
   components: {

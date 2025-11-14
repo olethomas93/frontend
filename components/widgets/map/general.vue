@@ -9,7 +9,7 @@
           <template v-for="(m, index) in items">
             <map-custom-marker
               v-if="$lodash.get(m, 'childs.mapMarker') && $lodash.get(m, 'childs.position')"
-              :key="index"
+              :key="`marker-${index}`"
               :coord="m.childs.position.nodeid"
               :offset-x="0"
               :offset-y="0"
@@ -24,7 +24,7 @@
             </map-custom-marker>
             <map-custom-marker
               v-else-if="$lodash.get(m, 'childs.position')"
-              :key="index"
+              :key="`standard-marker-${index}`"
               :coord="m.childs.position.nodeid"
               :offset-x="-20"
               :offset-y="-50"

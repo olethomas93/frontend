@@ -3,8 +3,8 @@
     <v-menu v-bind="$attrs" :value="value">
       <v-list>
         <template v-for="(item, index) in items">
-          <v-divider v-if="item.divider" :key="index" />
-          <v-list-item v-else :key="index" link @click="handleItemClick(item)">
+          <v-divider v-if="item.divider" :key="`divider-${index}`" />
+          <v-list-item v-else :key="`item-${index}`" link @click="handleItemClick(item)">
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-icon>

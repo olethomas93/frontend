@@ -195,7 +195,7 @@
 </template>
 
 <script>
-import MonacoEditor from 'monaco-editor-vue'
+import MonacoEditor from '~/components/common/MonacoEditor.client.vue'
 import dashCard from '~/components/common/dashCard.vue'
 
 export default {

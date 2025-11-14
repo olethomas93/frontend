@@ -1,21 +1,25 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <v-select
-    v-model="value"
+    v-model="internalValue"
     multiple
     chips
     v-bind="$attrs"
     :items="items"
-    @input="$emit('input', value)"
   />
 </template>
 
 <script>
 export default {
+  emits: ['update:modelValue', 'update:value', 'input'],
   props: {
+    modelValue: {
+      type: [Array, String],
+      default: undefined
+    },
     value: {
       type: [String],
-      default: '00:00'
+      default: undefined
     }
   },
   data: () => ({
@@ -49,7 +53,28 @@ export default {
         value: '0'
       }
     ]
-  })
+  }),
+  computed: {
+    internalValue: {
+      get () {
+        const current = this.modelValue ?? this.value ?? []
+        if (Array.isArray(current)) {
+          return current
+        }
+        if (typeof current === 'string') {
+          return current.split(',').filter(Boolean)
+        }
+        return []
+      },
+      set (val) {
+        this.$emit('update:modelValue', val)
+        if (this.value !== undefined) {
+          this.$emit('update:value', val)
+        }
+        this.$emit('input', val)
+      }
+    }
+  }
 }
 </script>
 

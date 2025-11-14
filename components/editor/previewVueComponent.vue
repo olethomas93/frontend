@@ -8,8 +8,9 @@
   </div>
 </template>
 <script>
-import Vue from 'vue'
-import { loadModule } from 'vue3-sfc-loader/dist/vue2-sfc-loader.esm.js'
+import { defineAsyncComponent } from 'vue'
+import * as VueRuntime from 'vue'
+import { loadModule } from 'vue3-sfc-loader'
 
 export default {
   props: {
@@ -26,7 +27,7 @@ export default {
     return {
       widget: undefined,
       options: {
-        moduleCache: { vue: Vue },
+        moduleCache: { vue: VueRuntime },
         getFile: (filename) => {
           return new Promise((resolve) => {
             console.log('filename: ', filename)
@@ -87,11 +88,9 @@ export default {
     },
     getCode () {
       const nodeid = this.component
-      const name = this.createName(nodeid)
       this.widget = undefined
-      loadModule(nodeid, this.options).then((component) => {
-        this.widget = Vue.component(this.capitalizeFirstLetter(name), component)
-      })
+      const asyncComponent = () => loadModule(nodeid, this.options)
+      this.widget = defineAsyncComponent(asyncComponent)
     }
   }
 }

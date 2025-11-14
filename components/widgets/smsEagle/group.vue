@@ -5,9 +5,9 @@
     </v-card-title>
     <v-card-text>
       <draggable :list="contacts" handle=".handle" :disabled="!isEscalation">
-        <template v-for="(contact) in contacts">
-          <v-card :key="contact.ID">
-            <v-list-item :key="contact.ID">
+        <template v-for="contact in contacts" :key="contact.ID">
+          <v-card>
+            <v-list-item>
               <v-list-item-icon v-if="isEscalation" class="handle">
                 <v-icon>mdi-drag</v-icon>
               </v-list-item-icon>

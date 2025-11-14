@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import MonacoEditor from 'monaco-editor-vue'
+import MonacoEditor from '~/components/common/MonacoEditor.client.vue'
 import { xml2json, json2xml } from 'xml-js'
 
 export default {

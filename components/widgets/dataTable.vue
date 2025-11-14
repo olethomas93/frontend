@@ -113,10 +113,10 @@
               :item="$lodash.get(item, header.custom.item) || item"
               :value="$lodash.get(item, header.value)"
             />
-            <div v-else-if="typeof $lodash.get(item, header.value) === 'string'" :key="key">
+            <div v-else-if="typeof $lodash.get(item, header.value) === 'string'">
               {{ header.prefix }} {{ $T($lodash.get(item, header.value)) }} {{ header.suffix }}
             </div>
-            <div v-else :key="key">
+            <div v-else>
               {{ header.prefix }} {{ $lodash.get(item, header.value) }} {{ header.suffix }}
             </div>
           </td>

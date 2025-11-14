@@ -1,11 +1,6 @@
 <template>
-  <div>
+  <div :style="enumStyle">
     <div>
-      <style>
-        :root {
-        --enum-color: {{ $vuetify.theme.currentTheme[value.color] || value.color }};
-        }
-      </style>
       <v-text-field
         :value="value.text"
         :single-line="!showTimestamp"
@@ -63,6 +58,12 @@ export default {
     }
   },
   computed: {
+    enumStyle () {
+      const themeColor = this.$vuetify?.theme?.currentTheme?.[this.value?.color] || this.value?.color
+      return {
+        '--enum-color': themeColor || 'inherit'
+      }
+    },
     isMeasurement () {
       return this.item.typeDefinition.includes('VariableTypes.PROJECT.measurement') // || this.item.typeDefinition.includes('i=62')
     }
