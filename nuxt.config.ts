@@ -1,10 +1,15 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
+import { config as loadEnv } from 'dotenv'
+
+loadEnv()
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
 
 const development = process.env.NODE_ENV === 'development'
+const devHost = process.env.IP || 'localhost'
+const devPort = Number(process.env.PORT || 8656)
 const remote = true
 const local = !remote
 
@@ -23,8 +28,26 @@ const proxyTargets: Record<string, string | undefined> = {
   '/en': process.env.ATVISE_PROXY
 }
 
+const activeProxyEntries = Object.entries(proxyTargets).filter(([, target]) => Boolean(target)) as Array<[string, string]>
+
+const createProxyMap = <T,>(factory: (target: string) => T) => Object.fromEntries(activeProxyEntries.map(([path, target]) => [path, factory(target)]))
+
+const proxyOptions = (target: string) => ({
+  target,
+  changeOrigin: true,
+  secure: false,
+  ws: true
+})
+
+const nitroDevProxy = development ? createProxyMap(proxyOptions) : undefined
+const viteDevProxy = development ? createProxyMap(proxyOptions) : undefined
+
 export default defineNuxtConfig({
   ssr: false,
+  devServer: {
+    host: devHost,
+    port: devPort
+  },
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
@@ -40,7 +63,7 @@ export default defineNuxtConfig({
       script: [
         { src: '/webmicfg.js' },
         { id: 'projectjs', src: '/project.js' },
-        { src: '/webmi.js', body: false },
+        { src: '/webmi.js' },
         { src: '/atviseStuff.js' },
         { src: '/atviseStuff2.js' }
       ]
@@ -129,13 +152,7 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    devProxy: development
-      ? Object.fromEntries(
-        Object.entries(proxyTargets)
-          .filter(([, target]) => Boolean(target))
-          .map(([path, target]) => [path, { target }])
-      )
-      : undefined
+    devProxy: nitroDevProxy
   },
   experimental: {
     payloadExtraction: false
@@ -154,6 +171,13 @@ export default defineNuxtConfig({
       alias: {
         'vue2-leaflet': resolve(currentDir, 'shims/vue2Leaflet.ts')
       }
+    },
+    server: {
+      hmr: {
+        host: devHost,
+        port: devPort
+      },
+      proxy: viteDevProxy || undefined
     }
   }
 })

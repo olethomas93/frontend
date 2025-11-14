@@ -248,14 +248,21 @@ function waitForAtviseEnvironment (timeout = 10000, interval = 100): Promise<Atv
 function resolveAtviseEnvironment (): AtviseEnvironment | null {
   if (!process.client) { return null }
 
-  const topWindow = getTopWindow()
-  if (!topWindow) { return null }
+  const candidateWindows = [window, getTopWindow()].filter(Boolean) as Window[]
 
-  const webMI = (topWindow as any).webMI as WebMI | undefined
-  if (!webMI?.data) { return null }
+  for (const win of candidateWindows) {
+    try {
+      const webMI = (win as any).webMI as WebMI | undefined
+      if (webMI?.data) {
+        const webMIConfig = (win as any).webMIConfig as AtviseEnvironment['webMIConfig']
+        return { webMI, webMIConfig }
+      }
+    } catch (error) {
+      // Ignore cross-origin errors and continue with the next candidate
+    }
+  }
 
-  const webMIConfig = (topWindow as any).webMIConfig as AtviseEnvironment['webMIConfig']
-  return { webMI, webMIConfig }
+  return null
 }
 
 function getTopWindow (): Window | null {

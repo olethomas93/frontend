@@ -1,10 +1,5 @@
 <template>
-  <div>
-    <style>
-      :root {
-      --selected-color: {{ selectedColor }};
-      }
-    </style>
+  <div :style="rootStyle">
     <v-list nav>
       <!-- HOME -->
       <v-list-item
@@ -148,6 +143,11 @@ export default {
     },
     selectedColor () {
       return this.$lodash.get(top.webMIConfig, 'nuxt.navigationDrawer.selectedColor')
+    },
+    rootStyle () {
+      return {
+        '--selected-color': this.selectedColor || '#26d07c'
+      }
     }
   },
   async mounted () {

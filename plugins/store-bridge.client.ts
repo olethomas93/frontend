@@ -110,8 +110,9 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   nuxtApp.provide('store', legacyStore)
-  nuxtApp.vueApp.config.globalProperties.$store = legacyStore
-  ;(nuxtApp as any).$store = legacyStore
+
+  defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$store', legacyStore)
+  defineGlobalProperty(nuxtApp as any, '$store', legacyStore)
 
   if (process.client) {
     const globalWindow = window as typeof window & { $nuxt?: Record<string, any> }
@@ -119,3 +120,21 @@ export default defineNuxtPlugin((nuxtApp) => {
     globalWindow.$nuxt.$store = legacyStore
   }
 })
+
+function defineGlobalProperty (target: Record<string, any>, key: string, value: any) {
+  if (!target || typeof target !== 'object') { return }
+  const descriptor = Object.getOwnPropertyDescriptor(target, key)
+  if (descriptor && descriptor.configurable === false) {
+    if (process.dev) {
+      console.warn(`[legacy-store] Unable to overwrite ${key} on target`)
+    }
+    return
+  }
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: false,
+    get () {
+      return value
+    }
+  })
+}

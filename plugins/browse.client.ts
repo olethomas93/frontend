@@ -41,5 +41,23 @@ function browse (filter: BrowseFilter, toArrayFlag = false): Promise<BrowseRespo
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.provide('browse', browse)
-  nuxtApp.vueApp.config.globalProperties.$browse = browse
+  defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$browse', browse)
 })
+
+function defineGlobalProperty (target: Record<string, any>, key: string, value: any) {
+  if (!target || typeof target !== 'object') { return }
+  const descriptor = Object.getOwnPropertyDescriptor(target, key)
+  if (descriptor && descriptor.configurable === false) {
+    if (process.dev) {
+      console.warn(`[browse-plugin] Unable to overwrite ${key} on target`)
+    }
+    return
+  }
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: false,
+    get () {
+      return value
+    }
+  })
+}

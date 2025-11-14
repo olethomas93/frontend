@@ -489,6 +489,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   nuxtApp.provide('auth', auth)
-  ;(nuxtApp as any).$auth = auth
-  nuxtApp.vueApp.config.globalProperties.$auth = auth
+  defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$auth', auth)
+  defineGlobalProperty(nuxtApp as any, '$auth', auth)
 })
+
+function defineGlobalProperty (target: Record<string, any>, key: string, value: any) {
+  if (!target || typeof target !== 'object') { return }
+  const descriptor = Object.getOwnPropertyDescriptor(target, key)
+  if (descriptor && descriptor.configurable === false) {
+    if (process.dev) {
+      console.warn(`[auth-plugin] Unable to overwrite ${key} on target`)
+    }
+    return
+  }
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: false,
+    get () {
+      return value
+    }
+  })
+}
