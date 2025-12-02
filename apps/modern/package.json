@@ -1,0 +1,14 @@
+{
+  "name": "atvise-frontend-modern",
+  "type": "module",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "nuxt": "^3.12.0"
+  }
+}

@@ -23,6 +23,14 @@ For detailed explanation on how things work, check out the [documentation](https
 
 See [docs/modernization-roadmap.md](docs/modernization-roadmap.md) for a phased plan to update the stack (tooling, Nuxt 3/Vue 3 migration, testing, performance hardening, and atvise-specific safeguards, including when to use an external proxy for atvise communication).
 
+### Nuxt 3 pilot app
+
+- Location: `apps/modern`
+- Purpose: run a parallel Nuxt 3 SPA while we incrementally port shared modules (auth, webMI wrapper, display loader) from the Nuxt 2 app.
+- Commands (from `apps/modern`):
+  - `npm run dev` — start the pilot app.
+  - `NUXT_PUBLIC_ATVISE_BASE_URL=http://<atvise-host>` — optional override for the proxy targets `/webmi`, `/customScripts`, and `/vueComponents`.
+
 ## Operations
 
 - **Health checks**: `/healthz` (liveness) and `/readyz` (readiness) are exposed by the Express server for container/platform monitoring.

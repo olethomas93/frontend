@@ -53,6 +53,11 @@ This document outlines practical steps to modernize the Atvise WebUI frontend wh
 - [ ] Create a proof-of-concept Nuxt 3 + Vite build that renders one atvise display end-to-end.
 - [ ] Measure and log SVG load times and subscription counts per display.
 
+### Nuxt 3 pilot app status
+- Location: `apps/modern` (Nuxt 3, client-side rendering)
+- Includes: baseline styling, proxy defaults for `/webmi`, `/customScripts`, `/vueComponents`, and a migration status page.
+- Next: port the webMI wrapper as a Nuxt 3 composable and move a simple display to validate SVG→Vue rendering.
+
 ## Notes specific to Atvise integration
 - Keep `frame.enableautofit` false for alignment; handle responsive scaling in Vue layouts instead.
 - Sanitize incoming SVG before transformation to prevent script injection from displays.
