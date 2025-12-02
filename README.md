@@ -19,6 +19,15 @@ $ npm run generate
 
 For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
 
+## Modernization
+
+See [docs/modernization-roadmap.md](docs/modernization-roadmap.md) for a phased plan to update the stack (tooling, Nuxt 3/Vue 3 migration, testing, performance hardening, and atvise-specific safeguards, including when to use an external proxy for atvise communication).
+
+## Operations
+
+- **Health checks**: `/healthz` (liveness) and `/readyz` (readiness) are exposed by the Express server for container/platform monitoring.
+- **Security headers**: The server disables the `X-Powered-By` header and applies lightweight defaults (`X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) that are compatible with atvise assets.
+
 ## Default .env
 
 ```bash
