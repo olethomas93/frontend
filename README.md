@@ -19,6 +19,24 @@ $ npm run generate
 
 For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
 
+## Modernization
+
+See [docs/modernization-roadmap.md](docs/modernization-roadmap.md) for a phased plan to update the stack (tooling, Nuxt 3/Vue 3 migration, testing, performance hardening, and atvise-specific safeguards, including when to use an external proxy for atvise communication).
+
+### Nuxt 3 pilot app
+
+- Location: `apps/modern`
+- Purpose: run a parallel Nuxt 3 SPA while we incrementally port shared modules (auth, webMI wrapper, display loader) from the Nuxt 2 app.
+- Commands (from `apps/modern`):
+  - `npm run dev` — start the pilot app.
+  - `NUXT_PUBLIC_ATVISE_BASE_URL=http://<atvise-host>` — optional override for the proxy targets `/webmi`, `/customScripts`, and `/vueComponents`.
+- The default layout surfaces the active proxy target, highlights the migration next action (porting an atvise display), and uses a shared composable (`useAtviseProxy`) to keep runtime config aligned with the proxy settings.
+
+## Operations
+
+- **Health checks**: `/healthz` (liveness) and `/readyz` (readiness) are exposed by the Express server for container/platform monitoring.
+- **Security headers**: The server disables the `X-Powered-By` header and applies lightweight defaults (`X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) that are compatible with atvise assets.
+
 ## Default .env
 
 ```bash
