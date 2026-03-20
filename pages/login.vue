@@ -137,12 +137,15 @@
   </v-container> -->
 </template>
 
+<script setup lang="ts">
+definePageMeta({ layout: 'login' })
+</script>
+
 <script>
 
 // import { mapMutations } from 'vuex'
 
 export default {
-  layout: 'login',
   data () {
     return {
       error: null,

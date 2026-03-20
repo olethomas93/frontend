@@ -4,13 +4,6 @@
   </v-layout>
 </template>
 
-<script>
-
-export default {
-  layout: 'login',
-  data () {
-    return {
-    }
-  }
-}
+<script setup lang="ts">
+definePageMeta({ layout: 'login' })
 </script>

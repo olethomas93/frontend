@@ -97,6 +97,7 @@
         <Snackbar />
         <div id="mainContainer" class="main-container">
           <AtviseVisuV3 :style="{ zoom: zoom }" :settings="displaySettings" />
+          <slot />
         </div>
       </v-main>
     </template>
