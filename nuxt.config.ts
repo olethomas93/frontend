@@ -42,6 +42,11 @@ const activeProxyEntries = Object.entries(proxyTargets).filter(([, target]) => B
 
 const createProxyMap = <T,>(factory: (target: string) => T) => Object.fromEntries(activeProxyEntries.map(([path, target]) => [path, factory(target)]))
 
+// Only proxy static script files via Vite — WebSocket paths must NOT go through Vite proxy
+const scriptOnlyProxyPaths = new Set(['/webmi.js', '/webmicfg.js', '/project.js'])
+const scriptOnlyProxyEntries = activeProxyEntries.filter(([path]) => scriptOnlyProxyPaths.has(path))
+const createScriptProxyMap = <T,>(factory: (target: string) => T) => Object.fromEntries(scriptOnlyProxyEntries.map(([path, target]) => [path, factory(target)]))
+
 const proxyOptions = (target: string) => ({
   target,
   changeOrigin: true,
@@ -57,7 +62,7 @@ const viteProxyOptions = (target: string) => ({
 })
 
 const nitroDevProxy = development ? createProxyMap(proxyOptions) : undefined
-const viteDevProxy = development ? createProxyMap(viteProxyOptions) : undefined
+const viteDevProxy = development ? createScriptProxyMap(viteProxyOptions) : undefined
 
 export default defineNuxtConfig({
   ssr: false,
