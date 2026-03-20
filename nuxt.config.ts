@@ -20,7 +20,10 @@ const currentDir = dirname(fileURLToPath(import.meta.url))
 const development = process.env.NODE_ENV === 'development'
 const devHost = process.env.IP || 'localhost'
 const devPort = Number(process.env.PORT || 8656)
-const remote = true
+// In development, default to local mode (shows login form) so the app
+// renders without needing an active Atvise session. Set REMOTE=true in
+// .env to force remote mode (Atvise auto-login) during development.
+const remote = process.env.REMOTE !== undefined ? process.env.REMOTE !== 'false' : !development
 const local = !remote
 
 const proxyTargets: Record<string, string | undefined> = {
