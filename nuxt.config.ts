@@ -90,6 +90,8 @@ export default defineNuxtConfig({
     '~/plugins/vuedraggable.client'
   ],
   runtimeConfig: {
+    // Server-only: used by server/utils/atvise.ts to proxy WebMI requests
+    atviseProxy: process.env.ATVISE_PROXY,
     public: {
       atvise: {
         login: process.env.LOGIN,

@@ -1,4 +1,15 @@
 /* eslint-disable */
+/**
+ * webMI_mixin.js  –  Legacy Options-API mixin (kept for backward compatibility
+ * with components that have not yet been migrated to the `useWebMI` composable).
+ *
+ * Vue 2 / Nuxt 2 patterns fixed:
+ *   - `destroyed()` → `unmounted()` (Vue 3 lifecycle hook)
+ *   - `this.$nuxt.$on/.$emit/.$off` → mitt eventBus via `this.$emitter`
+ *
+ * New components should use the `useWebMI()` composable instead:
+ *   import { useWebMI } from '~/composables/useWebMI'
+ */
 export const webMI = {
   props: ['args', 'overwrites', 'parameters', 'query2'],
   data: () => ({
@@ -12,13 +23,9 @@ export const webMI = {
   }),
   methods: {
     sub (nodes, callback) {
-      // const sub = top.webMI.data.subscribe(nodes,callback)
-      // this.subs.push(sub)
-      // this.read2(nodes, callback)
       top.webMI.data.read(nodes,callback)
       const sub = setInterval(() => {
         top.webMI.data.read(nodes,callback)
-        // this.read2(nodes, callback)
       }, 10000)
       this.subs.push(sub)
     },
@@ -73,7 +80,6 @@ export const webMI = {
       } catch (error) {
         // console.error(error)
       }
-      // return { base: this.base, ...ret, ...this.query2 }
       return { base: this.base, ...ret, ...this.query2 }
     }
   },
@@ -81,10 +87,8 @@ export const webMI = {
     try {
       const settings = JSON.parse(this.settings)
       if (settings.overwrites) {
-        // console.log('overwrites', settings.overwrites)
         settings.overwrites.forEach((ow) => {
           const child = this.$el.querySelector(`#${ow.id}:not(overwrite)`)
-          // console.log(child)
           Object.keys(ow).forEach((attr) => {
             child.setAttribute(attr, ow[attr])
           })
@@ -97,19 +101,10 @@ export const webMI = {
       try {
         JSON.parse(this.overwrites).map((el) => {
           const child = this.$el.querySelector(`#${el.id}`)
-          // console.log(el.id)
-          // console.log('child:', child)
-          // const obj = {attr:[],parent:el.parentNode}
           if (child) {
             if (child.tagName === 'svg') {
-              // console.log('found svg')
-              // const g = document.createElement('g')
-              // child.parentElement.appendChild(g).appendChild(child)
-              // el.attributes.forEach((attr) => {
-              //   g.setAttribute(attr.name, attr.value)
-              // })
+              // SVG root element – no attribute overwrite
             } else {
-              // console.log(el)
               Object.keys(el).forEach((attr) => {
                 child.setAttribute(attr, el[attr])
               })
@@ -130,29 +125,6 @@ export const webMI = {
       this.$emit('title', this.$refs.__title__.innerHTML)
     }
 
-    // this.$parent.$parent.$el.querySelectorAll('overwrite').forEach((el) => {
-    //   const parent = el.parentNode
-    //   const child = parent.querySelector(`#${el.getAttribute('id')}:not(overwrite)`)
-    //   // console.log('child:', child)
-    //   // const obj = {attr:[],parent:el.parentNode}
-    //   if (child) {
-    //     if (child.tagName === 'svg') {
-    //       // const g = document.createElement('g')
-    //       // child.parentElement.appendChild(g).appendChild(child)
-    //       // el.attributes.forEach((attr) => {
-    //       //   g.setAttribute(attr.name, attr.value)
-    //       // })
-    //     } else {
-    //       el.attributes.forEach((attr) => {
-    //         child.setAttribute(attr.name, attr.value)
-    //       })
-    //       el.remove()
-    //     }
-    //   }
-
-    //   if (child) {
-    //   }
-    // })
     const self = this
 
     this.webMI = {
@@ -161,13 +133,12 @@ export const webMI = {
       isVue: true,
       trigger: {
         connect (name, callback) {
-          // console.log(self.triggers)
-          self.triggers.push(name)
-          self.$nuxt.$on(name, callback)
+          self.triggers.push({ name, callback })
+          // Use mitt eventBus (Vue 3 / Nuxt 3) instead of deprecated $nuxt event bus
+          self.$emitter?.on(name, callback)
         },
         fire (name, data, id) {
-
-          self.$nuxt.$emit(name, data, id)
+          self.$emitter?.emit(name, data, id)
         }
       },
       dom: {
@@ -177,11 +148,9 @@ export const webMI = {
       },
       libraryLoader: {
         load (url, setting, callback) {
-          // check if library already is loaded
           const scripts = Array.from(document.scripts)
           const exists = scripts.find(element => element.getAttribute('src') === '/' + url)
           if (exists) {
-            // console.log('library already loaded')
             callback()
           } else {
             const script = document.createElement('script')
@@ -193,16 +162,14 @@ export const webMI = {
           }
         }
       },
-      callExtension (name,parameters) {
+      callExtension (name, parameters) {
         return top.webMI.callExtension(name, parameters)
-        // return {}
       },
       getAccessControlSupport () {
         return top.webMI.getAccessControlSupport()
       },
       addOnload: (func) => {
         func()
-        // top.webMI.addOnload(func)
       },
       addOnunload: (func) => {
         self.onUnload.push(func)
@@ -212,11 +179,9 @@ export const webMI = {
       },
       hasRight: (right) => {
         return top.webMI.hasRight(right)
-        // return right === 'VISU.Operate'
       },
       query: this.query,
       addEvent: (id, events, callback) => {
-        // debugger
         if (typeof id === 'object') {
           top.webMI.addEvent(top.webMI.data, events, (e) => {
             callback(e)
@@ -226,18 +191,6 @@ export const webMI = {
             callback()
           })
         }
-        // top.webMI.addEvent(self.$refs[id], events, (e) => {
-        //   callback()
-        // })
-        // console.log('id', id)
-        // if (Array.isArray(events)) {
-        //   events.map((event) => {
-        //     self.$refs[id].addEventListener(event, callback)  
-        //   })
-        // } else {
-        //   self.$refs[id].addEventListener(events, callback)
-        // }
-        
       },
       data: {
         addEventListener: (name, callback) => {
@@ -249,53 +202,35 @@ export const webMI = {
           return new Promise((resolve, reject)=>{
             top.webMI.data.call(func, args, (data)=>{
               resolve(data)
-              // resolve(data)
-              // callback(data)
-              // resolve()
             })
           })
-          // this.$socket.emit('call', func, args, callback)
         },
         queryFilter (filter, callback) {
           top.webMI.data.queryFilter(filter,callback)
-          // const type = filter.type || ['v:1', 'v:2', 'v:3']
-          // const address = filter.address || []
-          // const timestamp = filter.timestamp[0] || ''
-          // const aggregate = filter.aggregate
-          // callback(filter)
         },
         loadScript (url, callback) {
           const script = document.createElement('script')
           script.onload = function () {
-            // console.log('script loaded')
             callback()
           }
           script.src = '/' + url
           document.head.appendChild(script)
         },
         read: (nodes, callback) => {
-          // debugger
           return new Promise((resolve, reject) => {
             top.webMI.data.read(nodes, (data) => {
               if (data.error === -1) {
                 console.error(data.errorstring)
-                //this.$store.commit('SET_CUSTOM_ALERT', {message: data.errorstring})
                 callback(data)
-                // reject()
               } else {
                 callback(data)
                 resolve(data)
               }
-            })  
+            })
           })
         },
         subscribe: (node, callback) => {
           this.sub(node, callback)
-          // this.sub([node], function (data) {
-          //   if (data) {
-          //     callback(data[0].value)
-          //   }
-          // }, 5000)
         },
         subscribeBlock: (nodes, callback) => {
           this.sub(nodes, callback)
@@ -318,12 +253,10 @@ export const webMI = {
               }
             })
           })
-          // top.webMI.data.write(nodes, values, callback)
         }
       },
       gfx: {
         addForeignObject: (a, b) => {
-          // debugger
           return top.webMI.gfx.addForeignObject(a,b)
         },
         setWidth: (id, width) => {
@@ -331,71 +264,48 @@ export const webMI = {
         },
         setAttribute: (domNode, attribute, value) => {
           top.webMI.gfx.setAttribute(self.$refs[domNode], attribute, value)
-          // domNode.setAttribute(attribute, value)
         },
         setFill: (id, color) => {
           top.webMI.gfx.setFill(self.$refs[id], color)
-          // self.$refs[id].style.setProperty('fill', color)
         },
         setFillOpacity: (id, opacity) => {
           top.webMI.gfx.setFillOpacity(self.$refs[id], opacity)
-          // self.$refs[id].style.setProperty('fill-opacity', opacity)
         },
         setStrokeOpacity: (id, opacity) => {
           top.webMI.gfx.setStrokeOpacity(self.$refs[id], opacity)
-          // self.$refs[id].style.setProperty('fill-opacity', opacity)
         },
         setStroke: (id, color) => {
           top.webMI.gfx.setStroke(self.$refs[id], color)
-          // self.$refs[id].style.setProperty('stroke', color)
         },
         setRotation: (id, value) => {
           const refpx = self.$refs[id].getAttribute('atv:refpx')
           const refpy = self.$refs[id].getAttribute('atv:refpy')
           self.$refs[id].style.transformOrigin = `${refpx}px ${refpy}px 0`
           top.webMI.gfx.setRotation(self.$refs[id], value)
-          // this.webMI.setTransform(id, 'rotate', value + 'deg')
         },
         setMoveX: (id, value) => {
-          // const refpx = self.$refs[id].getAttribute('atv:refpx')
-          // const refpy = self.$refs[id].getAttribute('atv:refpy')
-          // self.$refs[id].style.transformOrigin = `${refpx}px ${refpy}px 0`
           top.webMI.gfx.setMoveX(self.$refs[id], value)
-          // this.webMI.setTransform(id, 'translateX', value + 'px')
         },
         setMoveY: (id, value) => {
-          // const refpx = self.$refs[id].getAttribute('atv:refpx')
-          // const refpy = self.$refs[id].getAttribute('atv:refpy')
-          // self.$refs[id].style.transformOrigin = `${refpx}px ${refpy}px 0`
           top.webMI.gfx.setMoveY(self.$refs[id], value)
-          // this.webMI.setTransform(id, 'translateY', value + 'px')
         },
         setScaleX: (id, value) => {
           const refpx = self.$refs[id].getAttribute('atv:refpx')
           const refpy = self.$refs[id].getAttribute('atv:refpy')
           self.$refs[id].style.transformOrigin = `${refpx}px ${refpy}px 0`
           top.webMI.gfx.setScaleX(self.$refs[id], value)
-          // this.webMI.setTransform(id, 'scaleX', value)
         },
         setScaleY: (id, value) => {
           const refpx = self.$refs[id].getAttribute('atv:refpx')
           const refpy = self.$refs[id].getAttribute('atv:refpy')
           self.$refs[id].style.transformOrigin = `${refpx}px ${refpy}px 0`
           top.webMI.gfx.setScaleY(self.$refs[id], value)
-          // this.webMI.setTransform(id, 'scaleY', value)
         },
         setText: (id, value) => {
           top.webMI.gfx.setText(self.$refs[id], value)
-          // try {
-          //   self.$refs[id].innerHTML = value
-          // } catch (error) {
-          //   // console.error(id, error)
-          // }
         },
         setVisible: (id, value) => {
           top.webMI.gfx.setVisible(self.$refs[id], value)
-          // top.webMI.gfx.setVisible(self.$refs[id], value ? 'inherit' : false)
-          // this.$refs[id].setAttribute('visibility', value ? '' : 'hidden')
         },
         getFontFamily (id) {
           return top.webMI.gfx.getFontFamily(self.$refs[id])
@@ -451,9 +361,6 @@ export const webMI = {
         getRadiusY (id) {
           return top.webMI.gfx.getRadiusY(self.$refs[id])
         },
-        getCenterX (id) {
-          return top.webMI.gfx.getCenterX(self.$refs[id])
-        },
         getFill (id) {
           return top.webMI.gfx.getFill(self.$refs[id])
         },
@@ -486,11 +393,9 @@ export const webMI = {
         createPoint (x, y) {
           const svg = self.$el.querySelector('svg')
           return svg.createSVGPoint(x, y)
-          // return self.$el.querySelector('svg').createPoint(x, y)
-          // return top.webMI.gfx.createPoint(x, y)
         },
         addCircle (attributes, parent) {
-          // console.error('Not implemented!!')
+          // Not implemented
         }
       },
       display: {
@@ -502,9 +407,6 @@ export const webMI = {
         },
         openDisplay: (url, parameters, iframe) => {
           top.webMI.display.openDisplay(url, parameters, iframe)
-          // const disp = url.split('.').slice(5).join('.')
-          // this.$router.push('./' + disp)
-          // this.$router.push({query: {display: url, parameters: JSON.stringify(parameters), iframe: iframe || 'content'} })
         }
       },
       alarm: {
@@ -518,29 +420,20 @@ export const webMI = {
       },
       sprintf: (format, value) => {
         return top.webMI.sprintf(format, value)
-        // return value
       },
       translate: (value, minValue, maxValue, startValue, stopValue) => {
         return top.webMI.translate(value, minValue, maxValue, startValue, stopValue)
-        // minValue = minValue === false ? 0 : (minValue === true ? 1 : minValue)
-        // maxValue = maxValue === false ? 0 : (maxValue === true ? 1 : maxValue)
-        // const rangeIn = maxValue - minValue
-        // const rangeOut = stopValue - startValue
-        // return (rangeOut / rangeIn) * value
       },
       setTransform: (id, translate, value) => {
         const refpx = self.$refs[id].getAttribute('atv:refpx')
         const refpy = self.$refs[id].getAttribute('atv:refpy')
         self.$refs[id].style.transformOrigin = `${refpx}px ${refpy}px 0`
-        // self.$refs[id].style.transitionDuration = '500ms'
         const res = self.$refs[id].style.transform
-        // const res = self.$refs[id].getAttribute('transform')
         let arr = []
         if (res) {
           arr = res.split(' ')
         }
         const transforms = {}
-        // get all transforms on object
         arr.map(function (line) {
           if (line.length > 0) {
             const key = line.split('(')[0]
@@ -552,11 +445,8 @@ export const webMI = {
         arr = []
         Object.keys(transforms).forEach(function (key) {
           arr.push(key + '(' + transforms[key] + ')')
-          // console.log(key, transforms[key]);
         })
-        // console.log(arr.join(' '))
         self.$refs[id].style.setProperty('transform', arr.join(' '))
-        // self.$refs[id].setAttribute('transform', 'translate(20,20) ' + arr.join(' '))
       }
     }
   },
@@ -568,24 +458,25 @@ export const webMI = {
       })
     }
   },
-  destroyed () {
+  // Vue 3 lifecycle hook (replaces Vue 2 `destroyed`)
+  unmounted () {
     this.intervals.forEach((interval) => {
       clearInterval(interval)
     })
     this.subs.forEach((sub) => {
       clearInterval(sub)
-      //top.webMI.data.unsubscribe(this.subs)
     })
-    this.filterSubs.forEach((sub)=>{
+    this.filterSubs.forEach((sub) => {
       console.log('unsubscribeFilter:', sub)
       console.log(top.webMI.data.unsubscribeFilter(sub))
     })
-    this.onUnload.forEach((unload)=>{
+    this.onUnload.forEach((unload) => {
       unload()
     })
     top.webMI.alarm.unsubscribe(this.alarmSubs)
-    this.triggers.map((trigger) => {
-      this.$nuxt.$off(trigger)
+    // Remove mitt event listeners (replaces this.$nuxt.$off)
+    this.triggers.forEach(({ name, callback }) => {
+      this.$emitter?.off(name, callback)
     })
   }
 }
