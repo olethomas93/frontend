@@ -155,8 +155,8 @@ export default defineNuxtConfig({
   },
   nitro: {
     devProxy: nitroDevProxy,
-    externals: {
-      inline: ['linkedom']
+    alias: {
+      linkedom: resolve(currentDir, 'node_modules/linkedom/esm/index.js')
     }
   },
   experimental: {
