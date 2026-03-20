@@ -1,5 +1,6 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { config as loadEnv } from 'dotenv'
 
@@ -156,7 +157,7 @@ export default defineNuxtConfig({
   nitro: {
     devProxy: nitroDevProxy,
     alias: {
-      linkedom: resolve(currentDir, 'node_modules/linkedom/esm/index.js')
+      linkedom: createRequire(import.meta.url).resolve('linkedom')
     }
   },
   experimental: {
