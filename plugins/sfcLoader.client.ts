@@ -72,6 +72,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   const browse = () => {
+    if (!(top as any)?.webMI?.data) { return }
     top.webMI.data.call('BrowseNodes', {
       startAddress: 'SYSTEM.LIBRARY.ATVISE.RESOURCES/vueComponents',
       endLevel: 0,
