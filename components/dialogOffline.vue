@@ -46,11 +46,13 @@ export default {
   computed: {
   },
   mounted () {
-    top.webMI.data.addEventListener('statechange', (e) => {
-      if (e === -1) {
-        this.dialog = true
-      }
-    })
+    if (typeof top !== 'undefined' && top?.webMI?.data?.addEventListener) {
+      top.webMI.data.addEventListener('statechange', (e) => {
+        if (e === -1) {
+          this.dialog = true
+        }
+      })
+    }
     // top.webMI.addEvent(top.webMI.data, 'statechange', function (state) {
     //   // document.getElementById('errorscreen').style.display = state < 0 ? 'block' : 'none'
     //   if (state < 0) {
