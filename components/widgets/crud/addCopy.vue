@@ -16,7 +16,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="variant="outlined"" @click="cancel">
+        <v-btn variant="outlined" @click="cancel">
           {{ $T('Cancel') }}
         </v-btn>
         <v-btn color="primary" @click="ok">

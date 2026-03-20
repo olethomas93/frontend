@@ -11,10 +11,9 @@
       v-model="localValue"
       :label="label"
       :suffix="unit"
-      outlined
       :hide-details="hideDetails"
-      :dense="density="compact""
-      :filled="variant="filled""
+      density="compact"
+      :variant="filled ? 'filled' : 'outlined'"
       readonly
       :style="{maxWidth: maxWidth}"
       @keydown.stop=""
@@ -28,7 +27,7 @@
           v-model="localValue"
           :label="label"
           :suffix="unit"
-          outlined
+          variant="outlined"
           counter
           :type="type"
           @focus="$event.target.select()"

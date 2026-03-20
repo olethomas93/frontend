@@ -40,10 +40,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="variant="outlined"" @click="selectNode">
+          <v-btn variant="outlined" @click="selectNode">
             {{ $T('Ok') }}
           </v-btn>
-          <v-btn variant="variant="outlined"" @click="dialog = false">
+          <v-btn variant="outlined" @click="dialog = false">
             {{ $T('Cancel') }}
           </v-btn>
         </v-card-actions>

@@ -12,8 +12,7 @@
         v-model="internalValue"
         prepend-icon="mdi-calendar"
         readonly
-        v-bind="$attrs"
-        v-bind="props"
+        v-bind="{ ...$attrs, ...props }"
       />
     </template>
     <v-date-picker

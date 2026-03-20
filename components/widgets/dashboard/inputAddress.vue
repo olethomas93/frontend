@@ -29,7 +29,7 @@
             v-if="relative"
             :items="queryItems"
             density="compact"
-            outlined
+            variant="outlined"
             hide-details
             style="width:100px"
           /> -->

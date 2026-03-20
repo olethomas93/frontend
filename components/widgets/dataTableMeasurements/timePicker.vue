@@ -18,7 +18,6 @@
         append-icon="mdi-clock-time-four-outline"
         readonly
         :style="{maxWidth: maxWidth}"
-        v-bind="attrs"
         v-bind="props"
       />
     </template>

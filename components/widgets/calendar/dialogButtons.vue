@@ -4,7 +4,7 @@
       v-for="(btn, index) in buttons"
       :key="index"
       width="150"
-      variant="variant="outlined""
+      variant="outlined"
       :color="btn.color"
       :value="btn.value"
     >

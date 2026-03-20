@@ -88,8 +88,8 @@
         </template>
         <template #[`item.graf`]>
           <v-tooltip bottom>
-            <template #activator="{ on , attrs }">
-              <div v-bind="attrs" v-bind="props">
+            <template #activator="{ props }">
+              <div v-bind="props">
               <!-- <sparkline
                 ref="graph"
                 :update="update"

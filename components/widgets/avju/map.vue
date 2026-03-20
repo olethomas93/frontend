@@ -86,17 +86,17 @@
           <atvise-visu-v3 :style="{height: `${height}px`}" :base="selected.nodeid" :settings="$lodash.get(selected, 'childs.default.nodeid') || $lodash.get(selected, 'childs._default.nodeid')" />
           <!-- </v-card-text> -->
           <v-card-actions>
-            <!-- <v-btn variant="variant="outlined"" color="#00bad4" @click="$nuxt.$emit('map:zoomSelected')">
+            <!-- <v-btn variant="outlined" color="#00bad4" @click="$nuxt.$emit('map:zoomSelected')">
               zoom
             </v-btn> -->
             <v-spacer />
-            <v-btn variant="variant="outlined"" color="#00bad4" @click="sendCmd(3)">
+            <v-btn variant="outlined" color="#00bad4" @click="sendCmd(3)">
               {{ $T('Refresh data') }}
             </v-btn>
-            <v-btn variant="variant="outlined"" color="#00bad4" @click="sendCmd(1)">
+            <v-btn variant="outlined" color="#00bad4" @click="sendCmd(1)">
               {{ $T('Refresh picture') }}
             </v-btn>
-            <v-btn variant="variant="outlined"" color="#00bad4" @click="sendCmd(4)">
+            <v-btn variant="outlined" color="#00bad4" @click="sendCmd(4)">
               {{ $T('Refresh IMU') }}
             </v-btn>
           </v-card-actions>

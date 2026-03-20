@@ -67,7 +67,7 @@
           <silo-feed-editor text="Endre fòrtype" :disabled="selected < 1" @selected="updateFeedType" />
           <v-btn
             :disabled="selected.length == 0"
-            variant="variant="outlined""
+            variant="outlined"
             @click="startScan()"
           >
             Start scan
@@ -75,13 +75,13 @@
           <v-btn
             style="position:absolute;right: 1%;"
             :disabled="selected.length == 0"
-            variant="variant="outlined""
+            variant="outlined"
             @click="startZero()"
           >
             {{ $T('Zero') }}
           </v-btn>
           <!-- <v-btn
-            variant="variant="outlined""
+            variant="outlined"
             @click="alarmDialog = true"
           >
             Alarmgrenser

@@ -18,7 +18,6 @@
           density="compact"
           hide-details
           readonly
-          v-bind="attrs"
           v-bind="props"
         />
       </template>

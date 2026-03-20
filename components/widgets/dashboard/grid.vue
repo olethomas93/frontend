@@ -79,8 +79,7 @@
                           <v-btn
                             :color="btn.color"
                             icon
-                            variant="variant="outlined""
-                            v-bind="attrs"
+                            variant="outlined"
                             v-bind="props"
                           >
                             <v-icon @click="btn.fn(item, index)">

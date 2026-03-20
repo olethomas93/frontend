@@ -14,8 +14,7 @@
         _label="Picker in dialog"
         prepend-icon="mdi-clock-time-four-outline"
         readonly
-        v-bind="$attrs"
-        v-bind="props"
+        v-bind="{ ...$attrs, ...props }"
       />
     </template>
     <v-time-picker

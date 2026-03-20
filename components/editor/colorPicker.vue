@@ -22,7 +22,6 @@
         variant="filled"
         outlined
         :color="color"
-        v-bind="attrs"
         v-bind="props"
       >
         <template #append>

@@ -16,10 +16,10 @@
     <v-card-actions>
       <v-text-field disabled color="primary" v-model="editedBy" label="Notepad last edited by:"></v-text-field>
       <v-spacer />
-      <v-btn variant="variant="outlined"" @click="getEditableText" v-if="editMode">
+      <v-btn variant="outlined" @click="getEditableText" v-if="editMode">
         {{ $T('Cancel') }}
       </v-btn>
-      <v-btn variant="variant="outlined"" @click="edit" v-if="!editMode">
+      <v-btn variant="outlined" @click="edit" v-if="!editMode">
         {{ $T('Edit') }}
       </v-btn>
       <v-btn :disabled="!editMode" color="primary" @click="writeEditableText" v-if="editMode">

@@ -32,7 +32,7 @@
                       <v-text-field
                         v-model="object.item.icon"
                         label="Icon"
-                        outlined
+                        variant="outlined"
                         class="pr-2"
                         density="compact"
                         clearable
@@ -41,7 +41,7 @@
                       <v-text-field
                         v-model="object.item.label"
                         label="Label"
-                        outlined
+                        variant="outlined"
                         class="pl-2"
                         density="compact"
                         clearable
@@ -58,7 +58,7 @@
                     <v-text-field
                       :value="object.item.html"
                       label="html"
-                      outlined
+                      variant="outlined"
                       @change="object.item.html = $event"
                       @keydown.8.stop=""
                     />
@@ -117,7 +117,7 @@
                           :value="object.item.query[item.name] || item.defaultvalue"
                           :label="item.desc || item.name"
                           :items="item.config.split(';')"
-                          outlined
+                          variant="outlined"
                           @change="object.item.query[item.name] = $event"
                         />
                         <v-text-field
@@ -126,7 +126,7 @@
                           :value="object.item.query[item.name] || item.defaultvalue"
                           :label="item.desc || item.name"
                           :type="item.valuetype === 'number' ? 'number' : undefined"
-                          outlined
+                          variant="outlined"
                           density="compact"
                           clearable
                           @change="object.item.query[item.name] = $event"

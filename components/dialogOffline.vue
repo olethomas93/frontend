@@ -26,7 +26,7 @@
       </v-list-item>
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="variant="outlined"" @click="refresh">
+        <v-btn variant="outlined" @click="refresh">
           Reload page
         </v-btn>
       </v-card-actions>

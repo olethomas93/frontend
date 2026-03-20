@@ -22,14 +22,14 @@
         <v-btn
           v-if="!options.noconfirm"
           color="grey"
-          variant="variant="outlined""
+          variant="outlined"
           @click="cancel"
         >
           {{ $T('Cancel') }}
         </v-btn>
         <v-btn
           color="primary"
-          variant="variant="outlined""
+          variant="outlined"
           @click="agree"
         >
           {{ $T('OK') }}

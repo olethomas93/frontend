@@ -17,7 +17,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer />
-      <v-btn variant="variant="outlined"" @click="$emit('close')">
+      <v-btn variant="outlined" @click="$emit('close')">
         {{ $T('Cancel') }}
       </v-btn>
       <v-btn :disabled="!valid" color="primary" @click="submit">

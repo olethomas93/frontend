@@ -161,14 +161,14 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          variant="variant="outlined""
+          variant="outlined"
           color="primary"
           @click="cancel"
         >
           {{ $T('Cancel') }}
         </v-btn>
         <v-btn
-          variant="variant="outlined""
+          variant="outlined"
           color="primary"
           _click="$refs.dialog.save(config)"
           @click="setValue(config)"

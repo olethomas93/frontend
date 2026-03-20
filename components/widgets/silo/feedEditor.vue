@@ -1,10 +1,10 @@
 <template>
   <v-dialog v-model="dialog" max-width="800px">
     <template #activator="{ props }">
-      <v-btn v-if="!variant="text""  icon v-bind="props">
+      <v-btn v-if="!text"  icon v-bind="props">
         <v-icon>mdi-cog</v-icon>
       </v-btn>
-      <v-btn else variant="variant="outlined"" :disabled="disabled" v-bind="props">
+      <v-btn variant="outlined" :disabled="disabled" v-bind="props">
         {{ text }}
       </v-btn>
     </template>

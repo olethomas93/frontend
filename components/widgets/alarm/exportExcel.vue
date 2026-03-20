@@ -5,9 +5,8 @@
   >
     <template #activator="{ props }">
       <v-btn
-        variant="variant="outlined""
+        variant="outlined"
         color="primary"
-        v-bind="attrs"
         v-bind="props"
         @click="startExport"
       >
