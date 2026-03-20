@@ -34,7 +34,7 @@
                         label="Icon"
                         outlined
                         class="pr-2"
-                        dense
+                        density="compact"
                         clearable
                         @keydown.stop=""
                       />
@@ -43,7 +43,7 @@
                         label="Label"
                         outlined
                         class="pl-2"
-                        dense
+                        density="compact"
                         clearable
                         @keydown.stop=""
                       />
@@ -127,7 +127,7 @@
                           :label="item.desc || item.name"
                           :type="item.valuetype === 'number' ? 'number' : undefined"
                           outlined
-                          dense
+                          density="compact"
                           clearable
                           @change="object.item.query[item.name] = $event"
                           @keydown.stop=""

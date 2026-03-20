@@ -9,19 +9,19 @@
     _update:return-value="setValue"
     @update:return-value="$emit('setValue', $event)"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="value"
         _value="value"
         :label="label"
         readonly
         outlined
-        filled
+        variant="filled"
         v-bind="attrs"
-        v-on="on"
+        v-bind="props"
       >
         <!-- <template #prepend>
-          <v-icon :color="color" v-on="on">
+          <v-icon :color="color" v-bind="props">
             mdi-palette
           </v-icon>
         </template> -->
@@ -42,14 +42,14 @@
         </slot>
         <v-spacer />
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="modal = false"
         >
           Cancel
         </v-btn>
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="$refs.dialog.save(value)"
         >

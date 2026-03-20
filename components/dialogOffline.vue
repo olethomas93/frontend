@@ -10,23 +10,23 @@
         Offline
       </v-card-title>
       <v-list-item>
-        <v-list-item-avatar
+        <v-avatar
           tile
           size="80"
         >
           <v-icon size="80" color="white">
             mdi-alert-outline
           </v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
+        </v-avatar>
+        
           <v-list-item-title class="text-h6 mb-1">
             Lost connection with server!
           </v-list-item-title>
-        </v-list-item-content>
+        
       </v-list-item>
       <v-card-actions>
         <v-spacer />
-        <v-btn outlined @click="refresh">
+        <v-btn variant="variant="outlined"" @click="refresh">
           Reload page
         </v-btn>
       </v-card-actions>

@@ -10,7 +10,7 @@
         <div class="justify-center rounded" style="width:100%">
           <center>
             <v-img
-              class="white--text align-end"
+              class="text-white align-end"
               _height="120px"
               _width="120px"
               :src="logo"
@@ -63,7 +63,7 @@
             <v-btn
               :dark="dark"
               block
-              text
+              variant="text"
               _color="primary"
               height="50"
               nuxt
@@ -88,7 +88,7 @@
         <div class="justify-center rounded" style="width:100%;background-color:#ffffff">
           <center>
             <v-img
-              class="white--text align-end"
+              class="text-white align-end"
               _height="120px"
               width="300px"
               :src="logo"
@@ -122,7 +122,7 @@
             tabindex="3"
             dark
             block
-            text
+            variant="text"
             _color="primary"
             height="50"
             nuxt

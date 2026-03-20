@@ -2,8 +2,8 @@
   <div>
     <div>
       <v-tooltip open-delay="500" :right="true" :color="onState ? colors.on : colors.off">
-        <template #activator="{ on }">
-          <v-avatar :color="onState ? colors.on : colors.off" :size="size" v-on="on">
+        <template #activator="{ props }">
+          <v-avatar :color="onState ? colors.on : colors.off" :size="size" v-bind="props">
             <template v-if="showValue">
               {{ value }}
             </template>

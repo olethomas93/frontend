@@ -6,7 +6,7 @@
       </v-card-title>
       <v-card-text>
         Delete reference to: {{ selected.displayname }} ?
-        <!-- <v-select v-model="selected" placeholder="Please select object to reference..." :items="unusedItems" item-text="displayname" item-value="nodeid" /> -->
+        <!-- <v-select v-model="selected" placeholder="Please select object to reference..." :items="unusedItems" item-title="displayname" item-value="nodeid" /> -->
       </v-card-text>
       <v-card-actions>
         <v-spacer />

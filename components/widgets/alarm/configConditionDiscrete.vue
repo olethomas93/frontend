@@ -50,7 +50,7 @@
       ref="Priority"
       v-model="category"
       :items="categories"
-      item-text="childs.Abbreviation.value"
+      item-title="childs.Abbreviation.value"
       item-value="displayname"
       style="width:170px"
       :label="$T('Priority')"

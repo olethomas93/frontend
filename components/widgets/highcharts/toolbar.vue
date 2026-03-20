@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar v-if="trend" flat dense>
+  <v-toolbar v-if="trend" flat density="compact">
     <WidgetsHighchartsTimeRange :trend-name="trendName" />
     <v-spacer />
     <WidgetsHighchartsAggregate v-if="showAggregate" ref="aggregate" :trend-name="trendName" />

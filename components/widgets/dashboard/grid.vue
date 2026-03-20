@@ -75,13 +75,13 @@
                   <v-row>
                     <v-col v-for="(btn,i) in buttons" :key="i" cols="4">
                       <v-tooltip top :color="btn.color">
-                        <template #activator="{ on, attrs }">
+                        <template #activator="{ props }">
                           <v-btn
                             :color="btn.color"
                             icon
-                            outlined
+                            variant="variant="outlined""
                             v-bind="attrs"
-                            v-on="on"
+                            v-bind="props"
                           >
                             <v-icon @click="btn.fn(item, index)">
                               {{ btn.icon }}

@@ -4,7 +4,7 @@
       <v-text-field
         :value="value.text"
         :single-line="!showTimestamp"
-        dense
+        density="compact"
         :hide-details="!showTimestamp"
         readonly
         :loading="!showTimestamp"

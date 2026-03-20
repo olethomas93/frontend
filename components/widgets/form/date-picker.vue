@@ -7,13 +7,13 @@
     persistent
     width="290px"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="internalValue"
         prepend-icon="mdi-calendar"
         readonly
         v-bind="$attrs"
-        v-on="on"
+        v-bind="props"
       />
     </template>
     <v-date-picker
@@ -26,14 +26,14 @@
     >
       <v-spacer />
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="modal2 = false"
       >
         Cancel
       </v-btn>
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="$refs.dialog.save(value)"
       >

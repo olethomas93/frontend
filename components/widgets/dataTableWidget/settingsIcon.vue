@@ -3,8 +3,8 @@
   <!-- v-if="$store.auth.state.user['https://jmhansen.no/jm.roles'].includes('admin')" -->
   <div>
     <v-tooltip open-delay="500" top dark>
-      <template #activator="{ on }">
-        <v-btn style="width:24px;height:24px" icon v-on="on" @click.stop="dialog = true">
+      <template #activator="{ props }">
+        <v-btn style="width:24px;height:24px" icon v-bind="props" @click.stop="dialog = true">
           <v-icon>
             mdi-cog
           </v-icon>

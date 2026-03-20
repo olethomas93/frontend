@@ -3,15 +3,15 @@
     <v-container :fluid="true">
       <v-row>
         <v-col cols="12" md="3">
-          <form-date-time-picker v-model="from" :dense="false" :outlined="true" :label="$T('From')" :hide-details="true" />
+          <form-date-time-picker v-model="from"  :outlined="true" :label="$T('From')" :hide-details="true" />
         </v-col>
         <v-col cols="12" md="3">
-          <form-date-time-picker v-model="to" :dense="false" :outlined="true" :label="$T('To')" :hide-details="true" />
+          <form-date-time-picker v-model="to"  :outlined="true" :label="$T('To')" :hide-details="true" />
         </v-col>
         <v-col cols="12" md="3">
           <v-select
             v-model="selectedType"
-            :dense="false"
+            
             :outlined="true"
             :items="types"
             :label="$T('Type')"
@@ -53,22 +53,22 @@
             <template #[`header.system`]="{}">
               <v-text-field
                 v-model="locationFilter"
-                :dense="true"
+                density="compact"
                 :outlined="true"
                 :label="$T('System')"
                 :hide-details="true"
-                @click.native.stop=""
+                @click.stop=""
                 @keydown.stop=""
               />
             </template>
             <template #[`header.component`]="{}">
               <v-text-field
                 v-model="componentFilter"
-                :dense="true"
+                density="compact"
                 :outlined="true"
                 :label="$T('Component')"
                 :hide-details="hideDetails"
-                @click.native.stop=""
+                @click.stop=""
                 @keydown.stop=""
               />
             </template>

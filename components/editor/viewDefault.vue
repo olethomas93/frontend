@@ -3,7 +3,7 @@
     <v-text-field
       :value="value.nodeid"
       label="Node id"
-      dense
+      density="compact"
       readonly
       outlined
     />

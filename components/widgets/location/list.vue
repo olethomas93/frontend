@@ -68,8 +68,8 @@
       </template>
       <template #[`item.connected`]="{ item }">
         <v-tooltip open-delay="500" :right="true" :color="item.connected ? 'success' : 'error'">
-          <template #activator="{ on }">
-            <v-icon :color="item.connected ? 'success' : 'error'" v-on="on">
+          <template #activator="{ props }">
+            <v-icon :color="item.connected ? 'success' : 'error'" v-bind="props">
               {{ item.connected ? 'mdi-wifi' : 'mdi-wifi-off' }}
             </v-icon>
           </template>

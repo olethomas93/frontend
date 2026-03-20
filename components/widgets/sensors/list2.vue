@@ -79,7 +79,7 @@
         <template #[`item.sensorTypeAndMes`]="{ item }">
           <v-badge dot :color="item.active ? 'green':'grey'">
             <div style="display: flex;flex-direction: column;">
-              <span class="primary--text text--lighten-1" style="font-size:1em;">{{ $T(item.location) }}</span>
+              <span class="text-primary text--lighten-1" style="font-size:1em;">{{ $T(item.location) }}</span>
               <span class="h6 font-weight-medium" style="font-size:0.9em">{{
                 $T(item.sensorType)
               }}</span>
@@ -89,7 +89,7 @@
         <template #[`item.graf`]>
           <v-tooltip bottom>
             <template #activator="{ on , attrs }">
-              <div v-bind="attrs" v-on="on">
+              <div v-bind="attrs" v-bind="props">
               <!-- <sparkline
                 ref="graph"
                 :update="update"

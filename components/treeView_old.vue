@@ -7,7 +7,7 @@
       :items="items"
       _load-children="browse"
       item-key="nodeid"
-      item-text="name"
+      item-title="name"
       item-children="childs"
       transition
       color="#202020"
@@ -16,7 +16,7 @@
       :multiple-active="false"
       :return-object="true"
       activatable
-      dense
+      density="compact"
       dark
       @update:active="update"
     >

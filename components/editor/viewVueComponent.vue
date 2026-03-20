@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <v-toolbar dense :elevation="0" outlined>
+    <!-- <v-toolbar density="compact" :elevation="0" outlined>
       <template v-for="(btn, index) in buttons">
         <v-divider v-if="btn.divider" :key="index" vertical />
         <v-btn

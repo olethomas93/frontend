@@ -7,7 +7,7 @@
       <TreeView />
     </v-navigation-drawer>
 
-    <v-app-bar app>
+    <v-app-bar>
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-toolbar-title>Editor</v-toolbar-title>
     </v-app-bar>

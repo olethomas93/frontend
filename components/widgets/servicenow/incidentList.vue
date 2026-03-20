@@ -33,11 +33,11 @@
       <template #[`header.ticketNumber`]="{ }">
         <v-text-field
           v-model="ticketNumberFilter"
-          :dense="true"
+          density="compact"
           :outlined="true"
           :label="$T('Ticket number')"
           :hide-details="hideDetails"
-          @click.native.stop=""
+          @click.stop=""
           @keydown.stop=""
         />
       </template>

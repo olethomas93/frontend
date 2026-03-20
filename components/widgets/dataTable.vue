@@ -31,7 +31,7 @@
       <template v-if="hasFilters" #[`body.prepend`]="{ headers }">
         <tr>
           <td v-for="(header, index) in headers" :key="index">
-            <!-- <v-text-field dense hide-details :label="header.text" outlined @keydown.stop="" /> -->
+            <!-- <v-text-field density="compact" hide-details :label="header.text" outlined @keydown.stop="" /> -->
             <v-combobox
               v-if="header.customFilter"
               v-model="filters[header.value]"
@@ -39,7 +39,7 @@
               :multiple="$lodash.get(header, 'customFilter.multiple', false)"
               small-chips
               deletable-chips
-              dense
+              density="compact"
               hide-details
               single-line
               label="Filter"
@@ -89,7 +89,7 @@
         >
           <td v-for="(header, key) in headers" :key="key">
             <div v-if="header.value === 'data-table-select'">
-              <v-simple-checkbox :value="isSelected" @click.stop="select(!isSelected)" />
+              <v-checkbox :value="isSelected" @click.stop="select(!isSelected)" />
               <!-- <v-btn icon @click.stop="expand(!isExpanded)">
                 <v-icon class="toggleUpDown" :class="{ rotate: isExpanded }">
                   mdi-chevron-down

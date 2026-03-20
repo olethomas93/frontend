@@ -1,12 +1,12 @@
 <template>
   <div :style="{height: canAdd ? 'calc(100vh - 64px)' : '',overflow:'hidden'}">
-    <v-toolbar v-if="showToolbar" dense style="z-index:5" dark>
+    <v-toolbar v-if="showToolbar" density="compact" style="z-index:5" theme="dark">
       <v-text-field
         v-model="search"
         outlined
         light
         label="Search"
-        dense
+        density="compact"
         hide-details
         clearable
         @keydown.stop=""
@@ -16,7 +16,7 @@
         v-model="toggleList"
         mandatory
         rounded
-        dense
+        density="compact"
       >
         <v-btn>
           <v-icon>mdi-view-grid</v-icon>

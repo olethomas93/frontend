@@ -10,7 +10,7 @@
     <template #activator>
       <v-btn
         v-model="fab"
-        color="blue darken-2"
+        color="blue-darken-2"
         dark
         fab
       >
@@ -25,7 +25,7 @@
     <v-tooltip
       v-for="(item,key) in items"
       :key="key"
-      dense
+      density="compact"
       left
       :color="item.color || 'primary'"
       :value="showTooltip"

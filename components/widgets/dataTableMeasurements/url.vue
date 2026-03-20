@@ -1,7 +1,7 @@
 <template>
     <v-row :style="{maxWidth: maxWidth}">
       <v-col>
-        <v-btn outlined style="width:100%"  small :color="color" @click="openUrl(value)">
+        <v-btn variant="variant="outlined"" style="width:100%"  small :color="color" @click="openUrl(value)">
           {{ value }}
         </v-btn>
       </v-col>

@@ -7,26 +7,26 @@
     width="290px"
     @update:return-value="setValue"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         _v-model="color"
         :value="color"
         :label="label"
-        filled
+        variant="filled"
         outlined
-        dense
+        density="compact"
         clearable
         :color="color"
         @change="setValue"
         @keydown.stop=""
       >
         <template #prepend>
-          <v-icon v-on="on">
+          <v-icon v-bind="props">
             mdi-palette
           </v-icon>
         </template>
         <template #prepend-inner>
-          <v-icon :color="color" v-on="on">
+          <v-icon :color="color" v-bind="props">
             mdi-square-rounded
           </v-icon>
         </template>
@@ -46,14 +46,14 @@
         />
         <v-spacer />
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="modal = false"
         >
           Cancel
         </v-btn>
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="$refs.dialog.save(color)"
         >

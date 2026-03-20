@@ -4,7 +4,7 @@
       <v-card-title>
         <span class="headline">{{ $lodash.upperFirst(base.split('.').pop()) }}</span>
         <v-spacer />
-        <v-btn text icon @click.native="close()">
+        <v-btn variant="text" icon @click="close()">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
@@ -25,7 +25,7 @@
       <v-card-actions>
         <!-- <from-to-picker @update="changeFromTo" /> -->
         <v-spacer />
-        <!-- <v-btn @click.native="startScan()">Start scan</v-btn> -->
+        <!-- <v-btn @click="startScan()">Start scan</v-btn> -->
       </v-card-actions>
     </v-card>
   </v-dialog>

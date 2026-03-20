@@ -7,13 +7,13 @@
     width="580px"
     :fullscreen="$vuetify.breakpoint.smAndDown"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="currentValue"
         prepend-icon="mdi-calendar"
         readonly
         v-bind="$attrs"
-        v-on="on"
+        v-bind="props"
       />
     </template>
     <v-container fluid>
@@ -29,13 +29,13 @@
           >
             <v-spacer />
             <v-btn
-              text
+              variant="text"
               disabled
               color="primary"
               @click="modal2 = false"
             />
           <!-- <v-btn
-            text
+            variant="text"
             color="primary"
             @click="$refs.dialog.save(value)"
           >
@@ -52,14 +52,14 @@
           >
             <v-spacer />
             <v-btn
-              text
+              variant="text"
               color="primary"
               @click="modal2 = false"
             >
               Cancel
             </v-btn>
             <v-btn
-              text
+              variant="text"
               color="primary"
               _click="$refs.dialog.save(value)"
               @click="ok"

@@ -7,8 +7,8 @@
     full-width
     width="290px"
   >
-    <template v-slot:activator="{ on }">
-      <v-btn flat icon v-on="on">
+    <template v-slot:activator="{ props }">
+      <v-btn variant="plain" icon v-bind="props">
         <v-icon>date_range</v-icon>
       </v-btn>
       <v-btn-toggle
@@ -19,16 +19,16 @@
         style="background:transparent;"
         @change="set(value)"
       >
-        <v-btn flat>
+        <v-btn variant="plain">
           I dag
         </v-btn>
-        <v-btn flat>
+        <v-btn variant="plain">
           Siste 2 dager
         </v-btn>
-        <v-btn flat>
+        <v-btn variant="plain">
           Siste 7 dager
         </v-btn>
-        <!-- <v-btn flat>
+        <!-- <v-btn variant="plain">
               Denne måned
             </v-btn> -->
       </v-btn-toggle>

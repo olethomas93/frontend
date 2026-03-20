@@ -1,8 +1,8 @@
 <template>
   <div v-if="getTrend()">
     <v-tooltip open-delay="500" top dark>
-      <template #activator="{ on }">
-        <v-btn icon v-on="on" @click.stop="dialog = true">
+      <template #activator="{ props }">
+        <v-btn icon v-bind="props" @click.stop="dialog = true">
           <v-icon>
             mdi-chart-line
           </v-icon>

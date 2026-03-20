@@ -7,7 +7,7 @@
           :items="items"
           multiple
           label="Velg"
-          item-text="displayname"
+          item-title="displayname"
           item-value="displayname"
           return-object
         />

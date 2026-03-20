@@ -31,14 +31,14 @@
             </v-btn>
           </template>
           <v-tooltip left>
-            <template #activator="{ on }">
+            <template #activator="{ props }">
               <v-btn
                 v-model="rotate"
                 fab
                 dark
                 small
                 color="secondary"
-                v-on="on"
+                v-bind="props"
                 @click.stop="rotate = !rotate"
               >
                 <v-icon v-if="rotate">
@@ -53,13 +53,13 @@
             <span v-if="!rotate">Start rotasjon</span>
           </v-tooltip>
           <v-tooltip left>
-            <template #activator="{ on }">
+            <template #activator="{ props }">
               <v-btn
                 fab
                 dark
                 small
                 color="secondary"
-                v-on="on"
+                v-bind="props"
                 @click.stop="toggleCameraType()"
               >
                 <v-icon>mdi-video</v-icon>
@@ -68,14 +68,14 @@
             <span>Endre kameratype</span>
           </v-tooltip>
           <v-tooltip left>
-            <template #activator="{ on }">
+            <template #activator="{ props }">
               <v-btn
                 v-model="showCloud"
                 fab
                 dark
                 small
                 color="secondary"
-                v-on="on"
+                v-bind="props"
                 @click.stop="toggleCloud()"
               >
                 <v-icon v-if="showCloud">

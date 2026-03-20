@@ -9,8 +9,8 @@
       width="600px"
       @update:return-value="setValue"
     >
-      <template #activator="{ on }">
-        <pre class="code" v-on="on">{{ value }}</pre>
+      <template #activator="{ props }">
+        <pre class="code" v-bind="props">{{ value }}</pre>
       </template>
       <v-card>
         <v-card-title>
@@ -29,14 +29,14 @@
           />
           <v-spacer />
           <v-btn
-            text
+            variant="text"
             color="primary"
             @click="modal = false"
           >
             Cancel
           </v-btn>
           <v-btn
-            text
+            variant="text"
             color="primary"
             @click="$refs.dialog.save(value)"
           >

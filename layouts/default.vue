@@ -39,8 +39,8 @@
       </v-navigation-drawer>
       <AlarmDrawer v-if="mdAndUp && !hideAlarmDrawer" />
       <v-app-bar
-        clipped-left
-        :clipped-right="true"
+       
+       
         fixed
         app
         :color="appBar.color"

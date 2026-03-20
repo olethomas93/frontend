@@ -61,14 +61,14 @@
               {{ item.icon }}
             </v-icon>
           </v-list-item-action>
-          <v-list-item-content>
+          
             <v-list-item-title>
               {{ $T(item.name) }}
             </v-list-item-title>
             <v-list-item-subtitle>
               {{ $T(item.description) }}
             </v-list-item-subtitle>
-          </v-list-item-content>
+          
         </v-list-item>
       </div>
       <!-- <div v-else-if="items.length <= 1">
@@ -207,7 +207,7 @@ export default {
     padding-left: 28px;
 } */
 
-.v-application .primary--text {
+.v-application .text-primary {
     /* color: #050505 !important; */
     color: var(--selected-color) !important
 }

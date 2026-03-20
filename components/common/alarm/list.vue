@@ -16,14 +16,14 @@
       :show-expand="!$vuetify.breakpoint.smAndDown"
       single-expand
       :expanded.sync="expanded"
-      dense
+      density="compact"
       class="elevation-1"
       _contextmenu:row="show"
     >
       <template #[`body.prepend`]="{ headers }">
         <tr>
           <td v-for="(header, index) in headers.slice(1)" :key="index">
-            <!-- <v-text-field dense hide-details :label="header.text" outlined @keydown.stop="" /> -->
+            <!-- <v-text-field density="compact" hide-details :label="header.text" outlined @keydown.stop="" /> -->
             <v-combobox
               v-if="header.customFilter"
               v-model="filters[header.value]"
@@ -32,8 +32,8 @@
               _multiple
               small-chips
               deletable-chips
-              filled
-              dense
+              variant="filled"
+              density="compact"
               hide-details
               label="Filter"
               outlined
@@ -101,7 +101,7 @@
               v-model="search"
               :label="$T('Search')"
               class="mx-4"
-              dense
+              density="compact"
               clearable
               @keydown.stop=""
             />
@@ -109,7 +109,7 @@
           <v-col sm="2">
             <v-select
               v-model="mode"
-              dense
+              density="compact"
               hide-details
               :items="modes"
               :label="$T('Show')"
@@ -136,7 +136,7 @@
       </template>
 
       <template slot="no-data">
-        <v-alert :value="true" color="success" icon="mdi-smile">
+        <v-alert color="success" icon="mdi-smile">
           {{ $T('No events') }}
         </v-alert>
       </template>
@@ -166,7 +166,7 @@
       absolute
       offset-y
     >
-      <v-list dense>
+      <v-list density="compact">
         <v-list-item
           v-for="(menuItem, index) in menuItems"
           :key="index"

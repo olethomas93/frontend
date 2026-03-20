@@ -12,33 +12,33 @@
         <v-text-field v-model="config.text" style="font-size:x-large" placeholder="Event name" @keydown.stop="" />
       </v-card-title>
       <v-card-text>
-        <v-list dense>
+        <v-list density="compact">
           <v-list-item>
-            <v-list-item-avatar>
+            <v-avatar>
               <v-icon :color="config.color">
                 mdi-circle
               </v-icon>
-            </v-list-item-avatar>
+            </v-avatar>
             <calendar-color-picker v-model="config.color" />
           </v-list-item>
           <v-list-item>
-            <v-list-item-avatar>
+            <v-avatar>
               <v-icon>
                 mdi-clock-outline
               </v-icon>
-            </v-list-item-avatar>
+            </v-avatar>
             <v-list-item-content class="pl-3">
               <!-- Hele dagen -->
               {{$T('Time span')}}
-            </v-list-item-content>
+            
             <!-- <v-list-item-action>
               <v-switch v-model="allDay" />
             </v-list-item-action> -->
           </v-list-item>
           <v-list-item>
-            <v-list-item-avatar>
+            <v-avatar>
               <v-icon />
-            </v-list-item-avatar>
+            </v-avatar>
             <calendar-date-picker
               v-model="config.startDate"
               flat
@@ -50,9 +50,9 @@
             />
           </v-list-item>
           <v-list-item>
-            <v-list-item-avatar>
+            <v-avatar>
               <v-icon />
-            </v-list-item-avatar>
+            </v-avatar>
             <calendar-date-picker
               v-model="durationDateTime"
               flat
@@ -65,53 +65,53 @@
           </v-list-item>
           <v-divider />
           <v-list-item>
-            <v-list-item-avatar>
+            <v-avatar>
               <v-icon>
                 mdi-reload
               </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>
+            </v-avatar>
+            
               <v-select
                 v-model="config.repeatPeriod"
                 :items="repeatPeriods"
                 flat
-                solo
-                dense
+                variant="solo"
+                density="compact"
                 hide-details
               />
-            </v-list-item-content>
+            
           </v-list-item>
           <div v-if="Number(config.repeatPeriod) >= 1">
             <v-list-item v-if="Number(config.repeatPeriod) > 1">
-              <v-list-item-avatar>
+              <v-avatar>
                 <v-icon />
-              </v-list-item-avatar>
-              <v-list-item-content>
+              </v-avatar>
+              
                 <calendar-weekday-picker v-if="Number(config.repeatPeriod) === 2" v-model="config.weekdays" class="pl-3" />
-              </v-list-item-content>
+              
             </v-list-item>
             <v-list-item>
-              <v-list-item-avatar>
+              <v-avatar>
                 <!-- <v-icon>
                   mdi-reload
                 </v-icon> -->
-              </v-list-item-avatar>
-              <v-list-item-content>
+              </v-avatar>
+              
                 <v-select
                   v-model="repeat"
                   :items="repeats"
                   flat
-                  solo
-                  dense
+                  variant="solo"
+                  density="compact"
                   hide-details
                   @input="setRepeat"
                 />
-              </v-list-item-content>
+              
             </v-list-item>
             <v-list-item v-if="repeat === 1">
-              <v-list-item-avatar>
+              <v-avatar>
                 <v-icon />
-              </v-list-item-avatar>
+              </v-avatar>
               <calendar-date-picker
                 v-model="config.endDate"
                 hide-time
@@ -122,15 +122,15 @@
               />
             </v-list-item>
             <v-list-item>
-              <v-list-item-avatar>
+              <v-avatar>
                 <v-icon />
-              </v-list-item-avatar>
+              </v-avatar>
               <v-select
                 v-model="config.filter"
                 :items="filters"
                 flat
-                solo
-                dense
+                variant="solo"
+                density="compact"
                 hide-details
               />
             </v-list-item>
@@ -140,13 +140,13 @@
             <v-list-item v-if="item.text.length > 0" dense>
               <v-list-item-content style="padding-left:68px;">
                 {{ $T(item.text) }}
-              </v-list-item-content>
+              
             </v-list-item>
             <v-list-item>
               <!-- <p>{{ $T(item.text) }}</p> -->
-              <v-list-item-avatar>
+              <v-avatar>
                 <v-icon />
-              </v-list-item-avatar>
+              </v-avatar>
               <component :is="item.component" v-model="config[item.variable]" v-bind="item.props" class="pa-3" />
             </v-list-item>
           </div>
@@ -161,14 +161,14 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          outlined
+          variant="variant="outlined""
           color="primary"
           @click="cancel"
         >
           {{ $T('Cancel') }}
         </v-btn>
         <v-btn
-          outlined
+          variant="variant="outlined""
           color="primary"
           _click="$refs.dialog.save(config)"
           @click="setValue(config)"

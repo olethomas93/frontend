@@ -30,7 +30,7 @@
         </v-card-title>
         <v-card-actions>
           <v-spacer />
-          <v-btn outlined @click="showDelete = false">
+          <v-btn variant="variant="outlined"" @click="showDelete = false">
             {{ $T('Cancel') }}
           </v-btn>
           <v-btn color="primary" @click="deleteUser">
@@ -48,30 +48,30 @@
           <v-form ref="form" v-model="valid">
             <v-text-field
               v-model="editUser.username"
-              filled
+              variant="filled"
               :rules="[rules.allowed, rules.counter]"
               :disabled="mode === 'edit'"
               :label="$T('Username')"
               autocomplete="off"
               @keydown.stop=""
             />
-            <v-text-field v-model="editUser.fullname" filled :label="$T('Full name')" autocomplete="new" @keydown.stop="" />
+            <v-text-field v-model="editUser.fullname" variant="filled" :label="$T('Full name')" autocomplete="new" @keydown.stop="" />
             <v-text-field
               v-model="editUser.password"
-              filled
+              variant="filled"
               :label="$T('Password')"
               autocomplete="new-password"
               type="password"
               @keydown.stop=""
             />
-            <v-textarea v-model="editUser.description" filled :label="$T('Description')" @keydown.stop="" />
+            <v-textarea v-model="editUser.description" variant="filled" :label="$T('Description')" @keydown.stop="" />
             <v-select
               v-model="editUser.groups"
               :items="groups"
               :label="$T('Groups')"
-              filled
+              variant="filled"
               item-value="name"
-              item-text="name"
+              item-title="name"
               multiple
               chips
               deletable-chips
@@ -80,7 +80,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn outlined @click="cancelAddUser">
+          <v-btn variant="variant="outlined"" @click="cancelAddUser">
             {{ $T('Cancel') }}
           </v-btn>
           <v-btn :disabled="!valid" color="primary" @click="addUser()">

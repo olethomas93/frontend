@@ -1,7 +1,7 @@
 <template>
   <v-tooltip open-delay="500" :right="true" :color="color">
-    <template #activator="{ on }">
-      <v-icon :color="color" v-on="on">
+    <template #activator="{ props }">
+      <v-icon :color="color" v-bind="props">
         {{ icon }}
       </v-icon>
     </template>

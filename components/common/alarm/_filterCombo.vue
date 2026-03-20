@@ -4,7 +4,7 @@
     :items="items"
     :label="label"
     :multiple="true"
-    dense
+    density="compact"
     clearable
     single-line
     @change="$emit('change', $event)"

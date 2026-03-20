@@ -4,7 +4,7 @@
       v-model="value"
       :label="$T('Aggregate')"
       :items="items"
-      dense
+      density="compact"
       width="100"
       hide-details
       @input="update"

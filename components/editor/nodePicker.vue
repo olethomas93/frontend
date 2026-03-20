@@ -3,8 +3,8 @@
     <v-text-field v-model="textFieldValue" :label="label" @click="openDialog" />
 
     <v-dialog v-model="dialog" max-width="400">
-      <!-- <template v-slot:activator="{ on }">
-          <v-btn color="primary" dark v-on="on">Åpne popup</v-btn>
+      <!-- <template v-slot:activator="{ props }">
+          <v-btn color="primary" dark v-bind="props">Åpne popup</v-btn>
         </template> -->
       <v-card>
         <v-card-title>

@@ -1,6 +1,6 @@
 <template>
   <v-container style="width:100%;height:100%;">
-    <v-row  no-gutters align="center" style="height: 100%;">
+    <v-row  align="center" style="height: 100%;">
       <v-col  v-for="(item,index) in items" :key="index">
         <atvise-visu-v3 :base="item.nodeid" :query="{base: item.nodeid, asList: true}" :args="{base: item.nodeid, asList: true}" :settings="getDisplay(item)" />
       </v-col>

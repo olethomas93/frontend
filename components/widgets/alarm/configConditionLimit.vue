@@ -79,7 +79,7 @@
       ref="Priority"
       v-model="category"
       class="pa-2"
-      item-text="childs.Abbreviation.value"
+      item-title="childs.Abbreviation.value"
       :items="categories"
       item-value="displayname"
       style="width:170px"

@@ -1,29 +1,29 @@
 <template>
-  <v-data-table dense :headers="headers" :items="items" :items-per-page="-1" hide-default-footer>
+  <v-data-table density="compact" :headers="headers" :items="items" :items-per-page="-1" hide-default-footer>
     <template #[`item._attributes.name`]="{ item }">
       <v-text-field
         v-model="item._attributes.name"
-        dense
+        density="compact"
         hide-details
         flat
-        solo
+        variant="solo"
         @keydown.stop=""
       />
     </template>
     <template #[`item._attributes.type`]="{ item }">
       <v-select
         v-model="item._attributes.type"
-        dense
+        density="compact"
         hide-details
         flat
-        solo
+        variant="solo"
         :items="types"
       />
     </template>
     <template #[`item._attributes.trigger`]="{ item }">
       <v-checkbox
         v-model="item._attributes.trigger"
-        dense
+        density="compact"
         hide-details
         :disabled="item._attributes.type !== 'interval'"
         :true-value="'true'"

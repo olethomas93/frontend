@@ -17,7 +17,7 @@
           :value="typeof value === 'string' ? value : Number(value.toFixed(decimals))"
           :suffix="unit"
           :single-line="!showTimestamp"
-          dense
+          density="compact"
           :hide-details="!showTimestamp"
           readonly
           :loading="!showTimestamp"
@@ -37,7 +37,7 @@
           :value="value"
           :suffix="unit"
           single-line
-          dense
+          density="compact"
           _outlined
           hide-details
           readonly
