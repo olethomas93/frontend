@@ -154,7 +154,10 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    devProxy: nitroDevProxy
+    devProxy: nitroDevProxy,
+    externals: {
+      inline: ['linkedom']
+    }
   },
   experimental: {
     payloadExtraction: false
