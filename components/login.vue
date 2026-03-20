@@ -52,7 +52,7 @@
             </template> -->
           </v-text-field>
         </v-card-text>
-        <v-card-actions class="justify-center" :style="{background: $vuetify.theme.currentTheme.primary }">
+        <v-card-actions class="justify-center" style="background: rgb(var(--v-theme-primary))">
           <v-btn
             tabindex="3"
             dark
