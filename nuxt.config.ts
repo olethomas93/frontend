@@ -6,7 +6,9 @@ import { config as loadEnv } from 'dotenv'
 
 let linkedomPath: string
 try {
-  linkedomPath = createRequire(import.meta.url).resolve('linkedom')
+  const _req = createRequire(import.meta.url)
+  const pkgDir = dirname(_req.resolve('linkedom/package.json'))
+  linkedomPath = resolve(pkgDir, 'esm', 'index.js')
 } catch {
   linkedomPath = 'linkedom'
 }
