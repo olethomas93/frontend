@@ -15,7 +15,7 @@
  */
 
 import { defineEventHandler, readBody, createError } from 'h3'
-import { parseHTML, XMLSerializer } from 'linkedom'
+import { parseHTML } from 'linkedom'
 import { atviseCustomRequest } from '~/server/utils/atvise'
 
 // ---------------------------------------------------------------------------
@@ -179,8 +179,7 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
   parent.appendChild(div2)
 
   // Serialize DOM → template string
-  const serializer = new XMLSerializer()
-  let template = serializer.serializeToString(parent)
+  let template = parent.outerHTML
 
   // Replace Atvise theme colour sentinel values with Vue bindings
   template = template.replaceAll('stroke="#000001"', 'v-bind:stroke="darkColor"')
