@@ -84,7 +84,7 @@ export default {
   methods: {
     login () {
       // top.webMI.data.login(this.user, this.password)
-      this.$auth.loginWith('atviseLocal', this.user, this.password)
+      this.$auth.loginWith('atviseLocal', { username: this.user, password: this.password })
     }
   }
 }
