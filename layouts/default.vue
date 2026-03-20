@@ -138,7 +138,7 @@ const authStore = useAuthStore()
 const { loggedIn, userData } = storeToRefs(atviseStore)
 const { currentUser } = storeToRefs(authStore)
 
-const isLocal = computed(() => Boolean(get(runtimeConfig, 'atvise.local')))
+const isLocal = computed(() => Boolean(get(runtimeConfig, 'public.atvise.local')))
 const isLoggedIn = computed(() => Boolean(loggedIn.value))
 const defaultDisplay = computed(() => userData.value?.defaultdisplay)
 const displaySettings = computed(() => {
@@ -201,7 +201,7 @@ if (process.client) {
 
 const isDark = ref(false)
 watch(isDark, (value) => {
-  theme.global.name.value = value ? 'dark' : 'light'
+  theme.change(value ? 'dark' : 'light')
 }, { immediate: true })
 
 if (process.client) {
@@ -317,7 +317,7 @@ onMounted(() => {
   eventBus = (nuxtApp.vueApp.config.globalProperties as any)?.$eventBus as Emitter<Record<string, any>> | undefined
   eventBus?.on?.('openDisplay', openDisplayHandler)
 
-  appCr.value = lodashGet(runtimeConfig, 'app_meta.cr', '')
+  appCr.value = lodashGet(runtimeConfig, 'public.app_meta.cr', '')
   appVers.value = (version as any).vers
   appName.value = (version as any).release_name
 

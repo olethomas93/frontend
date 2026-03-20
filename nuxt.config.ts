@@ -180,7 +180,7 @@ export default defineNuxtConfig({
       'process.env.DEBUG': false
     },
     optimizeDeps: {
-      include: ['vuetify']
+      include: ['vuetify', 'xml-js']
     },
     resolve: {
       alias: {
