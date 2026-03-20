@@ -1,5 +1,5 @@
 <template>
-  <div slot-scope="{ hover }" style="user-select:none;height:100%">
+  <div style="user-select:none;height:100%">
     <component
       :is="widget"
       v-if="widget"
@@ -14,12 +14,11 @@
       :event-bus="eventBus"
       :query2="query"
       v-bind="$attrs"
-      v-on="$listeners"
       @title="emitTitle"
       @timestamp="$emit('timestamp', $event)"
       @openDialog="openDialog"
       @closeDialog="closeDialog"
-      @hook:mounted="$emit('mounted')"
+      @vue:mounted="$emit('mounted')"
     />
     <atvise-dialog :dialog="dialog" :config="dialogConfig" @close="dialog=false" />
   </div>
