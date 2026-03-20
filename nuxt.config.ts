@@ -49,7 +49,15 @@ const proxyOptions = (target: string) => ({
   ws: true
 })
 
+// Vite proxy (no ws) ensures .js files proxied before Vite's transform pipeline
+const viteProxyOptions = (target: string) => ({
+  target,
+  changeOrigin: true,
+  secure: false
+})
+
 const nitroDevProxy = development ? createProxyMap(proxyOptions) : undefined
+const viteDevProxy = development ? createProxyMap(viteProxyOptions) : undefined
 
 export default defineNuxtConfig({
   ssr: false,
@@ -191,7 +199,8 @@ export default defineNuxtConfig({
       hmr: {
         host: devHost,
         port: devPort
-      }
+      },
+      proxy: viteDevProxy || undefined
     }
   }
 })
