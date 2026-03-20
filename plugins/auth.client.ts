@@ -2,6 +2,7 @@ import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import mitt from 'mitt'
 import { reactive } from 'vue'
 import { useAuthStore } from '~/stores/auth'
+import { useAtviseStore } from '~/stores/atvise'
 
 interface AuthState {
   loggedIn: boolean
@@ -23,7 +24,7 @@ interface AuthStrategy {
   initialize(): Promise<void>
   handleRedirect(url: URL): Promise<boolean>
   restoreSession(): Promise<any | null>
-  login(options?: Record<string, any>): Promise<void>
+  login(options?: Record<string, any>): Promise<any>
   logout(): Promise<void>
   refreshTokens?(): Promise<RefreshResult | void>
 }
@@ -324,6 +325,36 @@ class AadStrategy implements AuthStrategy {
   }
 }
 
+class AtviseLocalStrategy implements AuthStrategy {
+  public readonly name = 'atviseLocal'
+  public readonly token = new TokenAccessor()
+  public readonly idToken = new TokenAccessor()
+
+  async initialize() {}
+  async handleRedirect(_url: URL) { return false }
+  async restoreSession() { return null }
+
+  async login(options?: Record<string, any>): Promise<any> {
+    const { username, password } = options ?? {}
+    const result = await $fetch<{ username: string; role?: string; additionalInfo?: string }>(
+      '/api/webmi/login',
+      { method: 'POST', body: { username, password } }
+    )
+    // webMI clientvariableschange won't fire (HTTP transport broken), so set
+    // the atvise store directly so the layout renders after local login.
+    const atviseStore = useAtviseStore()
+    atviseStore.setUserData({ username: result.username, additionalInfo: result.additionalInfo })
+    atviseStore.setLoggedIn(true)
+    return { name: result.username, email: result.username, role: result.role }
+  }
+
+  async logout() {
+    const atviseStore = useAtviseStore()
+    atviseStore.setLoggedIn(false)
+    atviseStore.setUserData({})
+  }
+}
+
 function createStubAuth() {
   const state: AuthState = reactive({
     loggedIn: false,
@@ -370,6 +401,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (authConfig.aad?.clientId) {
     strategies.aad = new AadStrategy('aad', authConfig.aad)
   }
+  // Always available: direct Atvise username/password login (used in local mode)
+  strategies.atviseLocal = new AtviseLocalStrategy()
 
   const state = reactive<AuthState>({
     loggedIn: false,
@@ -467,7 +500,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
       state.strategy = name
       authStore.setStrategy(name)
-      await strategy.login(options)
+      const user = await strategy.login(options)
+      // For non-redirect strategies (e.g. atviseLocal) login() returns the user directly
+      if (user) {
+        setLoggedIn(name, user)
+      }
     },
     async logout() {
       const strategy = state.strategy ? strategies[state.strategy] : null
