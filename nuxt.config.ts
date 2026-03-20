@@ -50,7 +50,6 @@ const proxyOptions = (target: string) => ({
 })
 
 const nitroDevProxy = development ? createProxyMap(proxyOptions) : undefined
-const viteDevProxy = development ? createProxyMap(proxyOptions) : undefined
 
 export default defineNuxtConfig({
   ssr: false,
@@ -192,8 +191,7 @@ export default defineNuxtConfig({
       hmr: {
         host: devHost,
         port: devPort
-      },
-      proxy: viteDevProxy || undefined
+      }
     }
   }
 })
