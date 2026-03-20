@@ -184,7 +184,8 @@ export default defineNuxtConfig({
     },
     resolve: {
       alias: {
-        'vue2-leaflet': resolve(currentDir, 'shims/vue2Leaflet.ts')
+        'vue2-leaflet': resolve(currentDir, 'shims/vue2Leaflet.ts'),
+        'stream': resolve(currentDir, 'shims/stream.ts')
       }
     },
     server: {

@@ -1,24 +1,21 @@
 <template>
-  <v-app :dark="isDark">
+  <v-app>
     <v-main class="Background">
-      <nuxt />
+      <slot />
     </v-main>
   </v-app>
 </template>
 
-<script>
-export default {
-  data () {
-    return {
-      isDark: true
-    }
-  },
-  head () {
-    return {
-      title: this.$config.app_meta.title1 + '-' + this.$config.app_meta.title2
-    }
-  }
-}
+<script setup lang="ts">
+import { useRuntimeConfig } from '#imports'
+import { useHead } from '#app'
+
+const runtimeConfig = useRuntimeConfig()
+const meta = runtimeConfig.public.app_meta as { title1?: string; title2?: string }
+
+useHead({
+  title: `${meta.title1 ?? ''} - ${meta.title2 ?? ''}`
+})
 </script>
 
 <style>
