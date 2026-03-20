@@ -4,6 +4,13 @@ import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { config as loadEnv } from 'dotenv'
 
+let linkedomPath: string
+try {
+  linkedomPath = createRequire(import.meta.url).resolve('linkedom')
+} catch {
+  linkedomPath = 'linkedom'
+}
+
 loadEnv()
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
@@ -157,7 +164,7 @@ export default defineNuxtConfig({
   nitro: {
     devProxy: nitroDevProxy,
     alias: {
-      linkedom: createRequire(import.meta.url).resolve('linkedom')
+      linkedom: linkedomPath
     }
   },
   experimental: {
