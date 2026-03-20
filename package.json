@@ -20,6 +20,7 @@
     "leaflet-curve": "^1.0.0",
     "leaflet-customlayer": "^2.1.0",
     "leaflet.markercluster": "^1.5.3",
+    "linkedom": "^0.18.12",
     "lodash": "^4.17.21",
     "mitt": "^3.0.1",
     "monaco-editor": "^0.19.3",
