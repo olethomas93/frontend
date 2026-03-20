@@ -141,7 +141,7 @@
 definePageMeta({ layout: 'login' })
 </script>
 
-<script>
+<script lang="ts">
 
 // import { mapMutations } from 'vuex'
 
