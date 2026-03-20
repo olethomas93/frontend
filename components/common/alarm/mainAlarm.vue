@@ -9,8 +9,8 @@
           <v-spacer />
           <!-- <v-btn icon @click="openAlarmViewer">
             <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-icon v-on="on">
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props">
                   mdi-open-in-new
                 </v-icon>
               </template>
@@ -19,8 +19,8 @@
           </v-btn> -->
           <v-btn icon @click="dialog=false">
             <v-tooltip bottom>
-              <template #activator="{ on }">
-                <v-icon v-on="on">
+              <template #activator="{ props }">
+                <v-icon v-bind="props">
                   mdi-close
                 </v-icon>
               </template>

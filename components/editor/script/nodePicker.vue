@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row>
-      <v-btn icon dense @click="dialog = true">
+      <v-btn icon density="compact" @click="dialog = true">
         <v-icon>
           mdi-dots-horizontal
         </v-icon>
@@ -9,7 +9,7 @@
       <v-btn-toggle
         :value="isRelative"
         :group="false"
-        dense
+        density="compact"
         color="primary"
         @change="setRelative"
       >
@@ -20,9 +20,9 @@
         </v-btn>
       </v-btn-toggle>
       <v-text-field
-        dense
+        density="compact"
         hide-details
-        solo
+        variant="solo"
         flat
         :disabled="isRelative"
         :value="text"
@@ -40,10 +40,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn outlined @click="selectNode">
+          <v-btn variant="variant="outlined"" @click="selectNode">
             {{ $T('Ok') }}
           </v-btn>
-          <v-btn outlined @click="dialog = false">
+          <v-btn variant="variant="outlined"" @click="dialog = false">
             {{ $T('Cancel') }}
           </v-btn>
         </v-card-actions>

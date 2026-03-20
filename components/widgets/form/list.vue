@@ -28,7 +28,7 @@
       </v-container>
       <v-card-actions v-if="buttons">
         <v-spacer />
-        <v-btn outlined @click="$emit('close')">
+        <v-btn variant="variant="outlined"" @click="$emit('close')">
           {{ cancelText }}
         </v-btn>
         <v-btn

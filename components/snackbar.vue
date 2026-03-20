@@ -12,7 +12,7 @@
     <template #action="{ attrs }">
       <v-btn
         color="red"
-        text
+        variant="text"
         v-bind="attrs"
         @click="show = false"
       >

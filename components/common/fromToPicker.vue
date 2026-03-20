@@ -10,16 +10,16 @@
       offset-y
       @update:return-value="update"
     >
-      <template #activator="{ on, attrs }">
+      <template #activator="{ props }">
         <v-text-field
           v-model="fromTo"
           _label="$T('Range')"
           prepend-icon="mdi-calendar"
-          dense
+          density="compact"
           hide-details
           readonly
           v-bind="attrs"
-          v-on="on"
+          v-bind="props"
         />
       </template>
       <v-date-picker
@@ -30,14 +30,14 @@
       >
         <v-spacer />
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="menu = false"
         >
           Cancel
         </v-btn>
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="$refs.menu.save(fromTo)"
         >

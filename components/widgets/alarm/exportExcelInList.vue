@@ -3,12 +3,12 @@
     v-model="dialog"
     width="500"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props }">
       <v-btn
-        outlined
+        variant="variant="outlined""
         color="primary"
         v-bind="attrs"
-        v-on="on"
+        v-bind="props"
         @click="startExport"
       >
         <v-icon>
@@ -29,7 +29,7 @@
         <v-spacer />
         <v-btn
           color="primary"
-          text
+          variant="text"
           @click="save"
         >
           OK

@@ -2,7 +2,7 @@
   <v-chip-group
     v-model="test2"
     multiple
-    active-class="primary--text"
+    active-class="text-primary"
     @change="input"
   >
     <v-chip

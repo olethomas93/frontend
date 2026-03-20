@@ -16,7 +16,7 @@
       max-width="500"
     >
       <v-card color="primary">
-        <v-card-title color="green darken-1">
+        <v-card-title color="green-darken-1">
            {{ `${$T(title)}` }}
         </v-card-title>
         <v-card-subtitle>
@@ -27,7 +27,7 @@
 
           <v-btn
 
-            text
+            variant="text"
             @click="dialog = false"
           >
             {{ $T('No') }}
@@ -35,7 +35,7 @@
 
           <v-btn
 
-            text
+            variant="text"
             @click="fireEvent($event)"
           >
             {{ $T('Yes') }}

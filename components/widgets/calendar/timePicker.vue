@@ -10,14 +10,14 @@
     min-width="290px"
     @update:return-value="update"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="time"
         _label="Picker in dialog"
         _prepend-icon="mdi-clock-time-four-outline"
         readonly
         v-bind="$attrs"
-        v-on="on"
+        v-bind="props"
       />
     </template>
     <v-time-picker
@@ -29,14 +29,14 @@
     >
       <v-spacer />
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="menu = false"
       >
         Cancel
       </v-btn>
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="save"
       >

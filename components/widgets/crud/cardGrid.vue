@@ -1,7 +1,7 @@
 <template>
   <div style="width:100%;height:100%;overflow-y:scroll" xmlns="http://www.w3.org/1999/xhtml">
     <v-container v-if="!responsive" :fluid="true">
-      <v-row class="flex-wrap" :no-gutters="true">
+      <v-row class="flex-wrap">
         <v-col
           v-for="(item, index) in sortedWidgets"
           :key="index"

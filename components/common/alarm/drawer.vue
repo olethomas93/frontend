@@ -13,9 +13,9 @@
   >
     <v-list nav>
       <!-- <v-list-item>
-        <v-list-item-content>
+        
           Alarmoversikt
-        </v-list-item-content>
+        
         <v-list-item-action>
           <v-btn icon @click="mini = !mini">
             <v-icon>
@@ -25,31 +25,31 @@
         </v-list-item-action>
       </v-list-item>
       <v-divider /> -->
-      <v-list-item dense @click="openDialog('AGENT.OBJECTS')">
+      <v-list-item density="compact" @click="openDialog('AGENT.OBJECTS')">
         <v-list-item-action>
           <main-alarm base="AGENT.OBJECTS" style="margin:0 0px;" />
         </v-list-item-action>
-        <v-list-item-content>
+        
           {{ $T('all_alarms_text') }}
-        </v-list-item-content>
+        
       </v-list-item>
       <v-divider />
-      <v-list-item v-for="(item,index) in extraItems" :key="index" dense @click="openPage(item.display, item.base)">
+      <v-list-item v-for="(item,index) in extraItems" :key="index" density="compact" @click="openPage(item.display, item.base)">
         <v-list-item-action>
           <component :is="item.iconComponent" />
           <!-- <servicenow-icon></servicenow-icon> -->
         </v-list-item-action>
-        <v-list-item-content>
+        
           {{ $T(item.text) }}
-        </v-list-item-content>
+        
       </v-list-item>
-      <!-- <v-list-item dense @click="openIncident('AGENT.OBJECTS.incidentCentral.default')">
+      <!-- <v-list-item density="compact" @click="openIncident('AGENT.OBJECTS.incidentCentral.default')">
         <v-list-item-action>
           <servicenow-icon></servicenow-icon>
         </v-list-item-action>
-        <v-list-item-content>
+        
           {{ $T('All incidents') }}
-        </v-list-item-content>
+        
       </v-list-item> -->
       <v-divider />
       <v-list-item>
@@ -58,14 +58,14 @@
             mdi-filter
           </v-icon>
         </v-list-item-action>
-        <v-list-item-content>
+        
           <v-list-item-title>
             {{ $T('alarms_text') }}
           </v-list-item-title>
           <v-list-item-subtitle>
             {{ $T('For this level') }}
           </v-list-item-subtitle>
-        </v-list-item-content>
+        
       </v-list-item>
       <v-list-item v-for="item in categories" :key="item.displayname" @click="openDialog(undefined, item)">
         <v-list-item-action>
@@ -78,9 +78,9 @@
             @click.stop=""
           />
         </v-list-item-action>
-        <v-list-item-content>
+        
           {{ item.childs.Abbreviation.value }}
-        </v-list-item-content>
+        
       </v-list-item>
       <v-list-item @click="openDialog(undefined, null, 'shelved')">
         <v-list-item-action>
@@ -97,9 +97,9 @@
             @click.stop=""
           />
         </v-list-item-action>
-        <v-list-item-content>
+        
           {{ $T('Shelved') }}
-        </v-list-item-content>
+        
       </v-list-item>
     </v-list>
   </v-navigation-drawer>

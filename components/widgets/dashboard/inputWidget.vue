@@ -7,19 +7,19 @@
     width="800px"
     @update:return-value="$emit('input', value)"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         :value="value"
         :label="label"
         :readonly="false"
         outlined
-        dense
-        filled
+        density="compact"
+        variant="filled"
         @change="$emit('input', $event)"
         @keydown.stop=""
       >
         <template #prepend>
-          <v-icon v-on="on">
+          <v-icon v-bind="props">
             mdi-widgets
           </v-icon>
         </template>
@@ -35,14 +35,14 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="modal = false"
         >
           {{ $T('Cancel') }}
         </v-btn>
         <!-- <v-btn
-          text
+          variant="text"
           color="primary"
           @click="$refs.dialog.save(val1)"
         >

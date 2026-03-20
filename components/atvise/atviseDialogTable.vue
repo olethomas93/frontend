@@ -2,7 +2,7 @@
   <v-data-table
     :headers="headers"
     :items="items"
-    :dense="true"
+    density="compact"
     hide-default-footer
     disable-pagination
   >
@@ -13,8 +13,8 @@
       <template v-if="isOutput(item)">
         <v-text-field
           :value="$lodash.round(item.value, 2)"
-          dense
-          solo
+          density="compact"
+          variant="solo"
           hide-details
           type="number"
           @keydown.stop=""
@@ -29,7 +29,7 @@
         v-if="true"
         v-model="item.trend"
         hide-details
-        dense
+        density="compact"
         style="margin:auto;"
         @change="trendChange($event, item)"
       />

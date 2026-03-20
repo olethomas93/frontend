@@ -9,14 +9,14 @@
     min-width="auto"
     @update:return-value="update"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="date"
         :label="label"
         _prepend-icon="mdi-calendar"
         readonly
         v-bind="$attrs"
-        v-on="on"
+        v-bind="props"
       />
     </template>
     <v-date-picker
@@ -30,14 +30,14 @@
     >
       <v-spacer />
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="menu = false"
       >
         Cancel
       </v-btn>
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="setDate(date)"
       >

@@ -3,7 +3,7 @@
     <v-data-table
       v-model="selected"
       :headers="headers"
-      :header-props="headerProps"
+     
       item-key="nodeid"
       :items="silos2"
       :items-per-page="15"
@@ -67,7 +67,7 @@
           <silo-feed-editor text="Endre fòrtype" :disabled="selected < 1" @selected="updateFeedType" />
           <v-btn
             :disabled="selected.length == 0"
-            outlined
+            variant="variant="outlined""
             @click="startScan()"
           >
             Start scan
@@ -75,13 +75,13 @@
           <v-btn
             style="position:absolute;right: 1%;"
             :disabled="selected.length == 0"
-            outlined
+            variant="variant="outlined""
             @click="startZero()"
           >
             {{ $T('Zero') }}
           </v-btn>
           <!-- <v-btn
-            outlined
+            variant="variant="outlined""
             @click="alarmDialog = true"
           >
             Alarmgrenser

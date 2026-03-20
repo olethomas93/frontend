@@ -1,7 +1,7 @@
 <template>
   <v-tooltip open-delay="500" :right="true" :color="value ? 'success' : 'error'">
-    <template #activator="{ on }">
-      <v-icon :color="value ? 'success' : 'error'" v-on="on">
+    <template #activator="{ props }">
+      <v-icon :color="value ? 'success' : 'error'" v-bind="props">
         {{ value ? 'mdi-wifi' : 'mdi-wifi-off' }}
       </v-icon>
     </template>

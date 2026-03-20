@@ -13,8 +13,8 @@
       :suffix="unit"
       outlined
       :hide-details="hideDetails"
-      :dense="dense"
-      :filled="filled"
+      :dense="density="compact""
+      :filled="variant="filled""
       readonly
       :style="{maxWidth: maxWidth}"
       @keydown.stop=""

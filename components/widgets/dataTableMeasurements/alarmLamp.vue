@@ -1,10 +1,10 @@
 <template>
   <div>
     <v-tooltip open-delay="500" :right="true" :color="alarmCount.alarms ? alarmCount.color : defaultColor">
-      <template #activator="{ on }">
-        <v-avatar v-if="alarmCount.alarms > 0" :class="alarmCount.flash ? 'blink_me' : null" :color="alarmCount.color" :size="size" v-on="on">
+      <template #activator="{ props }">
+        <v-avatar v-if="alarmCount.alarms > 0" :class="alarmCount.flash ? 'blink_me' : null" :color="alarmCount.color" :size="size" v-bind="props">
         </v-avatar>
-        <v-avatar v-else :class="alarmCount.flash ? 'blink_me' : null" :color="defaultColor" :size="size" v-on="on">
+        <v-avatar v-else :class="alarmCount.flash ? 'blink_me' : null" :color="defaultColor" :size="size" v-bind="props">
         </v-avatar>
       </template>
       <span>{{ alarmCount.alarms ? tooltipText.on : tooltipText.off }}</span>

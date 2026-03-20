@@ -7,7 +7,7 @@
       :items="items"
       :load-children="browse"
       item-key="nodeid"
-      item-text="displayname"
+      item-title="displayname"
       item-children="childs"
       transition
       color="primary"
@@ -17,7 +17,7 @@
       :multiple-active="false"
       :return-object="true"
       activatable
-      dense
+      density="compact"
       @update:active="$emit('update:active', $event)"
     >
       <template #prepend="{ item, open }">

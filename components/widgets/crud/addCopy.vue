@@ -10,13 +10,13 @@
           multiple
           :placeholder="$T('Please select object(s) to add...')"
           :items="allItems"
-          item-text="displayname"
+          item-title="displayname"
           item-value="nodeid"
         />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn outlined @click="cancel">
+        <v-btn variant="variant="outlined"" @click="cancel">
           {{ $T('Cancel') }}
         </v-btn>
         <v-btn color="primary" @click="ok">

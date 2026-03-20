@@ -19,7 +19,7 @@
       show-expand
       single-expand
       :expanded.sync="expanded"
-      dense
+      density="compact"
       class="elevation-1"
     >
       <template v-slot:[`body.prepend`]>

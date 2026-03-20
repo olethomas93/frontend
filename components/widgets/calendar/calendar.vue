@@ -7,9 +7,9 @@
     >
       <v-toolbar flat>
         <v-btn
-          outlined
+          variant="variant="outlined""
           class="mr-4"
-          color="grey darken-2"
+          color="grey-darken-2"
           @click="value=''"
         >
           {{ $T('Today') }}
@@ -37,7 +37,7 @@
           <v-select
             v-model="type"
             :items="types"
-            dense
+            density="compact"
             outlined
             hide-details
             class="ma-2"

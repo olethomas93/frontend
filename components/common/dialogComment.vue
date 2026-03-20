@@ -7,8 +7,8 @@
     @keydown.esc="cancel"
   >
     <v-card>
-      <v-toolbar dark :color="options.color" dense flat>
-        <v-toolbar-title class="white--text">
+      <v-toolbar theme="dark" :color="options.color" density="compact" flat>
+        <v-toolbar-title class="text-white">
           {{ $T(title) }}
         </v-toolbar-title>
       </v-toolbar>
@@ -26,10 +26,10 @@
       </v-card-text>
       <v-card-actions class="pt-0">
         <v-spacer />
-        <v-btn color="primary darken-1" text @click.native="agree" @keydown.stop="">
+        <v-btn color="primary-darken-1" variant="text" @click="agree" @keydown.stop="">
           Ok
         </v-btn>
-        <v-btn color="grey" text @click.native="cancel" @keydown.stop="">
+        <v-btn color="grey" variant="text" @click="cancel" @keydown.stop="">
           Cancel
         </v-btn>
       </v-card-actions>

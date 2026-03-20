@@ -21,7 +21,7 @@
               :clearable="true"
               :label="$T('Search')"
               class="mx-4"
-              :dense="true"
+              density="compact"
               mt-2
               @keydown.stop=""
             />
@@ -31,7 +31,7 @@
       <template #[`body.prepend`]="{ headers }">
         <tr>
           <td v-for="(header, index) in headers.slice(1)" :key="index">
-            <!-- <v-text-field dense hide-details :label="header.text" outlined @keydown.stop="" /> -->
+            <!-- <v-text-field density="compact" hide-details :label="header.text" outlined @keydown.stop="" /> -->
             <v-combobox
               v-if="header.customFilter"
               v-model="filters[header.value]"
@@ -40,8 +40,8 @@
               _multiple
               small-chips
               deletable-chips
-              filled
-              dense
+              variant="filled"
+              density="compact"
               hide-details
               label="Filter"
               outlined
@@ -70,13 +70,13 @@
           v-model="dialog"
           width="500"
         >
-          <template #activator="{ on, attrs }">
+          <template #activator="{ props }">
             <v-btn
               :disabled="selected.length === 0"
               color="primary"
-              outlined
+              variant="variant="outlined""
               v-bind="attrs"
-              v-on="on"
+              v-bind="props"
             >
               {{ $T('Modify alarms') }}
             </v-btn>
@@ -122,7 +122,7 @@
                       ref="Priority"
                       v-model="category"
                       :items="categories"
-                      item-text="childs.Abbreviation.value"
+                      item-title="childs.Abbreviation.value"
                       item-value="displayname"
                       :label="$T('Category')"
                       class="pa-2"
@@ -136,7 +136,7 @@
               <v-spacer />
               <v-btn
                 color="primary"
-                text
+                variant="text"
                 @click="save"
               >
                 OK

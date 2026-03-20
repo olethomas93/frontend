@@ -7,19 +7,19 @@
     width="800px"
     @update:return-value="$emit('input', value)"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         :value="value"
         :label="label"
         :readonly="false"
         outlined
-        filled
-        dense
+        variant="filled"
+        density="compact"
         @change="$emit('input', $event)"
         @keydown.stop=""
       >
         <template #prepend>
-          <v-icon v-on="on">
+          <v-icon v-bind="props">
             mdi-file-tree
           </v-icon>
           <!-- <v-icon @click="relative = !relative">
@@ -28,7 +28,7 @@
           <v-select
             v-if="relative"
             :items="queryItems"
-            dense
+            density="compact"
             outlined
             hide-details
             style="width:100px"
@@ -53,14 +53,14 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="modal = false"
         >
           Cancel
         </v-btn>
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="$refs.dialog.save(val1)"
         >

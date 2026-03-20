@@ -5,11 +5,11 @@
     dark
     style="z-index:999"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props }">
       <v-btn
         icon
         v-bind="attrs"
-        v-on="on"
+        v-bind="props"
       >
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
@@ -24,9 +24,9 @@
         <v-list-item-icon v-if="item.icon">
           <v-icon v-text="item.icon" />
         </v-list-item-icon>
-        <v-list-item-content>
+        
           <v-list-item-title>{{ item.text }}</v-list-item-title>
-        </v-list-item-content>
+        
       </v-list-item>
       <v-divider />
       <slot name="user" />
@@ -38,9 +38,9 @@
         <v-list-item-icon v-if="item.icon">
           <v-icon v-text="item.icon" />
         </v-list-item-icon>
-        <v-list-item-content>
+        
           <v-list-item-title>{{ item.text }}</v-list-item-title>
-        </v-list-item-content>
+        
       </v-list-item>
     </v-list>
   </v-menu>

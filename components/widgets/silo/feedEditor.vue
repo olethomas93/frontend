@@ -1,10 +1,10 @@
 <template>
-  <v-dialog v-model="dialog" scrollable max-width="800px">
-    <template #activator="{ on }">
-      <v-btn v-if="!text" text icon v-on="on">
+  <v-dialog v-model="dialog" max-width="800px">
+    <template #activator="{ props }">
+      <v-btn v-if="!variant="text""  icon v-bind="props">
         <v-icon>mdi-cog</v-icon>
       </v-btn>
-      <v-btn else outlined :disabled="disabled" v-on="on">
+      <v-btn else variant="variant="outlined"" :disabled="disabled" v-bind="props">
         {{ text }}
       </v-btn>
     </template>
@@ -24,14 +24,14 @@
         <v-spacer />
 
         <v-dialog v-model="dia" max-width="500px">
-          <!-- <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark class="mb-2" v-on="on">Legg til</v-btn>
+          <!-- <template v-slot:activator="{ props }">
+            <v-btn color="primary" dark class="mb-2" v-bind="props">Legg til</v-btn>
           </template>-->
           <v-card>
             <v-card-title>
               <span class="headline">{{ formTitle }}</span>
               <v-spacer />
-              <v-btn text icon @click.native="dia = false">
+              <v-btn variant="text" icon @click="dia = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </v-card-title>
@@ -57,16 +57,16 @@
             <v-divider class="mx-0" />
             <v-card-actions>
               <v-spacer />
-              <v-btn color="blue darken-1" text @click="close">
+              <v-btn color="blue-darken-1" variant="text" @click="close">
                 Avbryt
               </v-btn>
-              <v-btn color="blue darken-1" text @click="save">
+              <v-btn color="blue-darken-1" variant="text" @click="save">
                 Lagre
               </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-btn text icon @click.native="dialog = false">
+        <v-btn variant="text" icon @click="dialog = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
         <!-- </v-toolbar> -->

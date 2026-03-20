@@ -26,7 +26,7 @@
       <template #activator>
         <v-btn
           v-model="fab"
-          color="blue darken-2"
+          color="blue-darken-2"
           dark
           fab
         >

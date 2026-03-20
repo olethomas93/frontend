@@ -10,14 +10,14 @@
     max-width="290px"
     min-width="290px"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="time"
         label="Velg Klokkeslett"
         _prepend-icon="mdi-clock-time-four-outline"
         readonly
         v-bind="$attrs"
-        v-on="on"
+        v-bind="props"
       />
     </template>
     <v-time-picker

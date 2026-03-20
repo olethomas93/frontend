@@ -1,10 +1,10 @@
 <template>
-  <v-btn-toggle dense :value="value" @change="$emit('input', $event)">
+  <v-btn-toggle density="compact" :value="value" @change="$emit('input', $event)">
     <v-btn
       v-for="(btn, index) in buttons"
       :key="index"
       width="150"
-      outlined
+      variant="variant="outlined""
       :color="btn.color"
       :value="btn.value"
     >

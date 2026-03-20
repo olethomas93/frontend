@@ -11,7 +11,7 @@
     min-width="290px"
     @update:return-value="update"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="value"
         label=""
@@ -19,7 +19,7 @@
         readonly
         :style="{maxWidth: maxWidth}"
         v-bind="attrs"
-        v-on="on"
+        v-bind="props"
       />
     </template>
     <v-time-picker

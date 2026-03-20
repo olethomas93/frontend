@@ -5,15 +5,15 @@
         <v-expansion-panel-header>
           <v-row>
             <v-col cols="12" md="3">
-              <form-date-time-picker v-model="from" :dense="true" :outlined="true" :label="$T('From')" :hide-details="true" />
+              <form-date-time-picker v-model="from" density="compact" :outlined="true" :label="$T('From')" :hide-details="true" />
             </v-col>
             <v-col cols="12" md="3">
-              <form-date-time-picker v-model="to" :dense="true" :outlined="true" :label="$T('To')" :hide-details="true" />
+              <form-date-time-picker v-model="to" density="compact" :outlined="true" :label="$T('To')" :hide-details="true" />
             </v-col>
             <v-col cols="12" md="3">
               <v-select
                 v-model="selectedType"
-                :dense="true"
+                density="compact"
                 :outlined="true"
                 :items="types"
                 :label="$T('Type')"
@@ -42,7 +42,7 @@
             <v-col cols="3">
               <v-select
                 v-model="filterPriority"
-                dense
+                density="compact"
                 hide-details
                 outlined
                 multiple
@@ -56,7 +56,7 @@
             <v-col cols="3">
               <v-select
                 v-model="filterArea"
-                dense
+                density="compact"
                 hide-details
                 outlined
                 chips
@@ -70,7 +70,7 @@
               <v-text-field
                 v-if="filterArea"
                 v-model="filterSystem"
-                dense
+                density="compact"
                 hide-details
                 outlined
                 clearable

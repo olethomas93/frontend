@@ -8,14 +8,14 @@
     width="290px"
     @input="save(time)"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-text-field
         v-model="time"
         _label="Picker in dialog"
         prepend-icon="mdi-clock-time-four-outline"
         readonly
         v-bind="$attrs"
-        v-on="on"
+        v-bind="props"
       />
     </template>
     <v-time-picker
@@ -27,14 +27,14 @@
     >
       <v-spacer />
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="modal2 = false"
       >
         Cancel
       </v-btn>
       <v-btn
-        text
+        variant="text"
         color="primary"
         @click="$refs.dialog.save(value)"
       >

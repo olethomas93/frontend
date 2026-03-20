@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-switch dense hide-details label="Min max" @change="showMinMax" />
+    <v-switch density="compact" hide-details label="Min max" @change="showMinMax" />
   </div>
 </template>
 

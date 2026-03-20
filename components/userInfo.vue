@@ -2,7 +2,7 @@
   <div :style="{background: mini ? 'transparent' : 'transparent'}">
     <v-list
       nav
-      dense
+      density="compact"
       class="pa-0"
       color="rgba(0,0,0,0)"
       _style="height:64px;"
@@ -10,10 +10,10 @@
       <!-- <v-list-item style="margin-left:3px;height:56px;"> -->
       <v-list-item style="height:56px;" @click="dialog=true">
         <v-tooltip left>
-          <template #activator="{ on, attrs }">
-            <v-list-item-avatar v-if="name" size="36" color="primary" v-bind="attrs" v-on="on">
-              <span class="white--text text-h6">{{ name.slice(0,2) }}</span>
-            </v-list-item-avatar>
+          <template #activator="{ props }">
+            <v-avatar v-if="name" size="36" color="primary" v-bind="attrs" v-bind="props">
+              <span class="text-white text-h6">{{ name.slice(0,2) }}</span>
+            </v-avatar>
           </template>
           <span>{{ name }}</span>
         </v-tooltip>
@@ -22,8 +22,8 @@
         </v-list-item-title>
         <!-- <v-list-item-action>
           <v-menu bottom left>
-            <template #activator="{ on }">
-              <v-btn icon v-on="on" @click.stop>
+            <template #activator="{ props }">
+              <v-btn icon v-bind="props" @click.stop>
                 <v-icon>
                   mdi-dots-vertical
                 </v-icon>
@@ -44,11 +44,11 @@
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
               </v-list-item>
               <v-list-item style="margin-left:3px;height:56px;">
-                <v-list-item-content>
+                
                   <v-btn @click="logout">
                     Logg ut
                   </v-btn>
-                </v-list-item-content>
+                
               </v-list-item>
             </v-list>
           </v-menu>

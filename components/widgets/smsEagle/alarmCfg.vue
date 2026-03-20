@@ -23,7 +23,7 @@
             hide-details
             label="Søk"
             class="mx-4"
-            :dense="false"
+            
             clearable
             @keydown.stop=""
           />
@@ -91,7 +91,7 @@
     </template>
 
     <template #[`item.alarmLimit`]="{ item }">
-      <v-simple-checkbox v-if="item.alarmLimit === true || item.alarmLimit === false" v-model="item.alarmLimit" :disabled="!isAdmin" :ripple="false" @input="setValue(item, 'alarmLimit')" />
+      <v-checkbox v-if="item.alarmLimit === true || item.alarmLimit === false" v-model="item.alarmLimit" :disabled="!isAdmin" :ripple="false" @input="setValue(item, 'alarmLimit')" />
       <v-edit-dialog
         v-else
         large
@@ -115,11 +115,11 @@
     </template>
 
     <template #[`item.email`]="{ item }">
-      <v-simple-checkbox v-model="item.email" :ripple="false" @click="setValue(item, 'email')" />
+      <v-checkbox v-model="item.email" :ripple="false" @click="setValue(item, 'email')" />
     </template>
 
     <template #[`item.sms`]="{ item }">
-      <v-simple-checkbox v-model="item.sms" :ripple="false" @click="setValue(item, 'sms')" />
+      <v-checkbox v-model="item.sms" :ripple="false" @click="setValue(item, 'sms')" />
     </template>
     <template #[`item.enabled`]="{ item }">
       <v-switch

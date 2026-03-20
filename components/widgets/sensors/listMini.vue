@@ -47,7 +47,7 @@
     <template #[`item.graf`]="{ item }">
       <v-tooltip bottom>
         <template #activator="{ on , attrs }">
-          <div v-bind="attrs" v-on="on">
+          <div v-bind="attrs" v-bind="props">
             <sparkline
               ref="graph"
               :update="update"

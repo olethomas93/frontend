@@ -30,6 +30,56 @@ const darkColors = {
   card: '#ff00ff'
 }
 
+// ---------------------------------------------------------------------------
+// Breakpoint compatibility (v2 $vuetify.breakpoint → v3 useDisplay equivalent)
+// Returns a proxy that computes breakpoint booleans from window.innerWidth at
+// read time — non-reactive but sufficient for template conditionals that
+// re-render on layout events already handled by the parent.
+// ---------------------------------------------------------------------------
+function createBreakpointProxy () {
+  return new Proxy({} as Record<string, unknown>, {
+    get (_, prop: string) {
+      if (!process.client) {
+        // Sensible server-side defaults (md breakpoint)
+        const ssrDefaults: Record<string, unknown> = {
+          xs: false, sm: false, md: true, lg: false, xl: false,
+          xsOnly: false, smOnly: false, mdOnly: true, lgOnly: false, xlOnly: false,
+          smAndDown: false, smAndUp: true,
+          mdAndDown: true, mdAndUp: true,
+          lgAndDown: true, lgAndUp: false,
+          name: 'md', width: 1280, height: 800, mobile: false
+        }
+        return ssrDefaults[prop]
+      }
+      const w = window.innerWidth
+      const h = window.innerHeight
+      const xs = w < 600
+      const sm = w >= 600 && w < 960
+      const md = w >= 960 && w < 1280
+      const lg = w >= 1280 && w < 1920
+      const xl = w >= 1920
+      const bp: Record<string, unknown> = {
+        xs, sm, md, lg, xl,
+        xsOnly: xs, smOnly: sm, mdOnly: md, lgOnly: lg, xlOnly: xl,
+        smAndDown: xs || sm,
+        smAndUp: !xs,
+        mdAndDown: xs || sm || md,
+        mdAndUp: md || lg || xl,
+        lgAndDown: xs || sm || md || lg,
+        lgAndUp: lg || xl,
+        name: xs ? 'xs' : sm ? 'sm' : md ? 'md' : lg ? 'lg' : 'xl',
+        width: w,
+        height: h,
+        mobile: xs || sm
+      }
+      return bp[prop]
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Theme colour proxy (v2 currentTheme → v3 theme.colors)
+// ---------------------------------------------------------------------------
 function createThemeProxy (vuetify: ReturnType<typeof createVuetify>, themeName: string) {
   return new Proxy<Record<string, string>>({}, {
     get (_, prop: string) {
@@ -56,13 +106,32 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   })
 
-  const compatibilityLayer = {
-    theme: {
-      themes: {
-        light: createThemeProxy(vuetify, 'light'),
-        dark: createThemeProxy(vuetify, 'dark')
-      }
+  const breakpoint = createBreakpointProxy()
+  const lightProxy = createThemeProxy(vuetify, 'light')
+  const darkProxy = createThemeProxy(vuetify, 'dark')
+
+  const themeCompat = {
+    // v2: $vuetify.theme.currentTheme → current theme colours object
+    get currentTheme () {
+      const name = vuetify.theme.global.name.value as string
+      return vuetify.theme.themes.value[name]?.colors ?? {}
+    },
+    // v2: $vuetify.theme.dark (boolean getter/setter to toggle theme)
+    get dark () {
+      return vuetify.theme.global.name.value === 'dark'
+    },
+    set dark (value: boolean) {
+      vuetify.theme.global.name.value = value ? 'dark' : 'light'
+    },
+    themes: {
+      light: lightProxy,
+      dark: darkProxy
     }
+  }
+
+  const compatibilityLayer = {
+    theme: themeCompat,
+    breakpoint
   }
 
   nuxtApp.vueApp.use(vuetify)
@@ -70,13 +139,13 @@ export default defineNuxtPlugin((nuxtApp) => {
   defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$vuetify', compatibilityLayer)
 
   if (process.client) {
-    const globalWindow = window as typeof window & { $nuxt?: Record<string, any> }
+    const globalWindow = window as typeof window & { $nuxt?: Record<string, unknown> }
     globalWindow.$nuxt = globalWindow.$nuxt || {}
     globalWindow.$nuxt.$vuetify = compatibilityLayer
   }
 })
 
-function defineGlobalProperty (target: Record<string, any>, key: string, value: any) {
+function defineGlobalProperty (target: Record<string, unknown>, key: string, value: unknown) {
   if (!target || typeof target !== 'object') { return }
   const descriptor = Object.getOwnPropertyDescriptor(target, key)
   if (descriptor && descriptor.configurable === false) {
@@ -88,8 +157,6 @@ function defineGlobalProperty (target: Record<string, any>, key: string, value: 
   Object.defineProperty(target, key, {
     configurable: true,
     enumerable: false,
-    get () {
-      return value
-    }
+    get () { return value }
   })
 }

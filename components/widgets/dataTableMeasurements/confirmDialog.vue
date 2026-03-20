@@ -6,14 +6,14 @@
     @keydown.esc="cancel"
   >
     <v-card>
-      <v-toolbar dark :color="options.color" dense flat>
-        <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
+      <v-toolbar theme="dark" :color="options.color" density="compact" flat>
+        <v-toolbar-title class="text-body-2 font-weight-bold text-medium-emphasis">
           {{ $T(title) }}
         </v-toolbar-title>
       </v-toolbar>
       <v-card-text
         v-show="!!message"
-        class="pa-4 grey--text"
+        class="pa-4 text-medium-emphasis"
       >
         {{ $T(message) }}
       </v-card-text>
@@ -22,15 +22,15 @@
         <v-btn
           v-if="!options.noconfirm"
           color="grey"
-          outlined
-          @click.native="cancel"
+          variant="variant="outlined""
+          @click="cancel"
         >
           {{ $T('Cancel') }}
         </v-btn>
         <v-btn
           color="primary"
-          outlined
-          @click.native="agree"
+          variant="variant="outlined""
+          @click="agree"
         >
           {{ $T('OK') }}
         </v-btn>

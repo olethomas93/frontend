@@ -23,10 +23,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="blue darken-1" text @click="closeDialog">
+          <v-btn color="blue-darken-1" variant="text" @click="closeDialog">
             Avbryt
           </v-btn>
-          <v-btn color="blue darken-1" text @click="saveItem">
+          <v-btn color="blue-darken-1" variant="text" @click="saveItem">
             Lagre
           </v-btn>
         </v-card-actions>
@@ -40,10 +40,10 @@
         <v-card-text>Er du sikker på at du vil slette denne ressursen?</v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="green darken-1" text @click="deleteDialog = false">
+          <v-btn color="green-darken-1" variant="text" @click="deleteDialog = false">
             Avbryt
           </v-btn>
-          <v-btn color="red darken-1" text @click="deleteConfirmed()">
+          <v-btn color="red-darken-1" variant="text" @click="deleteConfirmed()">
             Slett
           </v-btn>
         </v-card-actions>

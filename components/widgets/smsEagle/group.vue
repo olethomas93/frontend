@@ -11,10 +11,10 @@
               <v-list-item-icon v-if="isEscalation" class="handle">
                 <v-icon>mdi-drag</v-icon>
               </v-list-item-icon>
-              <v-list-item-content>
+              
                 <v-list-item-title>{{ contact.Name }}</v-list-item-title>
                 <v-list-item-subtitle>{{ contact.Number }}</v-list-item-subtitle>
-              </v-list-item-content>
+              
             </v-list-item>
           </v-card>
         </template>
@@ -22,7 +22,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer />
-      <v-btn outlined @click="$emit('close')">
+      <v-btn variant="variant="outlined"" @click="$emit('close')">
         Cancel
       </v-btn>
       <v-btn color="primary" @click="save">

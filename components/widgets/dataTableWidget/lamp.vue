@@ -2,8 +2,8 @@
 <template>
   <div v-if="!isString">
     <v-tooltip open-delay="500" :right="true" :color="valueFix ? colors.success : colors.error">
-      <template #activator="{ on }">
-        <v-icon :color="valueFix ? colors.success : colors.error" v-on="on">
+      <template #activator="{ props }">
+        <v-icon :color="valueFix ? colors.success : colors.error" v-bind="props">
           {{ valueFix ? 'mdi-circle' : 'mdi-circle' }}
         </v-icon>
       </template>

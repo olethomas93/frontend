@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/return-in-computed-property -->
 <template>
   <v-tooltip open-delay="500" :right="true" :color="valueFix ? 'error' : 'success'">
-    <template #activator="{ on }">
-      <v-icon v-if="!valueText" :color="valueFix ? 'error' : 'success'" v-on="on">
+    <template #activator="{ props }">
+      <v-icon v-if="!valueText" :color="valueFix ? 'error' : 'success'" v-bind="props">
         {{ valueFix ? 'mdi-circle' : 'mdi-circle' }}
       </v-icon>
       <div v-else>
