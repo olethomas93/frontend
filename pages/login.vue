@@ -26,7 +26,7 @@
             v-model="user"
             placeholder="username"
             prepend-inner-icon="mdi-account"
-            outlined
+            variant="outlined"
             tabindex="1"
             autofocus
             :error-messages="formError"
@@ -37,7 +37,7 @@
             type="password"
             placeholder="password"
             prepend-inner-icon="mdi-lock"
-            outlined
+            variant="outlined"
             tabindex="2"
             @keydown.stop=""
             @keydown.enter="login(true)"
@@ -100,7 +100,7 @@
             v-model="user"
             placeholder="username"
             prepend-inner-icon="mdi-account"
-            outlined
+            variant="outlined"
             tabindex="1"
             autofocus
             @keydown.stop=""
@@ -111,7 +111,7 @@
             type="password"
             placeholder="password"
             prepend-inner-icon="mdi-lock"
-            outlined
+            variant="outlined"
             tabindex="2"
             @keydown.stop=""
             @keydown.enter="login"

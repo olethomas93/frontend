@@ -44,7 +44,7 @@
                 v-model="filterPriority"
                 density="compact"
                 hide-details
-                outlined
+                variant="outlined"
                 multiple
                 chips
                 small-chips
@@ -58,7 +58,7 @@
                 v-model="filterArea"
                 density="compact"
                 hide-details
-                outlined
+                variant="outlined"
                 chips
                 small-chips
                 deletable-chips
@@ -72,7 +72,7 @@
                 v-model="filterSystem"
                 density="compact"
                 hide-details
-                outlined
+                variant="outlined"
                 clearable
                 :label="$T('System')"
               />

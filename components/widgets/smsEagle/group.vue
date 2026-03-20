@@ -22,7 +22,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer />
-      <v-btn variant="variant="outlined"" @click="$emit('close')">
+      <v-btn variant="outlined" @click="$emit('close')">
         Cancel
       </v-btn>
       <v-btn color="primary" @click="save">

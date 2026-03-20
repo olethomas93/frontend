@@ -5,7 +5,7 @@
       label="Node id"
       density="compact"
       readonly
-      outlined
+      variant="outlined"
     />
     <editor-dialog2
       v-for="(field, key) in fields"

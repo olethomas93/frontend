@@ -4,7 +4,6 @@
     <resize-observer emit-on-mount @notify="handleResize" />
     <v-data-table
       v-model="selected"
-      v-bind="attrs"
       :search="search"
       :headers="headers"
       :items-per-page="15"
@@ -31,7 +30,7 @@
       <template #[`body.prepend`]="{ headers }">
         <tr>
           <td v-for="(header, index) in headers.slice(1)" :key="index">
-            <!-- <v-text-field density="compact" hide-details :label="header.text" outlined @keydown.stop="" /> -->
+            <!-- <v-text-field density="compact" hide-details :label="header.text" variant="outlined" @keydown.stop="" /> -->
             <v-combobox
               v-if="header.customFilter"
               v-model="filters[header.value]"
@@ -74,8 +73,7 @@
             <v-btn
               :disabled="selected.length === 0"
               color="primary"
-              variant="variant="outlined""
-              v-bind="attrs"
+              variant="outlined"
               v-bind="props"
             >
               {{ $T('Modify alarms') }}
@@ -96,7 +94,7 @@
                     <v-text-field
                       v-model="onDelay"
                       hide-details
-                      outlined
+                      variant="outlined"
                       suffix="s"
                       min="0"
                       :label="$T('On delay')"

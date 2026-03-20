@@ -3,7 +3,7 @@
     <v-toolbar v-if="showToolbar" density="compact" style="z-index:5" theme="dark">
       <v-text-field
         v-model="search"
-        outlined
+        variant="outlined"
         light
         label="Search"
         density="compact"

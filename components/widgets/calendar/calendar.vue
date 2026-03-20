@@ -7,7 +7,7 @@
     >
       <v-toolbar flat>
         <v-btn
-          variant="variant="outlined""
+          variant="outlined"
           class="mr-4"
           color="grey-darken-2"
           @click="value=''"
@@ -38,7 +38,7 @@
             v-model="type"
             :items="types"
             density="compact"
-            outlined
+            variant="outlined"
             hide-details
             class="ma-2"
           />

@@ -28,7 +28,7 @@
           v-else-if="item.typedefinition === 'i=62'"
           :key="key"
           v-model="item.value"
-          outlined
+          variant="outlined"
           :label="item.displayname"
           @keydown.stop=""
           @change="write(item, $event)"

@@ -17,7 +17,6 @@
         readonly
         outlined
         variant="filled"
-        v-bind="attrs"
         v-bind="props"
       >
         <!-- <template #prepend>

@@ -30,7 +30,7 @@
         </v-card-title>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="variant="outlined"" @click="showDelete = false">
+          <v-btn variant="outlined" @click="showDelete = false">
             {{ $T('Cancel') }}
           </v-btn>
           <v-btn color="primary" @click="deleteUser">
@@ -80,7 +80,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="variant="outlined"" @click="cancelAddUser">
+          <v-btn variant="outlined" @click="cancelAddUser">
             {{ $T('Cancel') }}
           </v-btn>
           <v-btn :disabled="!valid" color="primary" @click="addUser()">

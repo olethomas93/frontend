@@ -11,7 +11,7 @@
       <v-list-item style="height:56px;" @click="dialog=true">
         <v-tooltip left>
           <template #activator="{ props }">
-            <v-avatar v-if="name" size="36" color="primary" v-bind="attrs" v-bind="props">
+            <v-avatar v-if="name" size="36" color="primary" v-bind="props">
               <span class="text-white text-h6">{{ name.slice(0,2) }}</span>
             </v-avatar>
           </template>

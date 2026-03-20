@@ -23,7 +23,7 @@
       <template #[`body.prepend`]="{ headers }">
         <tr>
           <td v-for="(header, index) in headers.slice(1)" :key="index">
-            <!-- <v-text-field density="compact" hide-details :label="header.text" outlined @keydown.stop="" /> -->
+            <!-- <v-text-field density="compact" hide-details :label="header.text" variant="outlined" @keydown.stop="" /> -->
             <v-combobox
               v-if="header.customFilter"
               v-model="filters[header.value]"
@@ -113,7 +113,7 @@
               hide-details
               :items="modes"
               :label="$T('Show')"
-              outlined
+              variant="outlined"
               :background-color="mode === 'alarms' ? undefined : '#ffc72c4a'"
             />
           </v-col>
