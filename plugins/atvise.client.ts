@@ -63,6 +63,14 @@ export default defineNuxtPlugin((nuxtApp) => {
       watch(loggedIn, (isLoggedIn) => {
         if (isLoggedIn) {
           loginAtvise(auth, webMI).catch(() => {})
+          // After atviseLocal login the session cookie is now set, but
+          // atviseStuff2.js already tried (and failed) to fetch displays.js
+          // before the user authenticated.  Retry switchLanguage so the
+          // navigation menu loads correctly.
+          const win = window as any
+          if (typeof win.switchLanguage === 'function' && win.language) {
+            win.switchLanguage(win.language)
+          }
         }
       })
 
