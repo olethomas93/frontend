@@ -109,6 +109,10 @@ export default defineNuxtConfig({
       script: [
         { src: '/webmicfg.js', defer: true },
         { id: 'projectjs', src: '/project.js', defer: true },
+        // In dev, disable webMI WebSocket so the Vite proxy is not crashed by
+        // the Atvise server resetting WebSocket upgrades.  XHR long-poll is
+        // used instead.  In production a real reverse-proxy handles WebSocket.
+        ...(development ? [{ src: '/webmi-override.js', defer: true }] : []),
         { src: '/webmi.js', defer: true },
         { src: '/atviseStuff.js', defer: true },
         { src: '/atviseStuff2.js', defer: true }
