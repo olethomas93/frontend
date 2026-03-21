@@ -10,6 +10,11 @@
  * webmi.js does via its internal Ub() / kc() functions.  The encrypted value
  * is sent as the "passwordcipher" field (NOT "password") to /webMI/?login.
  *
+ * webMI calls are routed through the Nitro devProxy (loopback via the incoming
+ * request's Host header) so that the same proxy path used by browser requests
+ * is reused — direct calls to ATVISE_PROXY would bypass any path rewriting
+ * the proxy applies and return 404.
+ *
  * On success forwards any Set-Cookie headers so the browser session is
  * established for subsequent REST calls.
  */
@@ -24,21 +29,19 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'username and password are required' })
   }
 
-  const config = useRuntimeConfig()
-  const base = (config as any).atviseProxy as string | undefined
-
-  if (!base) {
-    throw createError({ statusCode: 503, statusMessage: 'ATVISE_PROXY is not configured on the server.' })
-  }
-
-  const baseUrl = base.replace(/\/$/, '')
+  // Route through the Nitro devProxy by calling the local server's /webMI/ paths.
+  // The incoming Host header (e.g. localhost:8655) resolves to the same Nitro instance
+  // that already correctly proxies /webMI/... to the Atvise server.
+  const reqHost = event.node.req.headers['x-forwarded-host'] ?? event.node.req.headers.host ?? `localhost:${process.env.PORT || 8656}`
+  const protocol = (event.node.req.headers['x-forwarded-proto'] as string | undefined) ?? 'http'
+  const webmiBase = `${protocol}://${reqHost}`
 
   // Step 1: Fetch server info to obtain the RSA public key
   const info = await $fetch<{
     encryptionexponent?: string
     encryptionmodulus?: string
     securitysupport?: boolean
-  }>(`${baseUrl}/webMI/?info`).catch((err: any) => {
+  }>(`${webmiBase}/webMI/?info`).catch((err: any) => {
     throw createError({ statusCode: 502, statusMessage: `Failed to reach Atvise server: ${err?.message ?? err}` })
   })
 
@@ -70,7 +73,7 @@ export default defineEventHandler(async (event) => {
     formParams.password = password
   }
 
-  const loginUrl = `${baseUrl}/webMI/?login`
+  const loginUrl = `${webmiBase}/webMI/?login`
   const formBody = new URLSearchParams(formParams).toString()
 
   const response = await $fetch.raw(loginUrl, {
