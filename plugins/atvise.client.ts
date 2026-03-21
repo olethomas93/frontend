@@ -46,8 +46,16 @@ export default defineNuxtPlugin((nuxtApp) => {
     .then((environment) => {
       const { webMI } = environment
 
+      // loginAtvise is only needed for SSO strategies (AAD / auth0) that carry a
+      // bearer token webMI needs to validate.  For the local form strategy the
+      // session is established server-side and no extra webMI login call is made
+      // (matching the original atvise.js behaviour).
+      const needsWebMILogin = (strategyName: string) =>
+        strategyName.includes('aad') || strategyName === 'auth0'
+
       const attemptLogin = () => {
-        if (auth?.loggedIn) {
+        const strategyName = auth?.strategy?.name ?? ''
+        if (auth?.loggedIn && needsWebMILogin(strategyName)) {
           loginAtvise(auth, webMI).catch(() => {})
         }
       }
@@ -55,16 +63,18 @@ export default defineNuxtPlugin((nuxtApp) => {
       attemptLogin()
 
       auth?.onAuthStateChanged?.((state: any) => {
-        if (state?.loggedIn) {
+        if (state?.loggedIn && needsWebMILogin(auth?.strategy?.name ?? '')) {
           loginAtvise(auth, webMI).catch(() => {})
         }
       })
 
       watch(loggedIn, (isLoggedIn) => {
         if (isLoggedIn) {
-          loginAtvise(auth, webMI).catch(() => {})
-          // After atviseLocal login the session cookie is now set, but
-          // atviseStuff2.js already tried (and failed) to fetch displays.js
+          if (needsWebMILogin(auth?.strategy?.name ?? '')) {
+            loginAtvise(auth, webMI).catch(() => {})
+          }
+          // After atviseLocal login the session is now established server-side,
+          // but atviseStuff2.js already tried (and failed) to fetch displays.js
           // before the user authenticated.  Retry switchLanguage so the
           // navigation menu loads correctly.
           const win = window as any
