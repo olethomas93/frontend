@@ -194,12 +194,11 @@ export default {
       try {
         // await this.$auth.loginWith('auth0', { params: { prompt: 'select_account' } })
         if (local === true) {
-          const res = await this.$auth.loginWith('atviseLocal', this.user, this.password)
-          this.checklogin(res)
+          await this.$auth.loginWith('atviseLocal', { username: this.user, password: this.password })
         } else if (this.loginWith === 'aad') {
           await this.$auth.loginWith(this.loginWith, { params: { prompt: 'select_account' } })
         } else if (this.loginWith === 'atviseLocal') {
-          await this.$auth.loginWith('atviseLocal', this.user, this.password)
+          await this.$auth.loginWith('atviseLocal', { username: this.user, password: this.password })
         } else if (this.loginWith === 'auth0') {
           await this.$auth.loginWith('auth0')
         }
@@ -209,11 +208,6 @@ export default {
     },
     loginAAD () {
       this.$auth.loginWith('aad', { params: { prompt: 'select_account' } })
-    },
-    checklogin (res) {
-      if (res[''].username === '') {
-        this.formError = 'Login failed!'
-      }
     },
     async logout () {
       try {
