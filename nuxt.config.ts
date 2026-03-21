@@ -73,7 +73,12 @@ const viteWSProxyOptions = (target: string) => ({
   ws: true
 })
 
-const nitroDevProxy = development ? createProxyMap(proxyOptions) : undefined
+// Exclude /webMI from Nitro devProxy — Vite owns it (HTTP + WebSocket).
+// Both proxying the same path races on WebSocket upgrades → ECONNRESET → Nuxt crash.
+const nitroProxyEntries = activeProxyEntries.filter(([path]) => path !== '/webMI')
+const nitroDevProxy = development
+  ? Object.fromEntries(nitroProxyEntries.map(([path, target]) => [path, proxyOptions(target)]))
+  : undefined
 const viteDevProxy = development ? {
   ...createScriptProxyMap(viteProxyOptions),
   ...Object.fromEntries(
