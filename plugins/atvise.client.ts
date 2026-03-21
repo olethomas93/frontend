@@ -73,10 +73,10 @@ export default defineNuxtPlugin((nuxtApp) => {
           if (needsWebMILogin(auth?.strategy?.name ?? '')) {
             loginAtvise(auth, webMI).catch(() => {})
           }
-          // After atviseLocal login the session is now established server-side,
-          // but atviseStuff2.js already tried (and failed) to fetch displays.js
-          // before the user authenticated.  Retry switchLanguage so the
-          // navigation menu loads correctly.
+          // After atviseLocal login webMI.js has upgraded the session.
+          // atviseStuff2.js already tried (and failed) to fetch displays.js
+          // before the user authenticated.  Retry switchLanguage now that the
+          // webMI session carries auth headers so displays.js will succeed.
           const win = window as any
           if (typeof win.switchLanguage === 'function' && win.language) {
             win.switchLanguage(win.language)
