@@ -7,21 +7,18 @@
         style="box-shadow: 0 0 40px 4px #111118 !important;"
         width="350"
       >
-        <div class="justify-center rounded" style="width:100%">
-          <center>
-            <v-img
-              class="text-white align-end"
-              _height="120px"
-              _width="120px"
-              :src="logo"
-            />
-            <!-- <v-card-title>Velkommen</v-card-title> -->
-          </center>
+        <div class="d-flex justify-center rounded" style="width:100%">
+          <v-img
+            class="text-white align-end"
+            _height="120px"
+            _width="120px"
+            :src="logo"
+          />
         </div>
         <v-card-title>{{ $T(text) }}</v-card-title>
-        <template v-if="loginWith.includes('atviseLocal')">
+
+        <template v-if="showLocalForm">
           <v-card-text>{{ $T('Login in with local Atvise user') }}</v-card-text>
-          <!-------------------------- LOGIN LOCAL USER-------------------------------->
           <v-text-field
             v-model="user"
             placeholder="username"
@@ -29,7 +26,8 @@
             variant="outlined"
             tabindex="1"
             autofocus
-            :error-messages="formError"
+            :error-messages="formError ? [formError] : []"
+            :disabled="loading"
             @keydown.stop=""
           />
           <v-text-field
@@ -39,34 +37,32 @@
             prepend-inner-icon="mdi-lock"
             variant="outlined"
             tabindex="2"
+            :disabled="loading"
             @keydown.stop=""
-            @keydown.enter="login(true)"
+            @keydown.enter="loginLocal"
           />
           <v-btn
             tabindex="3"
             dark
             block
-            _color="primary"
+            :loading="loading"
+            :disabled="loading"
             height="50"
-            nuxt
-            @keydown.enter="login(true)"
-            @click="login(true)"
+            @click="loginLocal"
           >
             LOG IN
           </v-btn>
-          <v-divider :thickness="3" class="border-opacity-50 ma-4" />
+          <v-divider v-if="showAadForm" :thickness="3" class="border-opacity-50 ma-4" />
         </template>
-        <!-------------------------- AAD SECTION -------------------------------->
-        <template v-if="loginWith.includes('aad')">
+
+        <template v-if="showAadForm">
           <v-card-text>{{ $T('Click here for signin with AAD') }}</v-card-text>
-          <v-card-actions class="justify-center" :style="{background:color}">
+          <v-card-actions class="justify-center" :style="{ background: color }">
             <v-btn
               :dark="dark"
               block
               variant="text"
-              _color="primary"
               height="50"
-              nuxt
               @click="loginAAD"
             >
               {{ $T(btnText) }}
@@ -76,145 +72,89 @@
       </v-card>
     </v-row>
   </v-container>
-  <!-------------------------- Login == atviselocal -------------------------------->
-  <!-- <v-container v-else-if="loginWith === 'atviseLocal'" class="fill-height">
-    <v-row class="justify-center">
-      <v-card
-        class="rounded"
-        light
-        style="box-shadow: 0 0 40px 4px #111118 !important;"
-        width="300"
-      >
-        <div class="justify-center rounded" style="width:100%;background-color:#ffffff">
-          <center>
-            <v-img
-              class="text-white align-end"
-              _height="120px"
-              width="300px"
-              :src="logo"
-            />
-          </center>
-        </div>
-        <v-card-text>
-          <v-text-field
-            v-model="user"
-            placeholder="username"
-            prepend-inner-icon="mdi-account"
-            variant="outlined"
-            tabindex="1"
-            autofocus
-            @keydown.stop=""
-            @keydown.enter="login"
-          />
-          <v-text-field
-            v-model="password"
-            type="password"
-            placeholder="password"
-            prepend-inner-icon="mdi-lock"
-            variant="outlined"
-            tabindex="2"
-            @keydown.stop=""
-            @keydown.enter="login"
-          />
-        </v-card-text>
-        <v-card-actions class="justify-center" :style="{background: $vuetify.theme.currentTheme.primary }">
-          <v-btn
-            tabindex="3"
-            dark
-            block
-            variant="text"
-            _color="primary"
-            height="50"
-            nuxt
-            @keydown.enter="login"
-            @click="login"
-          >
-            LOG IN >
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-row>
-  </v-container> -->
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '~/stores/auth'
+
 definePageMeta({ layout: 'login' })
+
+const router = useRouter()
+const { loggedIn } = storeToRefs(useAuthStore())
+
+// Redirect to the main page as soon as the auth state becomes logged-in.
+// This covers both form-based login and SSO redirect restore.
+watch(loggedIn, (isLoggedIn) => {
+  if (isLoggedIn) {
+    router.push('/')
+  }
+}, { immediate: true })
 </script>
 
 <script lang="ts">
-
-// import { mapMutations } from 'vuex'
-
 export default {
-  data () {
+  data() {
     return {
-      error: null,
-      formError: null,
+      formError: null as string | null,
+      loading: false,
       user: '',
       password: ''
     }
   },
   computed: {
-    loginWith () {
-      // return top.webMIConfig.auth.loginWith || 'aad'
-      return this.$config.atvise.login
+    loginWith(): string | undefined {
+      // $config in Nuxt3 Options API exposes the public runtimeConfig
+      return (this.$config as any)?.atvise?.login
     },
-    logo () {
-      return this.$lodash.get(top.config, 'nuxt.login.logo.src', 'logos/logo.png')
+    // Show the local username/password form when:
+    //  - LOGIN env var explicitly includes 'atviseLocal', OR
+    //  - LOGIN is not configured and local mode is enabled (dev default)
+    showLocalForm(): boolean {
+      const lw = this.loginWith
+      if (!lw) return Boolean((this.$config as any)?.atvise?.local)
+      return lw.includes('atviseLocal')
     },
-    aadlogo () {
-      return this.$lodash.get(top.config, 'nuxt.login.aadlogo.src', 'logos/aadlogo.png')
+    showAadForm(): boolean {
+      return Boolean(this.loginWith?.includes('aad'))
     },
-    color () {
-      return this.$lodash.get(top.config, 'nuxt.login.color', '#00a3e0')
+    logo(): string {
+      try { return (window as any).top?.config?.nuxt?.login?.logo?.src ?? 'logos/logo.png' } catch { return 'logos/logo.png' }
     },
-    dark () {
-      return this.$lodash.get(top.config, 'nuxt.login.dark', true)
+    color(): string {
+      try { return (window as any).top?.config?.nuxt?.login?.color ?? '#00a3e0' } catch { return '#00a3e0' }
     },
-    text () {
-      return this.$lodash.get(top.config, 'nuxt.login.text', 'Welcome!')
+    dark(): boolean {
+      try { return (window as any).top?.config?.nuxt?.login?.dark ?? true } catch { return true }
     },
-    btnText () {
-      return this.$lodash.get(top.config, 'nuxt.login.btnText', 'To login AD >')
+    text(): string {
+      try { return (window as any).top?.config?.nuxt?.login?.text ?? 'Welcome!' } catch { return 'Welcome!' }
     },
-    usrName () {
-      return this.$lodash.get(top.config, 'nuxt.login.usrNameInput', '')
-    },
-    usrPwd () {
-      return this.$lodash.get(top.config, 'nuxt.login.usrPwdInput', '')
+    btnText(): string {
+      try { return (window as any).top?.config?.nuxt?.login?.btnText ?? 'To login AD >' } catch { return 'To login AD >' }
     }
   },
-  mounted () {
+  mounted() {
     if (this.loginWith === 'auth0') {
-      this.login()
+      // Trigger the auth0 redirect immediately on page load
+      this.$auth.loginWith('auth0').catch(() => {})
     }
   },
   methods: {
-    async login (local) {
+    async loginLocal() {
+      this.formError = null
+      this.loading = true
       try {
-        // await this.$auth.loginWith('auth0', { params: { prompt: 'select_account' } })
-        if (local === true) {
-          await this.$auth.loginWith('atviseLocal', { username: this.user, password: this.password })
-        } else if (this.loginWith === 'aad') {
-          await this.$auth.loginWith(this.loginWith, { params: { prompt: 'select_account' } })
-        } else if (this.loginWith === 'atviseLocal') {
-          await this.$auth.loginWith('atviseLocal', { username: this.user, password: this.password })
-        } else if (this.loginWith === 'auth0') {
-          await this.$auth.loginWith('auth0')
-        }
-      } catch (e) {
-        this.formError = `Login failed: ${e.message}`
+        await this.$auth.loginWith('atviseLocal', { username: this.user, password: this.password })
+        // Navigation is handled by the watch(loggedIn) in <script setup>
+      } catch (e: any) {
+        this.formError = e?.statusMessage ?? e?.message ?? 'Login failed'
+      } finally {
+        this.loading = false
       }
     },
-    loginAAD () {
-      this.$auth.loginWith('aad', { params: { prompt: 'select_account' } })
-    },
-    async logout () {
-      try {
-        await this.$store.dispatch('logout')
-      } catch (e) {
-        this.formError = e.message
-      }
+    loginAAD() {
+      this.$auth.loginWith('aad', { params: { prompt: 'select_account' } }).catch(() => {})
     }
   }
 }
