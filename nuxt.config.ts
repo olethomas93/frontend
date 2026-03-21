@@ -45,7 +45,7 @@ const activeProxyEntries = Object.entries(proxyTargets).filter(([, target]) => B
 
 const createProxyMap = <T,>(factory: (target: string) => T) => Object.fromEntries(activeProxyEntries.map(([path, target]) => [path, factory(target)]))
 
-// Only proxy static script files via Vite — WebSocket paths must NOT go through Vite proxy
+// Static script files proxied via Vite (no WebSocket needed)
 const scriptOnlyProxyPaths = new Set(['/webmi.js', '/webmicfg.js', '/project.js'])
 const scriptOnlyProxyEntries = activeProxyEntries.filter(([path]) => scriptOnlyProxyPaths.has(path))
 const createScriptProxyMap = <T,>(factory: (target: string) => T) => Object.fromEntries(scriptOnlyProxyEntries.map(([path, target]) => [path, factory(target)]))
@@ -64,8 +64,24 @@ const viteProxyOptions = (target: string) => ({
   secure: false
 })
 
+// /webMI needs WebSocket support for session establishment (?authorize / ?createsession).
+// Vite's http-proxy handles WS upgrades reliably; Nitro devProxy ws:true is unreliable.
+const viteWSProxyOptions = (target: string) => ({
+  target,
+  changeOrigin: true,
+  secure: false,
+  ws: true
+})
+
 const nitroDevProxy = development ? createProxyMap(proxyOptions) : undefined
-const viteDevProxy = development ? createScriptProxyMap(viteProxyOptions) : undefined
+const viteDevProxy = development ? {
+  ...createScriptProxyMap(viteProxyOptions),
+  ...Object.fromEntries(
+    activeProxyEntries
+      .filter(([path]) => path === '/webMI')
+      .map(([path, target]) => [path, viteWSProxyOptions(target)])
+  )
+} : undefined
 
 export default defineNuxtConfig({
   ssr: false,
