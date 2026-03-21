@@ -336,16 +336,31 @@ class AtviseLocalStrategy implements AuthStrategy {
 
   async login(options?: Record<string, any>): Promise<any> {
     const { username, password } = options ?? {}
-    const result = await $fetch<{ username: string; role?: string; additionalInfo?: string }>(
-      '/api/webmi/login',
-      { method: 'POST', body: { username, password } }
-    )
-    // webMI clientvariableschange won't fire (HTTP transport broken), so set
-    // the atvise store directly so the layout renders after local login.
-    const atviseStore = useAtviseStore()
-    atviseStore.setUserData({ username: result.username, additionalInfo: result.additionalInfo })
-    atviseStore.setLoggedIn(true)
-    return { name: result.username, email: result.username, role: result.role }
+
+    // Delegate to webMI.js's own login API so the client-side session is
+    // properly established: webMI.js handles RSA encryption, sends the
+    // credentials to ?login, upgrades the anonymous session to an
+    // authenticated one, and fires the clientvariableschange event.
+    // Calling our server-side /api/webmi/login instead would leave the
+    // client-side webMI session anonymous and displays.js would fail.
+    const webMI = await waitForWebMI(15000)
+
+    return new Promise<any>((resolve, reject) => {
+      webMI.data.login(username, password ?? '', {}, (data: any) => {
+        const result = data?.[''] ?? data
+        if (result?.username?.length > 0) {
+          // Pre-populate the atvise store immediately; clientvariableschange
+          // will follow shortly with the full payload and overwrite anyway.
+          const atviseStore = useAtviseStore()
+          atviseStore.setUserData({ username: result.username, additionalInfo: result.additionalInfo })
+          atviseStore.setLoggedIn(true)
+          resolve({ name: result.username, email: result.username, role: result.role })
+        } else {
+          const msg = result?.errorstring ?? 'Invalid username or password'
+          reject(Object.assign(new Error(msg), { statusMessage: msg, statusCode: 401 }))
+        }
+      })
+    })
   }
 
   async logout() {
@@ -529,6 +544,25 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$auth', auth)
   defineGlobalProperty(nuxtApp as any, '$auth', auth)
 })
+
+function waitForWebMI(timeout = 15000): Promise<{ data: any }> {
+  return new Promise((resolve, reject) => {
+    const start = Date.now()
+    const poll = () => {
+      const wm = (window as any).webMI
+      if (wm?.data?.login) {
+        resolve(wm)
+        return
+      }
+      if (Date.now() - start >= timeout) {
+        reject(new Error('webMI is not available — ensure webmi.js has loaded and the server is reachable'))
+        return
+      }
+      setTimeout(poll, 100)
+    }
+    poll()
+  })
+}
 
 function defineGlobalProperty (target: Record<string, any>, key: string, value: any) {
   if (!target || typeof target !== 'object') { return }
