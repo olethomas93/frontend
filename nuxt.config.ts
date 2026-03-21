@@ -86,11 +86,11 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/logos/favicon.ico' }
       ],
       script: [
-        { src: '/webmicfg.js' },
-        { id: 'projectjs', src: '/project.js' },
-        { src: '/webmi.js' },
-        { src: '/atviseStuff.js' },
-        { src: '/atviseStuff2.js' }
+        { src: '/webmicfg.js', defer: true },
+        { id: 'projectjs', src: '/project.js', defer: true },
+        { src: '/webmi.js', defer: true },
+        { src: '/atviseStuff.js', defer: true },
+        { src: '/atviseStuff2.js', defer: true }
       ]
     }
   },
