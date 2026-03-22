@@ -2,7 +2,7 @@
   <div>
     <!-- <v-layout row justify-center> -->
     <alarm-icon :node-id="base" :show-shelved="false" :overlap="true" :main="true" always />
-    <v-dialog v-model="dialog" max-width="1600" :fullscreen="$vuetify.breakpoint.smAndDown">
+    <v-dialog v-model="dialog" max-width="1600" :fullscreen="$vuetify.breakpoint?.smAndDown ?? false">
       <v-card>
         <v-card-title class="headline">
           Events

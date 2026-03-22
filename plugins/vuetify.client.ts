@@ -149,14 +149,23 @@ function defineGlobalProperty (target: Record<string, unknown>, key: string, val
   if (!target || typeof target !== 'object') { return }
   const descriptor = Object.getOwnPropertyDescriptor(target, key)
   if (descriptor && descriptor.configurable === false) {
-    if (process.dev) {
-      console.warn(`[vuetify-plugin] Unable to overwrite ${key} on target`)
+    // Non-configurable: fall back to direct assignment (works when writable:true)
+    try {
+      (target as any)[key] = value
+    } catch {
+      if (process.dev) {
+        console.warn(`[vuetify-plugin] Unable to overwrite ${key} on target`)
+      }
     }
     return
   }
-  Object.defineProperty(target, key, {
-    configurable: true,
-    enumerable: false,
-    get () { return value }
-  })
+  try {
+    Object.defineProperty(target, key, {
+      configurable: true,
+      enumerable: false,
+      get () { return value }
+    })
+  } catch {
+    try { (target as any)[key] = value } catch { /* ignore */ }
+  }
 }
