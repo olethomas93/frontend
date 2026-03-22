@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 export default {
   props: {
     title: { type: String, default: 'title' },
@@ -45,10 +44,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('alarming', [
-      'getAlarmCount',
-      'getAlarms'
-    ]),
+    getAlarmCount () { return this.$store.getters['alarming/getAlarmCount'] },
+    getAlarms () { return this.$store.getters['alarming/getAlarms'] },
     alarms () {
       const node = this.nodeid
       return this.getAlarms(node) // this.$store.state.alarming.alarms.filter((alarm) => { return alarm.base.includes(this.item.id) })

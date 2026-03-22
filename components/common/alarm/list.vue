@@ -188,7 +188,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import comment from '../dialogComment'
 import shelve from '../dialogShelve'
 import AlarmInfo from './info.vue'
@@ -241,10 +240,8 @@ export default {
     filters: {}
   }),
   computed: {
-    ...mapGetters('alarming', [
-      'getAlarmCount',
-      'getAlarms'
-    ]),
+    getAlarmCount () { return this.$store.getters['alarming/getAlarmCount'] },
+    getAlarms () { return this.$store.getters['alarming/getAlarms'] },
     language () { return top.$nuxt.$store.state.atvise.language || 'nb' },
     modes () {
       return [

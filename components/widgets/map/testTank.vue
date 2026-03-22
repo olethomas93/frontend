@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 export default {
   components: {
   },
@@ -44,9 +42,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('alarming', [
-      'getAlarmCount'
-    ]),
+    getAlarmCount () { return this.$store.getters['alarming/getAlarmCount'] },
     alarmCount () {
       return this.getAlarmCount(this.value.nodeid, false)
     },

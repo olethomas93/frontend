@@ -18,8 +18,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
 export default {
   props: {
     always: {
@@ -49,9 +47,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('alarming', [
-      'getAlarmCount'
-    ]),
+    getAlarmCount () { return this.$store.getters['alarming/getAlarmCount'] },
     alarmCount () {
       return this.getAlarmCount(this.base, this.showShelved)
     }
