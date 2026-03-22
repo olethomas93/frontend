@@ -27,13 +27,11 @@
                 mdi-clock-outline
               </v-icon>
             </v-avatar>
-            <v-list-item-content class="pl-3">
+            <div class="pl-3">
               <!-- Hele dagen -->
               {{$T('Time span')}}
-            
-            <!-- <v-list-item-action>
-              <v-switch v-model="allDay" />
-            </v-list-item-action> -->
+            </div>
+            <!-- <v-switch v-model="allDay" /> -->
           </v-list-item>
           <v-list-item>
             <v-avatar>
@@ -138,9 +136,9 @@
           <v-divider />
           <div v-for="(item, index) in extraItems" :key="index">
             <v-list-item v-if="item.text.length > 0" dense>
-              <v-list-item-content style="padding-left:68px;">
+              <div style="padding-left:68px;">
                 {{ $T(item.text) }}
-              
+              </div>
             </v-list-item>
             <v-list-item>
               <!-- <p>{{ $T(item.text) }}</p> -->

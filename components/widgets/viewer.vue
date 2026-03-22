@@ -80,7 +80,7 @@
 
 <script>
 import { Splitpanes, Pane } from 'splitpanes'
-import 'splitpanes/splitpanes.css'
+import 'splitpanes/dist/splitpanes.css'
 import Rights from '@/global/atviseRightsMixin'
 
 export default {
