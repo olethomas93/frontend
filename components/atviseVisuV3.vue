@@ -175,8 +175,8 @@ const options = {
       if (widgetName) {
         try {
           const widgetData = await $fetch(`/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`)
-          rawHtml = (widgetData as any).html ?? (widgetData as any).result ?? ''
-          rawScript = (widgetData as any).script ?? ''
+          rawHtml = widgetData.html || widgetData.result || ''
+          rawScript = widgetData.script || ''
         } catch (err) {
           console.error('[atviseVisuV3] CtrlGetWidget fetch failed for', widgetName, err)
           resolve({ template: '<div></div>', data: () => ({}) })
@@ -201,7 +201,7 @@ const options = {
         resolve({ template: '<div></div>', data: () => ({}) })
         return
       }
-      const { template, script, parameters } = fetchResult as any
+      const { template, script, parameters } = fetchResult
 
       this.parameters = parameters
 
