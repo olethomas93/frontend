@@ -18,29 +18,19 @@
       <v-list-item
         v-for="(item, index) in languages"
         :key="'02_' + index"
+        :prepend-icon="item.icon"
+        :title="item.text"
         @click="item.function"
-      >
-        <v-list-item-icon v-if="item.icon">
-          <v-icon v-text="item.icon" />
-        </v-list-item-icon>
-        
-          <v-list-item-title>{{ item.text }}</v-list-item-title>
-        
-      </v-list-item>
+      />
       <v-divider />
       <slot name="user" />
       <v-list-item
         v-for="(item, index) in items"
         :key="'01_' + index"
+        :prepend-icon="item.icon"
+        :title="item.text"
         @click="item.function"
-      >
-        <v-list-item-icon v-if="item.icon">
-          <v-icon v-text="item.icon" />
-        </v-list-item-icon>
-        
-          <v-list-item-title>{{ item.text }}</v-list-item-title>
-        
-      </v-list-item>
+      />
     </v-list>
   </v-menu>
 </template>

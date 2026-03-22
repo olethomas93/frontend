@@ -94,7 +94,7 @@ export default {
       this.filter = data.filter || {}
     })
   },
-  destroyed () {
+  unmounted () {
     this.$eventBus.$off('alarmDialog')
     clearInterval(this.interval)
   },

@@ -35,7 +35,6 @@ import('@/global/webMI_mixin').then((data) => {
 })
 
 const options = {
-  inject: ['theme'],
   props: {
     base: {
       type: String,
