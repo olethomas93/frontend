@@ -2,7 +2,7 @@
   <v-dialog
     v-if="dialog"
     v-model="dialog"
-    :fullscreen="fullscreen || $vuetify.breakpoint.smAndDown || config.fullscreen"
+    :fullscreen="fullscreen || smAndDown || config.fullscreen"
     :width="width"
     :persistent="config.modal"
   >
@@ -45,10 +45,15 @@
 </template>
 
 <script>
+import { useDisplay } from 'vuetify'
 import alarmIcon from '@/components/common/alarm/iconButton'
 export default {
   components: {
     alarmIcon
+  },
+  setup () {
+    const { smAndDown } = useDisplay()
+    return { smAndDown }
   },
   data: () => ({
     dialog: false,

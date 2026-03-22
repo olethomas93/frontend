@@ -41,26 +41,41 @@ export interface WidgetParameter {
 // ---------------------------------------------------------------------------
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<{ widget: string; scaleToMax?: boolean }>(event)
+  const body = await readBody<{
+    widget?: string
+    html?: string
+    script?: string
+    scaleToMax?: boolean
+  }>(event)
 
-  if (!body.widget) {
-    throw createError({ statusCode: 400, statusMessage: '"widget" is required.' })
+  let rawHtml: string
+  let rawScript: string
+
+  if (body.html !== undefined) {
+    // Preferred path: the browser pre-fetched CtrlGetWidget with its own
+    // webMI session.  The webMI session cookie has path=/webMI/ so it is
+    // not forwarded when the browser calls /api/* — the server cannot make
+    // an authenticated request on behalf of the browser.
+    rawHtml = body.html
+    rawScript = body.script ?? ''
+  } else if (body.widget) {
+    // Legacy server-fetch path — works when ATVISE_PROXY and cookie
+    // forwarding are both configured correctly (trusted server context).
+    const widgetData = await atviseCustomRequest(
+      event,
+      'GET',
+      `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(body.widget)}`
+    ) as AtviseWidgetResponse
+    rawHtml = widgetData.html ?? widgetData.result ?? ''
+    rawScript = widgetData.script ?? ''
+  } else {
+    throw createError({ statusCode: 400, statusMessage: 'Either "widget" or "html" is required.' })
   }
 
-  // 1. Fetch raw widget data from Atvise
-  const widgetData = await atviseCustomRequest(
-    event,
-    'GET',
-    `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(body.widget)}`
-  ) as AtviseWidgetResponse
-
-  const rawHtml = widgetData.html ?? widgetData.result ?? ''
-  const rawScript = widgetData.script ?? ''
-
-  // 2. Transform XML/SVG on the server
+  // Transform XML/SVG on the server (linkedom — no browser DOMParser needed)
   const { template, parameters } = processWidget(rawHtml, body.scaleToMax ?? true)
 
-  // 3. Process the script string (replaces webMI.* / document.* references)
+  // Process the script string (replaces webMI.* / document.* references)
   const script = convertScript(rawScript)
 
   return { template, script, parameters }

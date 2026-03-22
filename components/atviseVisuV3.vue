@@ -165,24 +165,43 @@ const options = {
     },
 
     async loadWidget (resolve) {
-      // Fetch the pre-processed template from the server.
-      // All DOM parsing and SVG transformation happens in server/api/webmi/widget-template.post.ts
-      // using linkedom — no DOMParser needed here.
+      // Step 1: browser fetches raw widget data from Atvise via the proxy.
+      // The browser already holds the webMI session cookie (path=/webMI/).
+      // That cookie is NOT forwarded when the browser calls /api/* routes,
+      // so we must make this fetch from the browser, not from the server.
+      const widgetName = this.innerSettings.widget
+      let rawHtml = ''
+      let rawScript = ''
+      if (widgetName) {
+        try {
+          const widgetData = await $fetch(`/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`)
+          rawHtml = (widgetData as any).html ?? (widgetData as any).result ?? ''
+          rawScript = (widgetData as any).script ?? ''
+        } catch (err) {
+          console.error('[atviseVisuV3] CtrlGetWidget fetch failed for', widgetName, err)
+          resolve({ template: '<div></div>', data: () => ({}) })
+          return
+        }
+      }
+
+      // Step 2: send the raw HTML to the server for linkedom processing
+      // (SVG transforms, parameter extraction, script conversion).
       let fetchResult
       try {
         fetchResult = await $fetch('/api/webmi/widget-template', {
           method: 'POST',
           body: {
-            widget: this.innerSettings.widget,
+            html: rawHtml,
+            script: rawScript,
             scaleToMax: this.scaleToMax
           }
         })
       } catch (err) {
-        console.error('[atviseVisuV3] widget-template fetch failed for', this.innerSettings.widget, err)
+        console.error('[atviseVisuV3] widget-template processing failed for', widgetName, err)
         resolve({ template: '<div></div>', data: () => ({}) })
         return
       }
-      const { template, script, parameters } = fetchResult
+      const { template, script, parameters } = fetchResult as any
 
       this.parameters = parameters
 
