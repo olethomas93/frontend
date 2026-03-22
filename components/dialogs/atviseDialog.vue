@@ -3,7 +3,7 @@
     v-if="dialog"
     v-model="dialog2"
     :dark="$lodash.get(config, 'dark')"
-    :fullscreen="$vuetify.breakpoint.smAndDown || fullscreen"
+    :fullscreen="smAndDown || fullscreen"
     :width="width"
     :persistent="config.modal"
   >
@@ -43,7 +43,13 @@
 </template>
 
 <script>
+import { useDisplay } from 'vuetify'
+
 export default {
+  setup () {
+    const { smAndDown } = useDisplay()
+    return { smAndDown }
+  },
   props: {
     dialog: {
       type: Boolean,

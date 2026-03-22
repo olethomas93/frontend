@@ -4,10 +4,8 @@
       <!-- HOME -->
       <v-list-item
         :to="{path: '/', query: { display: homeDisplay, base:homeBase} }"
+        prepend-icon="mdi-home-outline"
       >
-        <v-list-item-icon>
-          <v-icon>mdi-home-outline</v-icon>
-        </v-list-item-icon>
         <v-list-item-title>{{ $T('Home') }}</v-list-item-title>
       </v-list-item>
       <!-- MULTILEVEL -->
@@ -20,12 +18,14 @@
           :to="{path: '/', query: { display: '', base: '' } }"
           @click="navigate(item)"
         >
-          <template #prependIcon>
+          <template #prepend>
             <alarm-icon :node-id="item.nodeid" overlap :no-alarm-icon="item.icon" />
           </template>
 
-          <template #activator>
-            <v-list-item-title>{{ $T(item.name) }}</v-list-item-title>
+          <template #activator="{ props }">
+            <v-list-item v-bind="props">
+              <v-list-item-title>{{ $T(item.name) }}</v-list-item-title>
+            </v-list-item>
           </template>
           <v-list-item
             v-for="(child) in filter(item.childs)"
@@ -35,9 +35,9 @@
             replace
             _click.stop="navigate(child)"
           >
-            <v-list-item-action>
+            <template #prepend>
               <alarm-icon :node-id="child.nodeid" overlap />
-            </v-list-item-action>
+            </template>
             <v-list-item-title>
               {{ $T(child.name) }}
             </v-list-item-title>
@@ -48,27 +48,17 @@
       <div v-else>
         <v-list-item
           v-for="(item) in items"
-
           :key="item.nodeid"
           link
           :to="{path: '/', query: { display: getDisplay(item), base: item.nodeid } }"
           replace
           _click.stop="navigate(child)"
         >
-          <v-list-item-action style="width:32px">
-            <!-- <alarm-icon :node-id="item.nodeid" overlap :no-alarm-icon="item.icon" /> -->
-            <v-icon>
-              {{ item.icon }}
-            </v-icon>
-          </v-list-item-action>
-          
-            <v-list-item-title>
-              {{ $T(item.name) }}
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ $T(item.description) }}
-            </v-list-item-subtitle>
-          
+          <template #prepend>
+            <v-icon style="width:32px">{{ item.icon }}</v-icon>
+          </template>
+          <v-list-item-title>{{ $T(item.name) }}</v-list-item-title>
+          <v-list-item-subtitle>{{ $T(item.description) }}</v-list-item-subtitle>
         </v-list-item>
       </div>
       <!-- <div v-else-if="items.length <= 1">
@@ -92,20 +82,18 @@
         :key="key"
         :prepend-icon="popup.icon"
       >
-        <template #activator>
-          <v-list-item-title>{{ $T(popup.title) }}</v-list-item-title>
+        <template #activator="{ props }">
+          <v-list-item v-bind="props">
+            <v-list-item-title>{{ $T(popup.title) }}</v-list-item-title>
+          </v-list-item>
         </template>
         <v-list-item
           v-for="(child, key2) in popup.childs"
           :key="key2"
+          :prepend-icon="child.icon"
           @click.stop="openPopup(child)"
         >
-          <v-list-item-icon>
-            <v-icon>{{ child.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>
-            {{ $T(child.title) }}
-          </v-list-item-title>
+          <v-list-item-title>{{ $T(child.title) }}</v-list-item-title>
         </v-list-item>
       </v-list-group>
     </v-list>
