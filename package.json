@@ -29,7 +29,7 @@
     "plotly.js-dist-min": "^2.35.2",
     "rrule": "^2.7.2",
     "simple-code-editor": "^1.2.2",
-    "splitpanes": "^2.4.1",
+    "splitpanes": "^4.0.4",
     "three": "^0.145.0",
     "three-orbit-controls": "^82.1.0",
     "vue": "^3.4.21",
