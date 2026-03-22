@@ -38,7 +38,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Tell the runtime compiler that Atvise SVG namespace elements (atv:gridconfig,
   // atv:parameter, etc.) and SVG-specific elements are not Vue components.
   vueApp.config.compilerOptions.isCustomElement = (tag: string) =>
-    tag.startsWith('atv:') || tag === 'foreignobject'
+    tag.startsWith('atv:') || tag === 'foreignobject' || tag === 'center'
 
   const widgets = import.meta.glob<WidgetModule>('~/components/widgets/**/*.{vue,js}', { eager: true })
   Object.entries(widgets).forEach(([path, module]) => {

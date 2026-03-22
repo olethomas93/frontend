@@ -89,6 +89,7 @@ const viteDevProxy = development ? {
 } : undefined
 
 export default defineNuxtConfig({
+  compatibilityDate: '2026-03-22',
   vue: {
     runtimeCompiler: true
   },
