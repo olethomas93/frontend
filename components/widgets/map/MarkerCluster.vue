@@ -7,7 +7,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, provide, inject } from 'vue'
 import { InjectionKeys } from '@vue-leaflet/vue-leaflet'
-import 'leaflet.markercluster'
 
 const props = defineProps({
   options: {
@@ -36,12 +35,11 @@ provide(InjectionKeys.RemoveLayerInjection, (layer) => {
   clusterGroup?.removeLayer(layer.leafletObject ?? layer)
 })
 
-onMounted(() => {
-  const L = window.L || globalThis.L
-  if (!L?.MarkerClusterGroup) {
-    console.error('leaflet.markercluster not loaded')
-    return
-  }
+onMounted(async () => {
+  const L = await import('leaflet').then(m => m.default ?? m)
+  // leaflet.markercluster requires L on window before it is imported
+  window.L = L
+  await import('leaflet.markercluster')
   clusterGroup = new L.MarkerClusterGroup(props.options)
   mapObject.value = clusterGroup
   addLayer?.({ leafletObject: clusterGroup })
