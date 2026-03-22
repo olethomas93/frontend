@@ -185,11 +185,15 @@ async function setColors (nuxtApp: any, webMI: WebMI) {
   if (!vuetify?.theme?.themes) { return }
   const dark = await getTheme(webMI, 'dark').catch(() => ({}))
   Object.keys(dark).forEach((i) => {
-    vuetify.theme.themes.dark[i] = dark[i].color
+    if (vuetify.theme.themes.dark) {
+      vuetify.theme.themes.dark[i] = (dark as any)[i]?.color
+    }
   })
   const light = await getTheme(webMI, 'light').catch(() => ({}))
   Object.keys(light).forEach((i) => {
-    vuetify.theme.themes.light[i] = light[i].color
+    if (vuetify.theme.themes.light) {
+      vuetify.theme.themes.light[i] = (light as any)[i]?.color
+    }
   })
 }
 
