@@ -168,13 +168,21 @@ const options = {
       // Fetch the pre-processed template from the server.
       // All DOM parsing and SVG transformation happens in server/api/webmi/widget-template.post.ts
       // using linkedom — no DOMParser needed here.
-      const { template, script, parameters } = await $fetch('/api/webmi/widget-template', {
-        method: 'POST',
-        body: {
-          widget: this.innerSettings.widget,
-          scaleToMax: this.scaleToMax
-        }
-      })
+      let fetchResult
+      try {
+        fetchResult = await $fetch('/api/webmi/widget-template', {
+          method: 'POST',
+          body: {
+            widget: this.innerSettings.widget,
+            scaleToMax: this.scaleToMax
+          }
+        })
+      } catch (err) {
+        console.error('[atviseVisuV3] widget-template fetch failed for', this.innerSettings.widget, err)
+        resolve({ template: '<div></div>', data: () => ({}) })
+        return
+      }
+      const { template, script, parameters } = fetchResult
 
       this.parameters = parameters
 
