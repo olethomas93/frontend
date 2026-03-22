@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import alarmIcon from '@/components/common/alarm/iconButton.vue'
 export default {
   components: {
@@ -70,9 +69,7 @@ export default {
     isHovering: false
   }),
   computed: {
-    ...mapGetters('alarming', [
-      'getAlarmCount'
-    ]),
+    getAlarmCount () { return this.$store.getters['alarming/getAlarmCount'] },
     alarmCount () {
       return this.getAlarmCount(this.base, this.showShelved)
     },

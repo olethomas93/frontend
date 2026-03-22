@@ -107,8 +107,6 @@
 <script>
 import GmapCustomMarker from 'vue2-gmap-custom-marker'
 import { gmapApi } from 'vue2-google-maps'
-import { mapGetters } from 'vuex'
-
 export default {
   components: {
     GmapCustomMarker
@@ -119,10 +117,8 @@ export default {
     oldPos: null
   }),
   computed: {
-    ...mapGetters('alarming', [
-      'getAlarmCount',
-      'getAlarms'
-    ]),
+    getAlarmCount () { return this.$store.getters['alarming/getAlarmCount'] },
+    getAlarms () { return this.$store.getters['alarming/getAlarms'] },
     alarms () {
       return this.getAlarms(this.item.id) // this.$store.state.alarming.alarms.filter((alarm) => { return alarm.base.includes(this.item.id) })
     },

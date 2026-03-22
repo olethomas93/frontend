@@ -19,7 +19,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 // import trendVue from '../widgets/trend.vue'
 
 export default {
@@ -63,9 +62,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('alarming', [
-      'getAlarmCount'
-    ]),
+    getAlarmCount () { return this.$store.getters['alarming/getAlarmCount'] },
     alarmCount () {
       return this.getAlarmCount(this.nodeId, this.showShelved, this.priorityFrom, this.priorityTo, this.onlyActive)
     }
