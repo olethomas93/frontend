@@ -89,6 +89,9 @@ const viteDevProxy = development ? {
 } : undefined
 
 export default defineNuxtConfig({
+  vue: {
+    runtimeCompiler: true
+  },
   ssr: false,
   devServer: {
     host: devHost,
