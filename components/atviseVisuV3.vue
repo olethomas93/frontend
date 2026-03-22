@@ -164,60 +164,35 @@ const options = {
     },
 
     async loadWidget (resolve) {
-      // Step 1: browser fetches raw widget data from Atvise via the proxy.
-      // The browser already holds the webMI session cookie (path=/webMI/).
-      // That cookie is NOT forwarded when the browser calls /api/* routes,
-      // so we must make this fetch from the browser, not from the server.
       const widgetName = this.innerSettings.widget
       console.debug('[atviseVisuV3] loadWidget called', { widgetName, innerSettings: this.innerSettings })
-      let rawHtml = ''
-      let rawScript = ''
-      if (widgetName) {
-        const url = `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`
-        console.debug('[atviseVisuV3] Step 1 – fetching from Atvise proxy:', url)
-        try {
-          const widgetData = await $fetch(url)
-          console.debug('[atviseVisuV3] Step 1 – raw response keys:', Object.keys(widgetData || {}))
-          console.debug('[atviseVisuV3] Step 1 – html length:', (widgetData.html || widgetData.result || '').length)
-          console.debug('[atviseVisuV3] Step 1 – script length:', (widgetData.script || '').length)
-          console.debug('[atviseVisuV3] Step 1 – html preview (first 300 chars):', (widgetData.html || widgetData.result || '').slice(0, 300))
-          rawHtml = widgetData.html || widgetData.result || ''
-          rawScript = widgetData.script || ''
-        } catch (err) {
-          console.error('[atviseVisuV3] Step 1 FAILED – CtrlGetWidget fetch error for', widgetName, err)
-          resolve({ template: '<div>ERROR: could not fetch widget</div>', data: () => ({}) })
-          return
-        }
-      } else {
-        console.warn('[atviseVisuV3] No widgetName in innerSettings – skipping Atvise fetch')
+
+      if (!widgetName) {
+        console.warn('[atviseVisuV3] No widgetName in innerSettings')
+        resolve({ template: '<div></div>', data: () => ({}) })
+        return
       }
 
-      // Step 2: send the raw HTML to the server for linkedom processing
-      // (SVG transforms, parameter extraction, script conversion).
-      console.debug('[atviseVisuV3] Step 2 – posting to /api/webmi/widget-template', {
-        htmlLength: rawHtml.length,
-        scriptLength: rawScript.length,
-        scaleToMax: this.scaleToMax
-      })
+      // Send the widget name to the server; the server fetches CtrlGetWidget
+      // directly from ATVISE_PROXY (no browser proxy needed).
+      console.debug('[atviseVisuV3] posting to /api/webmi/widget-template for', widgetName)
       let fetchResult
       try {
         fetchResult = await $fetch('/api/webmi/widget-template', {
           method: 'POST',
           body: {
-            html: rawHtml,
-            script: rawScript,
+            widget: widgetName,
             scaleToMax: this.scaleToMax
           }
         })
-        console.debug('[atviseVisuV3] Step 2 – widget-template response:', {
+        console.debug('[atviseVisuV3] widget-template response:', {
           templateLength: (fetchResult.template || '').length,
           scriptLength: (fetchResult.script || '').length,
           paramCount: (fetchResult.parameters || []).length,
-          templatePreview: (fetchResult.template || '').slice(0, 400),
-          params: fetchResult.parameters
+          templatePreview: (fetchResult.template || '').slice(0, 400)
         })
       } catch (err) {
-        console.error('[atviseVisuV3] Step 2 FAILED – widget-template processing error for', widgetName, err)
+        console.error('[atviseVisuV3] widget-template fetch failed for', widgetName, err)
         resolve({ template: '<div>ERROR: server template processing failed</div>', data: () => ({}) })
         return
       }
@@ -228,7 +203,7 @@ const options = {
       // Apply client-side translations (requires Pinia store — cannot run on server)
       const translatedTemplate = this.$store.getters['translation/translateText'](template)
       const translatedScript = this.$store.getters['translation/translateText'](script)
-      console.debug('[atviseVisuV3] Step 3 – building Vue component for', widgetName)
+      console.debug('[atviseVisuV3] building Vue component for', widgetName)
 
       // Build the widget's behaviour function from the processed script
       let visuFuncError = null
@@ -237,18 +212,18 @@ const options = {
         this.visuFunc = new Function('self', 'var self = this\n' + translatedScript)
       } catch (err) {
         visuFuncError = err
-        console.error('[atviseVisuV3] Step 3 – new Function() failed:', err, '\nScript was:\n', translatedScript)
+        console.error('[atviseVisuV3] new Function() failed:', err, '\nScript was:\n', translatedScript)
       }
 
       let vueComp
       try {
         vueComp = this.buildComponent(translatedTemplate)
       } catch (err) {
-        console.error('[atviseVisuV3] Step 3 – buildComponent() failed:', err, '\nTemplate was:\n', translatedTemplate)
+        console.error('[atviseVisuV3] buildComponent() failed:', err, '\nTemplate was:\n', translatedTemplate)
         resolve({ template: '<div>ERROR: buildComponent failed</div>', data: () => ({}) })
         return
       }
-      console.debug('[atviseVisuV3] Step 3 – component ready, resolving', widgetName, visuFuncError ? '(visuFunc errored)' : '(visuFunc OK)')
+      console.debug('[atviseVisuV3] component ready', widgetName, visuFuncError ? '(visuFunc errored)' : '(visuFunc OK)')
       vueComp.name = 'widget'
       resolve(vueComp)
     },
