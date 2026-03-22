@@ -123,11 +123,11 @@
 </template>
 
 <script>
-import Vue2LeafletMarkerCluster from 'vue2-leaflet-markercluster'
+import MarkerCluster from '../map/MarkerCluster.vue'
 
 export default {
   components: {
-    'v-marker-cluster': Vue2LeafletMarkerCluster
+    'v-marker-cluster': MarkerCluster
   },
   props: {
     base: {
@@ -183,8 +183,8 @@ export default {
   },
   methods: {
     flyToBounds () {
-      const bounds = this.$refs.clusterRef.mapObject.getBounds()
-      this.map.flyToBounds(bounds, { maxZoom: 9 })
+      const bounds = this.$refs.clusterRef.mapObject.value?.getBounds()
+      if (bounds) { this.map.flyToBounds(bounds, { maxZoom: 9 }) }
     },
     clusterReady () {
       console.log('cluster ready')

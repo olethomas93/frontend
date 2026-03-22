@@ -15,6 +15,7 @@
   "dependencies": {
     "@fullcalendar/vue3": "^6.1.11",
     "@pinia/nuxt": "^0.5.1",
+    "@vue-leaflet/vue-leaflet": "^0.10.1",
     "core-js": "^3.15.1",
     "cross-env": "^7.0.3",
     "dotenv": "^17.2.3",

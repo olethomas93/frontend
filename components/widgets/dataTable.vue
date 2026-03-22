@@ -50,8 +50,8 @@
           </td>
         </tr>
       </template>
-      <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
-        <slot :name="slot" v-bind="scope" />
+      <template v-for="(_, slot) of $slots" #[slot]="scope">
+        <slot :name="slot" v-bind="scope ?? {}" />
       </template>
       <template v-if="showSearch" #top="">
         <v-text-field

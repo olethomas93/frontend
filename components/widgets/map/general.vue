@@ -1,5 +1,5 @@
 <template>
-  <map-base @mapReady="onReady" @seamap=" seamap = $event" v-on="$listeners" @currentZoom="zoomUpdate">
+  <map-base @mapReady="onReady" @seamap=" seamap = $event" v-bind="$attrs" @currentZoom="zoomUpdate">
     <template #overlay>
       <slot name="overlay" />
     </template>
@@ -39,11 +39,11 @@
   </map-base>
 </template>
 <script>
-import Vue2LeafletMarkerCluster from 'vue2-leaflet-markercluster'
+import MarkerCluster from './MarkerCluster.vue'
 
 export default {
   components: {
-    'v-marker-cluster': Vue2LeafletMarkerCluster
+    'v-marker-cluster': MarkerCluster
   },
   inject: ['theme'],
   props: {
@@ -126,8 +126,8 @@ export default {
       })
     },
     flyToBounds () {
-      const bounds = this.$refs.clusterRef.mapObject.getBounds()
-      this.map.flyToBounds(bounds, { maxZoom: 9 })
+      const bounds = this.$refs.clusterRef.mapObject.value?.getBounds()
+      if (bounds) { this.map.flyToBounds(bounds, { maxZoom: 9 }) }
     },
     zoomUpdate (zoom) {
       this.currentZoom = zoom
