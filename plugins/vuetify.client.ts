@@ -138,6 +138,15 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.provide('vuetify', vuetify)
   defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$vuetify', compatibilityLayer)
 
+  // Vuetify 2 components used inject: ['theme'] to get { isDark: boolean } from VApp.
+  // Vuetify 3 removed this — provide a compat shim at the app level so those
+  // components continue to work without touching each one individually.
+  nuxtApp.vueApp.provide('theme', {
+    get isDark () {
+      return vuetify.theme.global.name.value === 'dark'
+    }
+  })
+
   if (process.client) {
     const globalWindow = window as typeof window & { $nuxt?: Record<string, unknown> }
     globalWindow.$nuxt = globalWindow.$nuxt || {}

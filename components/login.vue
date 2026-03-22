@@ -7,8 +7,7 @@
         style="box-shadow: 0 0 40px 4px #111118 !important;"
         width="300"
       >
-        <div class="justify-center rounded" style="width:100%;background-color:#ffffff">
-          <center>
+        <div class="justify-center rounded" style="width:100%;background-color:#ffffff;text-align:center">
             <v-img
               class="text-white align-end"
               _height="120px"
@@ -16,7 +15,6 @@
               src="\logo.png"
             />
             <!-- <v-card-title>JM UX</v-card-title> -->
-          </center>
         </div>
         <v-card-text>
           <v-text-field
@@ -74,7 +72,6 @@
 
 <script>
 export default {
-  inject: ['theme'],
   data () {
     return {
       user: '',
