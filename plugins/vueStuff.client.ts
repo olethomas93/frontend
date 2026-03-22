@@ -35,6 +35,11 @@ export default defineNuxtPlugin((nuxtApp) => {
   // can resolve <atvise-visu-v3> for nested widget recursion.
   vueApp.component('AtviseVisuV3', AtviseVisuV3)
 
+  // Tell the runtime compiler that Atvise SVG namespace elements (atv:gridconfig,
+  // atv:parameter, etc.) and SVG-specific elements are not Vue components.
+  vueApp.config.compilerOptions.isCustomElement = (tag: string) =>
+    tag.startsWith('atv:') || tag === 'foreignobject'
+
   const widgets = import.meta.glob<WidgetModule>('~/components/widgets/**/*.{vue,js}', { eager: true })
   Object.entries(widgets).forEach(([path, module]) => {
     const component = module.default || module

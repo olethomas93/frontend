@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, markRaw } from 'vue'
 import atviseDialog from '@/components/dialogs/atviseDialog'
 import { widget } from '@/global/mixin.js'
 
@@ -158,9 +158,9 @@ const options = {
 
     init () {
       this.myBase = this.base || this.$route.query.base
-      this.widget = defineAsyncComponent(() => new Promise((resolve) => {
+      this.widget = markRaw(defineAsyncComponent(() => new Promise((resolve) => {
         this.loadWidget(resolve)
-      }))
+      })))
     },
 
     async loadWidget (resolve) {
