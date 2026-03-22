@@ -5,6 +5,7 @@ import Lodash from 'lodash'
 import * as THREE from 'three'
 import VueResize from 'vue-resize'
 import 'vue-resize/dist/vue-resize.css'
+import AtviseVisuV3 from '@/components/atviseVisuV3.vue'
 
 type WidgetModule = { default?: any }
 
@@ -29,6 +30,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     globalWindow.$nuxt.$lodash = Lodash
     globalWindow.$nuxt.$three = THREE
   }
+
+  // Must be globally registered so runtime-compiled templates (buildComponent)
+  // can resolve <atvise-visu-v3> for nested widget recursion.
+  vueApp.component('AtviseVisuV3', AtviseVisuV3)
 
   const widgets = import.meta.glob<WidgetModule>('~/components/widgets/**/*.{vue,js}', { eager: true })
   Object.entries(widgets).forEach(([path, module]) => {
