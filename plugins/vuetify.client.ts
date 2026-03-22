@@ -1,8 +1,19 @@
 import { defineNuxtPlugin } from '#app'
+import { inject, reactive } from 'vue'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import 'vuetify/styles'
+
+// ---------------------------------------------------------------------------
+// Vuetify 3 provide/inject symbols (Symbol.for ensures cross-module identity)
+// ---------------------------------------------------------------------------
+const VUETIFY_DISPLAY = Symbol.for('vuetify:display')
+const VUETIFY_THEME = Symbol.for('vuetify:theme')
+const VUETIFY_DEFAULTS = Symbol.for('vuetify:defaults')
+const VUETIFY_ICONS = Symbol.for('vuetify:icons')
+const VUETIFY_LOCALE = Symbol.for('vuetify:locale')
+const VUETIFY_DATE_ADAPTER = Symbol.for('vuetify:date-adapter')
 
 const lightColors = {
   primary: '#00a3e0',
@@ -30,69 +41,6 @@ const darkColors = {
   card: '#ff00ff'
 }
 
-// ---------------------------------------------------------------------------
-// Breakpoint compatibility (v2 $vuetify.breakpoint → v3 useDisplay equivalent)
-// Returns a proxy that computes breakpoint booleans from window.innerWidth at
-// read time — non-reactive but sufficient for template conditionals that
-// re-render on layout events already handled by the parent.
-// ---------------------------------------------------------------------------
-function createBreakpointProxy () {
-  return new Proxy({} as Record<string, unknown>, {
-    get (_, prop: string) {
-      if (!process.client) {
-        // Sensible server-side defaults (md breakpoint)
-        const ssrDefaults: Record<string, unknown> = {
-          xs: false, sm: false, md: true, lg: false, xl: false,
-          xsOnly: false, smOnly: false, mdOnly: true, lgOnly: false, xlOnly: false,
-          smAndDown: false, smAndUp: true,
-          mdAndDown: true, mdAndUp: true,
-          lgAndDown: true, lgAndUp: false,
-          name: 'md', width: 1280, height: 800, mobile: false
-        }
-        return ssrDefaults[prop]
-      }
-      const w = window.innerWidth
-      const h = window.innerHeight
-      const xs = w < 600
-      const sm = w >= 600 && w < 960
-      const md = w >= 960 && w < 1280
-      const lg = w >= 1280 && w < 1920
-      const xl = w >= 1920
-      const bp: Record<string, unknown> = {
-        xs, sm, md, lg, xl,
-        xsOnly: xs, smOnly: sm, mdOnly: md, lgOnly: lg, xlOnly: xl,
-        smAndDown: xs || sm,
-        smAndUp: !xs,
-        mdAndDown: xs || sm || md,
-        mdAndUp: md || lg || xl,
-        lgAndDown: xs || sm || md || lg,
-        lgAndUp: lg || xl,
-        name: xs ? 'xs' : sm ? 'sm' : md ? 'md' : lg ? 'lg' : 'xl',
-        width: w,
-        height: h,
-        mobile: xs || sm
-      }
-      return bp[prop]
-    }
-  })
-}
-
-// ---------------------------------------------------------------------------
-// Theme colour proxy (v2 currentTheme → v3 theme.colors)
-// ---------------------------------------------------------------------------
-function createThemeProxy (vuetify: ReturnType<typeof createVuetify>, themeName: string) {
-  return new Proxy<Record<string, string>>({}, {
-    get (_, prop: string) {
-      return vuetify.theme.themes.value?.[themeName]?.colors?.[prop]
-    },
-    set (_, prop: string, value: string) {
-      const theme = vuetify.theme.themes.value[themeName] ||= { dark: themeName === 'dark', colors: {} }
-      theme.colors[prop] = value
-      return true
-    }
-  })
-}
-
 export default defineNuxtPlugin((nuxtApp) => {
   const vuetify = createVuetify({
     components,
@@ -106,49 +54,69 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   })
 
-  const breakpoint = createBreakpointProxy()
-  const lightProxy = createThemeProxy(vuetify, 'light')
-  const darkProxy = createThemeProxy(vuetify, 'dark')
-
-  // Add v2 compat properties directly onto the vuetify instance so that
-  // components accessing this.$vuetify (the real v3 instance) still find them.
-  const vuetifyAny = vuetify as any
-  if (!vuetifyAny.breakpoint) {
-    vuetifyAny.breakpoint = breakpoint
-  }
-  // Patch theme with v2 helpers while keeping native v3 theme intact
-  const origTheme = vuetifyAny.theme
-  if (origTheme && !origTheme.currentTheme) {
-    Object.defineProperty(origTheme, 'currentTheme', {
-      configurable: true,
-      enumerable: false,
-      get () {
-        const name = vuetify.theme.global.name.value as string
-        return vuetify.theme.themes.value[name]?.colors ?? {}
-      }
-    })
-    if (!Object.getOwnPropertyDescriptor(origTheme, 'dark')) {
-      Object.defineProperty(origTheme, 'dark', {
-        configurable: true,
-        enumerable: false,
-        get () { return vuetify.theme.global.name.value === 'dark' },
-        set (value: boolean) { vuetify.theme.global.name.value = value ? 'dark' : 'light' }
-      })
-    }
-    origTheme.themes = origTheme.themes ?? {}
-    origTheme.themes.light = origTheme.themes.light ?? lightProxy
-    origTheme.themes.dark = origTheme.themes.dark ?? darkProxy
-  }
-
-  const compatibilityLayer = {
-    theme: origTheme ?? { currentTheme: {}, dark: false, themes: { light: lightProxy, dark: darkProxy } },
-    breakpoint
-  }
-
   nuxtApp.vueApp.use(vuetify)
   nuxtApp.provide('vuetify', vuetify)
-  // Best-effort override; falls back to the properties on the vuetify instance above
-  defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$vuetify', compatibilityLayer)
+
+  // ---------------------------------------------------------------------------
+  // Override the $vuetify computed that Vuetify 3 registered via app.mixin().
+  // Our mixin is registered AFTER Vuetify's, so Vue 3's mergeObjectOptions
+  // strategy (later wins) means our $vuetify computed takes precedence.
+  //
+  // We reconstruct the same reactive object Vuetify 3 would build, adding:
+  //   breakpoint  – v2 alias for display (same properties: smAndDown, etc.)
+  //   theme.currentTheme – v2 compat getter → current theme colours object
+  //   theme.dark          – v2 compat getter/setter → toggle dark theme
+  // ---------------------------------------------------------------------------
+  nuxtApp.vueApp.mixin({
+    computed: {
+      $vuetify () {
+        const display = inject.call(this, VUETIFY_DISPLAY) as any
+        const theme = inject.call(this, VUETIFY_THEME) as any
+        const defaults = inject.call(this, VUETIFY_DEFAULTS)
+        const icons = inject.call(this, VUETIFY_ICONS)
+        const locale = inject.call(this, VUETIFY_LOCALE)
+        const date = inject.call(this, VUETIFY_DATE_ADAPTER)
+
+        // Proxy wraps the reactive theme object to expose v2 compat properties
+        // while keeping all v3 theme APIs intact.
+        const themeCompat = theme
+          ? new Proxy(theme as Record<string, any>, {
+              get (target, prop: string) {
+                if (prop === 'currentTheme') {
+                  // v3: theme.current is a ref; .value.colors is the colour map
+                  return target.current?.value?.colors ?? target.current?.colors ?? {}
+                }
+                if (prop === 'dark') {
+                  return target.global?.name?.value === 'dark'
+                }
+                return Reflect.get(target, prop)
+              },
+              set (target, prop: string, value: any) {
+                if (prop === 'dark') {
+                  if (target.global?.name) {
+                    target.global.name.value = value ? 'dark' : 'light'
+                  }
+                  return true
+                }
+                return Reflect.set(target, prop, value)
+              }
+            })
+          : theme
+
+        return reactive({
+          defaults,
+          display,
+          theme: themeCompat,
+          icons,
+          locale,
+          date,
+          // v2 compat: $vuetify.breakpoint → same as $vuetify.display
+          // Vuetify 3 display already exposes xs, sm, smAndDown, mdAndUp, etc.
+          breakpoint: display
+        })
+      }
+    }
+  })
 
   // Vuetify 2 components used inject: ['theme'] to get { isDark: boolean } from VApp.
   // Vuetify 3 removed this — provide a compat shim at the app level so those
@@ -162,31 +130,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   if (process.client) {
     const globalWindow = window as typeof window & { $nuxt?: Record<string, unknown> }
     globalWindow.$nuxt = globalWindow.$nuxt || {}
-    globalWindow.$nuxt.$vuetify = compatibilityLayer
+    globalWindow.$nuxt.$vuetify = vuetify
   }
 })
-
-function defineGlobalProperty (target: Record<string, unknown>, key: string, value: unknown) {
-  if (!target || typeof target !== 'object') { return }
-  const descriptor = Object.getOwnPropertyDescriptor(target, key)
-  if (descriptor && descriptor.configurable === false) {
-    // Non-configurable: fall back to direct assignment (works when writable:true)
-    try {
-      (target as any)[key] = value
-    } catch {
-      if (process.dev) {
-        console.warn(`[vuetify-plugin] Unable to overwrite ${key} on target`)
-      }
-    }
-    return
-  }
-  try {
-    Object.defineProperty(target, key, {
-      configurable: true,
-      enumerable: false,
-      get () { return value }
-    })
-  } catch {
-    try { (target as any)[key] = value } catch { /* ignore */ }
-  }
-}
