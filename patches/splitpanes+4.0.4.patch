@@ -1,0 +1,24 @@
+diff --git a/node_modules/splitpanes/dist/splitpanes.es.js b/node_modules/splitpanes/dist/splitpanes.es.js
+index 76e39cd..bd77a77 100644
+--- a/node_modules/splitpanes/dist/splitpanes.es.js
++++ b/node_modules/splitpanes/dist/splitpanes.es.js
+@@ -140,6 +140,7 @@ const Pe = {
+       });
+     }, ae = (e) => {
+       const n = l.value.findIndex((i) => i.id === e);
++      if (n === -1) return;
+       l.value[n].el = null;
+       const t = l.value.splice(n, 1)[0];
+       l.value.forEach((i, a) => i.index = a), T(() => {
+diff --git a/node_modules/splitpanes/src/components/splitpanes/splitpanes.vue b/node_modules/splitpanes/src/components/splitpanes/splitpanes.vue
+index 41b75a1..8c80a1c 100644
+--- a/node_modules/splitpanes/src/components/splitpanes/splitpanes.vue
++++ b/node_modules/splitpanes/src/components/splitpanes/splitpanes.vue
+@@ -409,6 +409,7 @@ const onPaneAdd = pane => {
+ const onPaneRemove = uid => {
+   // 1. Remove the pane from array and redo indexes.
+   const index = panes.value.findIndex(p => p.id === uid)
++  if (index === -1) return // Guard: pane already removed (e.g. during parent unmount)
+   panes.value[index].el = null // Prevent memory leaks.
+   const removed = panes.value.splice(index, 1)[0]
+   panes.value.forEach((p, i) => (p.index = i)) // Redo indexes after removal.
