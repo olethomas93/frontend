@@ -110,32 +110,44 @@ export default defineNuxtPlugin((nuxtApp) => {
   const lightProxy = createThemeProxy(vuetify, 'light')
   const darkProxy = createThemeProxy(vuetify, 'dark')
 
-  const themeCompat = {
-    // v2: $vuetify.theme.currentTheme → current theme colours object
-    get currentTheme () {
-      const name = vuetify.theme.global.name.value as string
-      return vuetify.theme.themes.value[name]?.colors ?? {}
-    },
-    // v2: $vuetify.theme.dark (boolean getter/setter to toggle theme)
-    get dark () {
-      return vuetify.theme.global.name.value === 'dark'
-    },
-    set dark (value: boolean) {
-      vuetify.theme.global.name.value = value ? 'dark' : 'light'
-    },
-    themes: {
-      light: lightProxy,
-      dark: darkProxy
+  // Add v2 compat properties directly onto the vuetify instance so that
+  // components accessing this.$vuetify (the real v3 instance) still find them.
+  const vuetifyAny = vuetify as any
+  if (!vuetifyAny.breakpoint) {
+    vuetifyAny.breakpoint = breakpoint
+  }
+  // Patch theme with v2 helpers while keeping native v3 theme intact
+  const origTheme = vuetifyAny.theme
+  if (origTheme && !origTheme.currentTheme) {
+    Object.defineProperty(origTheme, 'currentTheme', {
+      configurable: true,
+      enumerable: false,
+      get () {
+        const name = vuetify.theme.global.name.value as string
+        return vuetify.theme.themes.value[name]?.colors ?? {}
+      }
+    })
+    if (!Object.getOwnPropertyDescriptor(origTheme, 'dark')) {
+      Object.defineProperty(origTheme, 'dark', {
+        configurable: true,
+        enumerable: false,
+        get () { return vuetify.theme.global.name.value === 'dark' },
+        set (value: boolean) { vuetify.theme.global.name.value = value ? 'dark' : 'light' }
+      })
     }
+    origTheme.themes = origTheme.themes ?? {}
+    origTheme.themes.light = origTheme.themes.light ?? lightProxy
+    origTheme.themes.dark = origTheme.themes.dark ?? darkProxy
   }
 
   const compatibilityLayer = {
-    theme: themeCompat,
+    theme: origTheme ?? { currentTheme: {}, dark: false, themes: { light: lightProxy, dark: darkProxy } },
     breakpoint
   }
 
   nuxtApp.vueApp.use(vuetify)
   nuxtApp.provide('vuetify', vuetify)
+  // Best-effort override; falls back to the properties on the vuetify instance above
   defineGlobalProperty(nuxtApp.vueApp.config.globalProperties, '$vuetify', compatibilityLayer)
 
   // Vuetify 2 components used inject: ['theme'] to get { isDark: boolean } from VApp.
