@@ -293,10 +293,10 @@ export default {
       return this.showMap ? 'calc(100vh - 64px)' : undefined
     },
     showList () {
-      return this.$vuetify.breakpoint.smAndDown
+      return this.$vuetify.display.smAndDown
     },
     large () {
-      return this.$vuetify.breakpoint.mdAndUp
+      return this.$vuetify.display.mdAndUp
     },
     hasOnline () {
       return this.$lodash.has(this.items, '[0].childs.datasourceOnline') || this.$lodash.has(this.items, '[0].childs.connected')
@@ -387,13 +387,8 @@ export default {
     },
     currentItems (value) {
       // Emit to other components (used in dashboards)
-      this.$nuxt.$emit(this.group + ':currentItems', value)
+      this.$eventBus.$emit(this.group + ':currentItems', value)
     }
-  },
-  beforeMount () {
-    setTimeout(() => {
-      self.height = this.$refs.row.clientHeight + 'px'
-    }, 500)
   },
   mounted () {
     if (this.base.length > 0) {
@@ -470,7 +465,7 @@ export default {
         if (Object.keys(this.extraHeader).length > 0) {
           for (const item in this.items) {
             const value = await this.readNode(`${this.items[item].nodeid}${this.extraHeader.value}`)
-            this.$set(this.items[item], this.extraHeader.text, value)
+            this.items[item][this.extraHeader.text] = value
           }
         }
         this.items = items
