@@ -67,7 +67,7 @@
       @ready="onReady"
       @update:zoom="zoomUpdate"
       @update:center="centerChange"
-      v-on="$listeners"
+      v-bind="$attrs"
     >
       <slot name="overlay" />
       <l-tile-layer :attribution="layer.attribution" :url="layer.url" :options="{className:layer.className}">
@@ -156,7 +156,8 @@ export default {
     }
   },
   mounted () {
-    this.$refs.map.mapObject.attributionControl.setPrefix('Leaflet')
+    // leafletObject is the @vue-leaflet/vue-leaflet accessor (replaces .mapObject from vue2-leaflet)
+    this.$refs.map?.leafletObject?.attributionControl?.setPrefix('Leaflet')
   },
   methods: {
     zoomUpdate (zoom) {

@@ -330,7 +330,7 @@ onMounted(() => {
         return
       }
       query.iframe = data.value.type
-      router.replace({ query, hash: '123' })
+      router.replace({ query, hash: '#123' })
     }, 50)
   })
   webMI?.trigger?.connect?.('openDisplay', (data: any) => {
