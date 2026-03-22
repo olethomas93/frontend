@@ -48,6 +48,8 @@ export default defineEventHandler(async (event) => {
     scaleToMax?: boolean
   }>(event)
 
+  console.log('[widget-template] POST received – body keys:', Object.keys(body))
+
   let rawHtml: string
   let rawScript: string
 
@@ -58,9 +60,14 @@ export default defineEventHandler(async (event) => {
     // an authenticated request on behalf of the browser.
     rawHtml = body.html
     rawScript = body.script ?? ''
+    console.log('[widget-template] Browser-supplied html – htmlLen:', rawHtml.length, 'scriptLen:', rawScript.length)
+    if (!rawHtml) {
+      console.warn('[widget-template] WARNING: html is empty – the browser CtrlGetWidget fetch returned nothing.')
+    }
   } else if (body.widget) {
     // Legacy server-fetch path — works when ATVISE_PROXY and cookie
     // forwarding are both configured correctly (trusted server context).
+    console.log('[widget-template] Server-fetch path for widget:', body.widget)
     const widgetData = await atviseCustomRequest(
       event,
       'GET',
@@ -68,15 +75,31 @@ export default defineEventHandler(async (event) => {
     ) as AtviseWidgetResponse
     rawHtml = widgetData.html ?? widgetData.result ?? ''
     rawScript = widgetData.script ?? ''
+    console.log('[widget-template] atviseCustomRequest result – htmlLen:', rawHtml.length, 'scriptLen:', rawScript.length)
   } else {
+    console.error('[widget-template] Neither "widget" nor "html" provided in body')
     throw createError({ statusCode: 400, statusMessage: 'Either "widget" or "html" is required.' })
   }
 
+  console.log('[widget-template] html preview (first 200 chars):', rawHtml.slice(0, 200))
+
   // Transform XML/SVG on the server (linkedom — no browser DOMParser needed)
-  const { template, parameters } = processWidget(rawHtml, body.scaleToMax ?? true)
+  let template: string
+  let parameters: WidgetParameter[]
+  try {
+    const result = processWidget(rawHtml, body.scaleToMax ?? true)
+    template = result.template
+    parameters = result.parameters
+    console.log('[widget-template] processWidget OK – templateLen:', template.length, 'params:', parameters.length)
+    console.log('[widget-template] template preview (first 400 chars):', template.slice(0, 400))
+  } catch (err) {
+    console.error('[widget-template] processWidget FAILED:', err)
+    throw err
+  }
 
   // Process the script string (replaces webMI.* / document.* references)
   const script = convertScript(rawScript)
+  console.log('[widget-template] convertScript OK – scriptLen:', script.length)
 
   return { template, script, parameters }
 })
@@ -151,6 +174,7 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
   div2.setAttribute('style', 'height:0%;width:100%')
 
   const htmlEl = SVG.querySelector('#html')
+  console.log('[widget-template] #html foreignObject found:', !!htmlEl, htmlEl ? `(height=${htmlEl.getAttribute('height')})` : '')
 
   if (htmlEl) {
     const height1 = parseInt(svgHeight)
@@ -167,6 +191,7 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
     }
 
     const div2HeightPct = (100 / height1) * height2
+    console.log('[widget-template] layout – svgHeight:', height1, 'htmlHeight:', height2, 'div2Pct:', div2HeightPct)
 
     if (div2HeightPct === 100) {
       div1.setAttribute('style', 'height:0%;width:100%;display:none')
@@ -182,8 +207,11 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
     const htmlContent = htmlEl.tagName.toLowerCase() === 'foreignobject'
       ? htmlEl.firstElementChild
       : htmlEl.querySelector('foreignObject')?.firstElementChild
+    console.log('[widget-template] htmlContent tag:', htmlContent?.tagName, 'innerHTML preview:', htmlContent?.innerHTML?.slice(0, 200))
     if (htmlContent) {
       div2.appendChild(htmlContent)
+    } else {
+      console.warn('[widget-template] #html foreignObject has no firstElementChild – HTML content will be missing')
     }
   }
 
