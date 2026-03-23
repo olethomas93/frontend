@@ -13,8 +13,8 @@
           @click:row="click"
           @current-items="currentItems = $event"
         >
-          <template #expanded-item="{ headers, item }">
-            <td :colspan="headers.length">
+          <template #expanded-row="{ item, columns }">
+            <td :colspan="columns.length">
               <atvise-visu-v3 v-if="$lodash.get(item, `childs.${expandDisplay}`)" :base="item.nodeid" :settings="$lodash.get(item, `childs.${expandDisplay}.nodeid`)" />
             </td>
           </template>

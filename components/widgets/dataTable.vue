@@ -12,25 +12,23 @@
     /> -->
     <v-data-table
       ref="dTable"
-      :value="value"
+      v-model:selected="internalSelected"
+      return-object
       _loading="loading"
       v-bind="tableProps"
       style="height:calc(100% - 0px)"
       :search="search"
       :headers="computedHeaders"
-      mobile-breakpoint="0"
       :items="filteredItems"
-      item-key="nodeid"
+      item-value="nodeid"
       _height="90%"
       _hide-default-header
       :hide-default-footer="hideFooter"
-      @click:row="$emit('click:row', $event)"
-      @current-items="$emit('current-items', $event)"
-      @input="$emit('input', $event)"
+      @update:current-items="$emit('current-items', $event)"
     >
-      <template v-if="hasFilters" #[`body.prepend`]="{ headers }">
+      <template v-if="hasFilters" #[`body.prepend`]="{ columns }">
         <tr>
-          <td v-for="(header, index) in headers" :key="index">
+          <td v-for="(header, index) in columns" :key="index">
             <!-- <v-text-field density="compact" hide-details :label="header.text" variant="outlined" @keydown.stop="" /> -->
             <v-combobox
               v-if="header.customFilter"
@@ -81,24 +79,19 @@
           {{ header.prefix }} {{ $lodash.get(item, header.value) }} {{ header.suffix }}
         </div>
       </template> -->
-      <template #item="{ headers, item, isExpanded, expand, isSelected, select }">
+      <template #item="{ item, internalItem, columns, isExpanded, toggleExpand, isSelected, toggleSelect }">
         <tr
           @click="$emit('click:row', item)"
           @mouseenter="$nuxt.$emit('table:mouseenter', item)"
           @mouseleave="$nuxt.$emit('table:mouseleave', item)"
         >
-          <td v-for="(header, key) in headers" :key="key">
+          <td v-for="(header, key) in columns" :key="key">
             <div v-if="header.value === 'data-table-select'">
-              <v-checkbox :value="isSelected" @click.stop="select(!isSelected)" />
-              <!-- <v-btn icon @click.stop="expand(!isExpanded)">
-                <v-icon class="toggleUpDown" :class="{ rotate: isExpanded }">
-                  mdi-chevron-down
-                </v-icon>
-              </v-btn> -->
+              <v-checkbox :model-value="isSelected([internalItem])" @click.stop="toggleSelect(internalItem)" />
             </div>
             <div v-if="header.value === 'data-table-expand'">
-              <v-btn icon @click.stop="expand(!isExpanded)">
-                <v-icon class="toggleUpDown" :class="{ rotate: isExpanded }">
+              <v-btn icon @click.stop="toggleExpand(internalItem)">
+                <v-icon class="toggleUpDown" :class="{ rotate: isExpanded(internalItem) }">
                   mdi-chevron-right
                 </v-icon>
               </v-btn>
@@ -142,9 +135,9 @@
 <script>
 export default {
   name: 'JmhDataTable',
-  inject: ['theme'],
+  emits: ['update:modelValue', 'click:row', 'current-items'],
   props: {
-    value: {
+    modelValue: {
       type: Array,
       default: () => { return [] }
     },
@@ -181,8 +174,7 @@ export default {
       default: () => {
         return {
           itemsPerPage: -1,
-          singleExpand: false,
-          itemKey: 'nodeid'
+          itemValue: 'nodeid'
         }
       }
     },
@@ -202,6 +194,10 @@ export default {
     }
   },
   computed: {
+    internalSelected: {
+      get () { return this.modelValue || [] },
+      set (val) { this.$emit('update:modelValue', val) }
+    },
     computedHeaders () {
       return this.$vuetify.display.smAndDown ? this.mobileHeaders : this.headers
     },
