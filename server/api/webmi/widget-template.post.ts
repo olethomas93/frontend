@@ -86,20 +86,23 @@ export default defineEventHandler(async (event) => {
   // Transform XML/SVG on the server (linkedom — no browser DOMParser needed)
   let template: string
   let parameters: WidgetParameter[]
+  let embeddedScript = ''
   try {
     const result = processWidget(rawHtml, body.scaleToMax ?? true)
     template = result.template
     parameters = result.parameters
-    console.log('[widget-template] processWidget OK – templateLen:', template.length, 'params:', parameters.length)
+    embeddedScript = result.extractedScript
+    console.log('[widget-template] processWidget OK – templateLen:', template.length, 'params:', parameters.length, 'embeddedScript:', embeddedScript.length)
     console.log('[widget-template] template preview (first 400 chars):', template.slice(0, 400))
   } catch (err) {
     console.error('[widget-template] processWidget FAILED:', err)
     throw err
   }
 
-  // Process the script string (replaces webMI.* / document.* references)
-  const script = convertScript(rawScript)
-  console.log('[widget-template] convertScript OK – scriptLen:', script.length)
+  // Use rawScript if provided (CtrlGetWidget path), else use script extracted from SVG
+  const scriptSource = rawScript || embeddedScript
+  const script = convertScript(scriptSource)
+  console.log('[widget-template] convertScript OK – scriptLen:', script.length, '(source: ' + (rawScript ? 'rawScript' : 'extractedFromSVG') + ')')
 
   return { template, script, parameters }
 })
@@ -108,7 +111,7 @@ export default defineEventHandler(async (event) => {
 // XML/SVG processing (runs in Node.js via linkedom)
 // ---------------------------------------------------------------------------
 
-function processWidget (html: string, scaleToMax: boolean): { template: string; parameters: WidgetParameter[] } {
+function processWidget (html: string, scaleToMax: boolean): { template: string; parameters: WidgetParameter[]; extractedScript: string } {
   const { document } = parseHTML(html)
 
   const SVG = document.querySelector('svg')
@@ -131,8 +134,15 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
   // Extract atv:parameter elements before any structural changes
   const parameters = extractParams(SVG, 'atv:parameter')
 
-  // Remove <script> tags (script content already extracted by CtrlGetWidget)
-  SVG.querySelectorAll('script').forEach(n => n.remove())
+  // Extract and remove <script> tags.
+  // When HTML came from CtrlGetWidget the script is already separate.
+  // When HTML came from a direct webMI.data.read the script is still embedded.
+  let extractedScript = ''
+  SVG.querySelectorAll('script').forEach((n) => {
+    let src = (n.textContent ?? '').replace('<![CDATA[', '').replace(']]>', '').trim()
+    if (src) { extractedScript += src + '\n' }
+    n.remove()
+  })
 
   // Replace nested <svg xlink:href="..."> elements with <atvise-visu-v3> components
   SVG.querySelectorAll('svg').forEach((svg) => {
@@ -230,7 +240,7 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
   template = template.replaceAll('stroke="#ffffe"', 'v-bind:stroke="lightColor"')
   template = template.replaceAll('fill="#fffffe"', 'v-bind:fill="lightColor"')
 
-  return { template, parameters }
+  return { template, parameters, extractedScript }
 }
 
 // ---------------------------------------------------------------------------

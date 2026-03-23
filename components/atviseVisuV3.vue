@@ -173,49 +173,85 @@ const options = {
         return
       }
 
-      // Step 1: fetch raw HTML+script from atvise using the browser's webMI
-      // session (the server cannot forward the /webMI/ cookie to the proxy).
-      // Retry with delay when webMI session is not yet established (e.g. on login).
-      console.debug('[atviseVisuV3] fetching CtrlGetWidget via webMI.customRequest for', widgetName)
+      // Step 1: fetch raw HTML+script from atvise using the browser's webMI session.
+      // Strategy:
+      //   a) Try CtrlGetWidget — returns parsed { html, script } for most displays.
+      //      If it returns HTTP 404 that display is not in the custom script index;
+      //      do NOT retry, go straight to fallback.
+      //      If it returns empty html (session not yet established), retry with delay.
+      //   b) Fall back to webMI.data.read — reads the raw SVG from the OPC-UA node
+      //      directly. The raw value contains inline <script> tags which the server
+      //      will extract.
+      console.debug('[atviseVisuV3] fetching widget for', widgetName)
       let rawHtml = ''
       let rawScript = ''
-      const browserFetch = () => new Promise((res, rej) => {
+
+      // Helper: call CtrlGetWidget once and return the response object
+      const ctrlGetWidget = () => new Promise((res, rej) => {
         top.webMI.data.customRequest(
           'GET',
           `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`,
           (data) => {
-            if (!data) { rej(new Error('empty response from CtrlGetWidget')) } else { res(data) }
+            if (!data) { rej(new Error('no response')) } else { res(data) }
           }
         )
       })
+
+      // Helper: read the display node value directly from OPC-UA
+      const readNode = () => new Promise((res, rej) => {
+        top.webMI.data.read(widgetName, (data) => {
+          if (data?.value) { res(data.value) } else { rej(new Error(`webMI.data.read failed for ${widgetName}: ${data?.error}`)) }
+        })
+      })
+
       const sleep = ms => new Promise(r => setTimeout(r, ms))
-      const retryDelays = [1500, 3000, 5000]
-      let widgetData = null
+      const retryDelays = [1500, 3000]
+      let usedFallback = false
+
       for (let attempt = 0; attempt <= retryDelays.length; attempt++) {
         try {
-          widgetData = await browserFetch()
+          const widgetData = await ctrlGetWidget()
+          // Permanent error (e.g. 404) — CtrlGetWidget doesn't serve this display
+          if (widgetData.httpstatus >= 400) {
+            console.warn('[atviseVisuV3] CtrlGetWidget returned HTTP', widgetData.httpstatus, 'for', widgetName, '— falling back to webMI.data.read')
+            break
+          }
           const html = widgetData.html ?? widgetData.result ?? ''
           if (html) {
             rawHtml = html
             rawScript = widgetData.script ?? ''
             break
           }
-          // Got a response but html is empty — webMI session not ready yet
-          console.warn('[atviseVisuV3] CtrlGetWidget returned empty html on attempt', attempt, '– widgetData:', widgetData)
+          // Empty html but no error code = session not ready yet; retry
+          console.warn('[atviseVisuV3] CtrlGetWidget returned empty html (attempt', attempt, ') – session not ready?', widgetData)
         } catch (err) {
-          console.warn('[atviseVisuV3] CtrlGetWidget attempt', attempt, 'failed:', err)
+          console.warn('[atviseVisuV3] CtrlGetWidget attempt', attempt, 'threw:', err)
         }
         if (attempt < retryDelays.length) {
-          console.debug('[atviseVisuV3] retrying in', retryDelays[attempt], 'ms...')
+          console.debug('[atviseVisuV3] retrying CtrlGetWidget in', retryDelays[attempt], 'ms…')
           await sleep(retryDelays[attempt])
         }
       }
 
+      // If CtrlGetWidget couldn't supply HTML, fall back to direct OPC-UA node read
       if (!rawHtml) {
-        // All browser retries exhausted — fall back to server-side fetch (works for
-        // system/public displays that don't need user auth).
-        console.warn('[atviseVisuV3] Browser-side CtrlGetWidget failed after retries; falling back to server-side fetch for', widgetName)
+        try {
+          console.debug('[atviseVisuV3] trying webMI.data.read for', widgetName)
+          rawHtml = await readNode()
+          rawScript = '' // script is embedded in the raw SVG; server will extract it
+          usedFallback = true
+          console.debug('[atviseVisuV3] webMI.data.read succeeded, rawHtml length:', rawHtml.length)
+        } catch (err) {
+          console.error('[atviseVisuV3] webMI.data.read also failed for', widgetName, err)
+        }
       }
+
+      if (!rawHtml) {
+        console.error('[atviseVisuV3] Could not load widget HTML for', widgetName)
+        resolve({ template: `<div>ERROR: could not load display "${widgetName}"</div>`, data: () => ({}) })
+        return
+      }
+      console.debug('[atviseVisuV3] raw HTML obtained (usedFallback=' + usedFallback + ') length:', rawHtml.length)
 
       // Step 2: send raw HTML to server for DOM processing (linkedom — no
       // DOMParser needed in Node; server needs no auth for this step).
@@ -225,9 +261,7 @@ const options = {
       try {
         fetchResult = await $fetch('/api/webmi/widget-template', {
           method: 'POST',
-          body: rawHtml
-            ? { html: rawHtml, script: rawScript, scaleToMax: this.scaleToMax }
-            : { widget: widgetName, scaleToMax: this.scaleToMax }
+          body: { html: rawHtml, script: rawScript, scaleToMax: this.scaleToMax }
         })
         console.debug('[atviseVisuV3] widget-template response:', {
           templateLength: (fetchResult.template || '').length,
