@@ -383,12 +383,15 @@ const options = {
         inject: ['theme'],
 
         data () {
-          // Call the atvise script's data() with the component instance as `this`
-          // so any `this.base` / `this.xxx` references inside it resolve correctly.
+          // Call the atvise script's data() WITHOUT a `this` context (matching the
+          // old behaviour).  Calling it with `.call(this)` can throw if convertScript
+          // replaced `document.xxx` with `this.$el.xxx` inside the data function —
+          // `this.$el` is null/undefined during Vue's data-initialisation phase and
+          // would produce an uncaught TypeError that silently falls back to `{}`.
           let scriptData = {}
           try {
             if (typeof atvOptions.data === 'function') {
-              scriptData = atvOptions.data.call(this) ?? {}
+              scriptData = atvOptions.data() ?? {}
             }
           } catch (err) {
             console.warn('[widget data] atvOptions.data() threw:', err)
@@ -398,24 +401,29 @@ const options = {
           const paramsCopy = JSON.parse(paramDataJson)
           const result = { ...scriptData, ...paramsCopy }
 
-          // ── Pre-populate the nested `props` passthrough object ──────────────
-          // Many atvise displays use a `props` data object that is spread onto a
-          // child component via `<child-component v-bind="props"/>`.  Without
-          // pre-population the child mounts with empty/default values and only
-          // receives the real values after the parent's `mounted()` hook runs —
-          // which is too late for lifecycle methods that need the data on first
-          // mount (e.g. viewer.vue calls `init()` in mounted() only when
-          // `this.base.length > 0`).
-          if (result.props && typeof result.props === 'object') {
-            // `base` comes from the component's own prop (set by atviseVisuV3).
-            result.props.base = this.base ?? ''
-            // All other keys: seed from parameter defaults where the key exists.
-            Object.keys(result.props).forEach((key) => {
-              if (key !== 'base' && Object.prototype.hasOwnProperty.call(paramsCopy, key)) {
-                result.props[key] = paramsCopy[key]
-              }
-            })
+          // ── Always guarantee the `props` passthrough object exists ──────────
+          // Many atvise display templates do `<child v-bind="props"/>`.  If the
+          // script's data() threw (or returned nothing), `result.props` would be
+          // undefined and Vue would warn "Property 'props' not defined on instance".
+          if (!result.props || typeof result.props !== 'object') {
+            result.props = {}
           }
+
+          // ── Pre-populate `props` so child components mount with correct values ─
+          // Without this, viewer.vue mounts with `base = ''`, skips `init()`, and
+          // shows "No data available" until the parent's `mounted()` hook fires.
+          //
+          // `this.base` here is the component's own `base` prop (set by
+          // atviseVisuV3 from the URL `?base=` query param).
+          result.props.base = this.base ?? ''
+
+          // Seed all other matching keys from parameter defaults (showMap, listSize,
+          // center, mapVisu, …) so the first render already has the right values.
+          Object.keys(result.props).forEach((key) => {
+            if (key !== 'base' && Object.prototype.hasOwnProperty.call(paramsCopy, key)) {
+              result.props[key] = paramsCopy[key]
+            }
+          })
 
           return result
         },
