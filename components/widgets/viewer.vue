@@ -426,13 +426,8 @@ export default {
           this.showTypes.push('VariableTypes.PROJECT.measurement')
         }
         items = items.filter((item) => {
-          let found = false
-          this.showTypes.forEach((type) => {
-            if (item.typeDefinition.includes(type)) {
-              found = true
-            }
-          })
-          return found
+          if (!item.typeDefinition) { return false }
+          return this.showTypes.some(type => item.typeDefinition.includes(type))
         })
         if (sortOrder) {
           await items.forEach((item) => {
