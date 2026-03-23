@@ -15,48 +15,26 @@
         Kart
       </h6>
     </v-btn>
-    <v-speed-dial
+    <div
       v-if="editable && checkAdmin()"
-      v-model="fab"
-      style="position: fixed; zIndex:99999;"
-      bottom
-      right
-      direction="top"
+      style="position:fixed;bottom:16px;right:16px;z-index:99999;display:flex;flex-direction:column-reverse;gap:8px;align-items:center;"
     >
-      <template #activator>
-        <v-btn
-          v-model="fab"
-          color="blue-darken-2"
-          dark
-          fab
-        >
-          <v-icon v-if="fab">
-            mdi-close
-          </v-icon>
-          <v-icon v-else>
-            mdi-cog
-          </v-icon>
+      <v-btn
+        icon
+        color="blue-darken-2"
+        @click="fab = !fab"
+      >
+        <v-icon>{{ fab ? 'mdi-close' : 'mdi-cog' }}</v-icon>
+      </v-btn>
+      <template v-if="fab">
+        <v-btn icon color="green" size="small" @click="toggleSave">
+          <v-icon>mdi-content-save</v-icon>
+        </v-btn>
+        <v-btn icon color="indigo" size="small" @click="toggleEdit">
+          <v-icon>mdi-pencil</v-icon>
         </v-btn>
       </template>
-      <v-btn
-        fab
-        dark
-        small
-        color="green"
-        @click="toggleSave"
-      >
-        <v-icon>mdi-content-save</v-icon>
-      </v-btn>
-      <v-btn
-        fab
-        dark
-        small
-        color="indigo"
-        @click="toggleEdit"
-      >
-        <v-icon>mdi-pencil</v-icon>
-      </v-btn>
-    </v-speed-dial>
+    </div>
     <l-map
       ref="map"
       :center="center"
@@ -82,7 +60,6 @@ export default {
   components: {
 
   },
-  inject: ['theme'],
   props: {
     showSeaMap: {
       type: Boolean,
@@ -145,7 +122,7 @@ export default {
     }
   },
   watch: {
-    'theme.isDark': {
+    '$vuetify.theme.current.dark': {
       immediate: true,
       handler (value) {
         this.isDark = value

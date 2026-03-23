@@ -2,13 +2,10 @@
   <v-container>
     <v-row>
       <v-col v-for="(item,index) in items" :key="index" cols="4">
-        <v-hover v-slot="{ hover }">
-          <v-card @click="$emit('add:widget', item)">
-            <v-overlay :value="hover" absolute>
+        <v-hover v-slot="{ isHovering, props: hoverProps }">
+          <v-card v-bind="hoverProps" @click="$emit('add:widget', item)">
+            <v-overlay :model-value="!!isHovering" absolute>
               {{ $T('Select') }}
-              <!-- <v-btn @click="$emit('add:widget', item)">
-                Select
-              </v-btn> -->
             </v-overlay>
             <atvise-visu-v3 style="height:200px" :settings="item.nodeid" />
           </v-card>
@@ -46,6 +43,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

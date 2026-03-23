@@ -2,20 +2,17 @@
   <v-dialog
     ref="dialog"
     v-model="modal"
-    :return-value.sync="value"
     persistent
     width="800px"
-    @update:return-value="$emit('input', value)"
   >
     <template #activator="{ props }">
       <v-text-field
-        :value="value"
+        :model-value="modelValue"
         :label="label"
         :readonly="false"
-        outlined
         density="compact"
-        variant="filled"
-        @change="$emit('input', $event)"
+        variant="outlined"
+        @update:model-value="$emit('update:modelValue', $event)"
         @keydown.stop=""
       >
         <template #prepend>
@@ -41,13 +38,6 @@
         >
           {{ $T('Cancel') }}
         </v-btn>
-        <!-- <v-btn
-          variant="text"
-          color="primary"
-          @click="$refs.dialog.save(val1)"
-        >
-          {{ $T('OK') }}
-        </v-btn> -->
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -55,20 +45,17 @@
 
 <script>
 export default {
+  emits: ['update:modelValue'],
   props: {
     base: {
       type: String,
       default: 'AGENT.OBJECTS'
     },
-    // item: {
-    //   type: Object,
-    //   default: () => { return {} }
-    // },
     label: {
       type: String,
       default: 'Value'
     },
-    value: {
+    modelValue: {
       type: String,
       default: undefined
     },
@@ -79,31 +66,14 @@ export default {
   },
   data () {
     return {
-      modal: false,
-      val1: undefined
+      modal: false
     }
   },
-  // watch: {
-  //   base: {
-  //     immediate: true,
-  //     handler (val) {
-  //       top.webMI.data.read(this.base, (e) => {
-  //         // this.value = e.value
-  //       })
-  //     }
-  //   }
-  // },
   methods: {
     update (val) {
-      // console.log(val)
-      // this.val1 = val.nodeid
-      this.$refs.dialog.save(val.nodeid)
-      // this.modal = false
+      this.$emit('update:modelValue', val.nodeid)
+      this.modal = false
     }
   }
 }
 </script>
-
-<style>
-
-</style>
