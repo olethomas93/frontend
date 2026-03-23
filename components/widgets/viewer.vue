@@ -441,7 +441,7 @@ export default {
           items = items.filter((item) => { return item.index >= 0 })
         }
 
-        if (items[0].index >= 0) {
+        if (items.length > 0 && items[0].index >= 0) {
           this.items = items.sort((a, b) => { return a.index - b.index })
         } else {
           this.items = items
@@ -522,9 +522,9 @@ export default {
       })
     },
     click (item) {
-      if (item.childs.default) {
+      if (item.childs?.default) {
         this.$router.push({ query: { base: item.nodeid, display: item.childs.default.nodeid } })
-      } else if (item.childs._default) {
+      } else if (item.childs?._default) {
         this.$router.push({ query: { base: item.nodeid, display: item.childs._default.nodeid } })
       }
     }
