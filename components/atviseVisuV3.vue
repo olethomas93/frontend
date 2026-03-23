@@ -340,7 +340,16 @@ const options = {
       const args = this.arguments || []
       args.forEach((arg) => {
         if (arg.name === 'base') {
-          this.myBase = (this[arg.prefix] || '') + (arg.value || '')
+          // Resolve the prefix to a prop/data value on this component.
+          // Guard: if the prefix prop is undefined (e.g. the parent display
+          // template does not pass `:base` to this <atvise-visu-v3>), keep
+          // the myBase that was already set by init() / mounted() from
+          // route.query.base instead of overwriting it with an empty string.
+          const prefixVal = arg.prefix ? (this[arg.prefix] ?? '') : ''
+          const newBase = prefixVal + (arg.value ?? '')
+          if (newBase) {
+            this.myBase = newBase
+          }
         } else if (arg.prefix) {
           paramData[arg.name] = (this.$parent?.[arg.prefix] ?? '') + (arg.value ?? '')
         } else {
