@@ -70,9 +70,7 @@
       v-bind="$attrs"
     >
       <slot name="overlay" />
-      <l-tile-layer :attribution="layer.attribution" :url="layer.url" :options="{className:layer.className}">
-        $test
-      </l-tile-layer>
+      <l-tile-layer :attribution="layer.attribution" :url="layer.url" :options="{className:layer.className}" />
       <!-- @slot for adding vue-leaflet marker,geometry etc ---->
       <slot name="map" />
     </l-map>
@@ -172,7 +170,9 @@ export default {
        * Emits leaflet map when ready
        */
       this.map = map
-      this.$nextTick(() => map.invalidateSize())
+      // Use a short delay so that the splitpane/parent container has finished
+      // laying out before Leaflet recalculates tile positions.
+      this.$nextTick(() => setTimeout(() => map.invalidateSize(), 300))
       this.$emit('mapReady', this.map)
     },
     toggleEdit () {

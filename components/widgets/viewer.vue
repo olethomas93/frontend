@@ -534,6 +534,6 @@ export default {
 
 <style>
 .splitpanes__pane {
-  background:red;
+  overflow: auto;
 }
 </style>
