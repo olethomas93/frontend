@@ -125,7 +125,8 @@ export default defineNuxtConfig({
   },
   css: [
     '~/assets/main.css',
-    '@mdi/font/css/materialdesignicons.css'
+    '@mdi/font/css/materialdesignicons.css',
+    'splitpanes/dist/splitpanes.css'
   ],
   modules: ['@pinia/nuxt'],
   plugins: [
@@ -224,7 +225,7 @@ export default defineNuxtConfig({
       'process.env.DEBUG': false
     },
     optimizeDeps: {
-      include: ['vuetify', 'xml-js']
+      include: ['vuetify', 'xml-js', 'splitpanes']
     },
     resolve: {
       alias: {
