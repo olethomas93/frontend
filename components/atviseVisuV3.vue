@@ -326,22 +326,13 @@ const options = {
      *                               Empty object for "mounted-hook" scripts.
      */
     buildComponent (template, parameters, atvOptions) {
-      // ── 1. Build the merged data payload ──────────────────────────────────
-      // Start with data from the atvise script's own data() function.
-      const mergedData = {}
-      try {
-        if (typeof atvOptions.data === 'function') {
-          Object.assign(mergedData, atvOptions.data())
-        }
-      } catch (err) {
-        console.warn('[buildComponent] atvOptions.data() threw:', err)
-      }
-
-      // Overlay atv:parameter defaults (skip theme colours — provided by computed).
+      // ── 1. Build the parameter data payload ───────────────────────────────
+      // Collect atv:parameter defaults (skip theme colours — provided by computed).
+      const paramData = {}
       const params = parameters || this.parameters
       params.forEach((param) => {
         if (param.name !== 'darkColor' && param.name !== 'lightColor') {
-          mergedData[param.name] = this.getSetting(param)
+          paramData[param.name] = this.getSetting(param)
         }
       })
 
@@ -351,19 +342,18 @@ const options = {
         if (arg.name === 'base') {
           this.myBase = (this[arg.prefix] || '') + (arg.value || '')
         } else if (arg.prefix) {
-          mergedData[arg.name] = (this.$parent?.[arg.prefix] ?? '') + (arg.value ?? '')
+          paramData[arg.name] = (this.$parent?.[arg.prefix] ?? '') + (arg.value ?? '')
         } else {
           const v = arg.value
-          mergedData[arg.name] =
+          paramData[arg.name] =
             (v === 'true' ? true : v === 'false' ? false : (Number(v) || v))
         }
       })
 
-      // Serialize once so each component instance gets its own deep copy via
-      // JSON parse — avoids shared mutable nested objects between instances.
-      const mergedDataJson = JSON.stringify(mergedData)
+      // Serialize parameters once — deserialized (deep-copied) per instance in data().
+      const paramDataJson = JSON.stringify(paramData)
 
-      // ── 2. Capture mounted / methods / computed from atvise script ─────────
+      // ── 2. Capture lifecycle hooks / methods / computed from atvise script ─
       const atvMounted = typeof atvOptions.mounted === 'function' ? atvOptions.mounted : null
       const atvMethods = atvOptions.methods ?? {}
       const atvComputed = atvOptions.computed ?? {}
@@ -393,7 +383,41 @@ const options = {
         inject: ['theme'],
 
         data () {
-          return JSON.parse(mergedDataJson)
+          // Call the atvise script's data() with the component instance as `this`
+          // so any `this.base` / `this.xxx` references inside it resolve correctly.
+          let scriptData = {}
+          try {
+            if (typeof atvOptions.data === 'function') {
+              scriptData = atvOptions.data.call(this) ?? {}
+            }
+          } catch (err) {
+            console.warn('[widget data] atvOptions.data() threw:', err)
+          }
+
+          // Deep-copy parameter values per instance, then merge over script defaults.
+          const paramsCopy = JSON.parse(paramDataJson)
+          const result = { ...scriptData, ...paramsCopy }
+
+          // ── Pre-populate the nested `props` passthrough object ──────────────
+          // Many atvise displays use a `props` data object that is spread onto a
+          // child component via `<child-component v-bind="props"/>`.  Without
+          // pre-population the child mounts with empty/default values and only
+          // receives the real values after the parent's `mounted()` hook runs —
+          // which is too late for lifecycle methods that need the data on first
+          // mount (e.g. viewer.vue calls `init()` in mounted() only when
+          // `this.base.length > 0`).
+          if (result.props && typeof result.props === 'object') {
+            // `base` comes from the component's own prop (set by atviseVisuV3).
+            result.props.base = this.base ?? ''
+            // All other keys: seed from parameter defaults where the key exists.
+            Object.keys(result.props).forEach((key) => {
+              if (key !== 'base' && Object.prototype.hasOwnProperty.call(paramsCopy, key)) {
+                result.props[key] = paramsCopy[key]
+              }
+            })
+          }
+
+          return result
         },
 
         computed: {
