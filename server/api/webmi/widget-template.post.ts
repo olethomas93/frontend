@@ -220,6 +220,20 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
     console.log('[widget-template] htmlContent tag:', htmlContent?.tagName, 'innerHTML preview:', htmlContent?.innerHTML?.slice(0, 200))
     if (htmlContent) {
       div2.appendChild(htmlContent)
+
+      // SVG-nested displays (processed above) get `v-bind:base="base"` automatically.
+      // Displays that live inside a `#html` foreignObject are moved as-is, so we
+      // must add the same binding here — otherwise the inner <atvise-visu-v3>
+      // receives no `base` prop and can't propagate it to its child widgets.
+      const addBaseBinding = (el: Element) => {
+        if (!el.hasAttribute('v-bind:base') && !el.hasAttribute(':base')) {
+          el.setAttribute('v-bind:base', 'base')
+        }
+      }
+      if (htmlContent.tagName.toLowerCase() === 'atvise-visu-v3') {
+        addBaseBinding(htmlContent)
+      }
+      htmlContent.querySelectorAll('atvise-visu-v3').forEach(addBaseBinding)
     } else {
       console.warn('[widget-template] #html foreignObject has no firstElementChild – HTML content will be missing')
     }
