@@ -175,39 +175,59 @@ const options = {
 
       // Step 1: fetch raw HTML+script from atvise using the browser's webMI
       // session (the server cannot forward the /webMI/ cookie to the proxy).
+      // Retry with delay when webMI session is not yet established (e.g. on login).
       console.debug('[atviseVisuV3] fetching CtrlGetWidget via webMI.customRequest for', widgetName)
       let rawHtml = ''
       let rawScript = ''
-      try {
-        const widgetData = await new Promise((res, rej) => {
-          top.webMI.data.customRequest(
-            'GET',
-            `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`,
-            (data) => {
-              if (!data) { rej(new Error('empty response from CtrlGetWidget')) } else { res(data) }
-            }
-          )
-        })
-        rawHtml = widgetData.html ?? widgetData.result ?? ''
-        rawScript = widgetData.script ?? ''
-      } catch (err) {
-        console.error('[atviseVisuV3] CtrlGetWidget fetch failed for', widgetName, err)
-        resolve({ template: '<div>ERROR: CtrlGetWidget fetch failed</div>', data: () => ({}) })
-        return
+      const browserFetch = () => new Promise((res, rej) => {
+        top.webMI.data.customRequest(
+          'GET',
+          `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`,
+          (data) => {
+            if (!data) { rej(new Error('empty response from CtrlGetWidget')) } else { res(data) }
+          }
+        )
+      })
+      const sleep = ms => new Promise(r => setTimeout(r, ms))
+      const retryDelays = [1500, 3000, 5000]
+      let widgetData = null
+      for (let attempt = 0; attempt <= retryDelays.length; attempt++) {
+        try {
+          widgetData = await browserFetch()
+          const html = widgetData.html ?? widgetData.result ?? ''
+          if (html) {
+            rawHtml = html
+            rawScript = widgetData.script ?? ''
+            break
+          }
+          // Got a response but html is empty — webMI session not ready yet
+          console.warn('[atviseVisuV3] CtrlGetWidget returned empty html on attempt', attempt, '– widgetData:', widgetData)
+        } catch (err) {
+          console.warn('[atviseVisuV3] CtrlGetWidget attempt', attempt, 'failed:', err)
+        }
+        if (attempt < retryDelays.length) {
+          console.debug('[atviseVisuV3] retrying in', retryDelays[attempt], 'ms...')
+          await sleep(retryDelays[attempt])
+        }
+      }
+
+      if (!rawHtml) {
+        // All browser retries exhausted — fall back to server-side fetch (works for
+        // system/public displays that don't need user auth).
+        console.warn('[atviseVisuV3] Browser-side CtrlGetWidget failed after retries; falling back to server-side fetch for', widgetName)
       }
 
       // Step 2: send raw HTML to server for DOM processing (linkedom — no
       // DOMParser needed in Node; server needs no auth for this step).
+      // If browser fetch failed, pass `widget` name so server can try directly.
       console.debug('[atviseVisuV3] posting to /api/webmi/widget-template for', widgetName)
       let fetchResult
       try {
         fetchResult = await $fetch('/api/webmi/widget-template', {
           method: 'POST',
-          body: {
-            html: rawHtml,
-            script: rawScript,
-            scaleToMax: this.scaleToMax
-          }
+          body: rawHtml
+            ? { html: rawHtml, script: rawScript, scaleToMax: this.scaleToMax }
+            : { widget: widgetName, scaleToMax: this.scaleToMax }
         })
         console.debug('[atviseVisuV3] widget-template response:', {
           templateLength: (fetchResult.template || '').length,
