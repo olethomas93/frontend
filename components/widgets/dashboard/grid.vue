@@ -2,7 +2,7 @@
   <div style="width:100%;height:100%;" class="ma-auto">
     <grid-layout
       ref="grid"
-      v-model:layout="items"
+      :layout="items"
       :col-num="24"
       :row-height="40"
       _breakpoints="{ lg: 1000, xs: 0 }"
