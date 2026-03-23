@@ -248,22 +248,37 @@ function processWidget (html: string, scaleToMax: boolean): { template: string; 
 // ---------------------------------------------------------------------------
 
 /**
- * Convert a raw Atvise widget script so it runs inside a Vue component:
- *   - `webMI.*`  → `self.webMI.*`  (or `this.webMI.*` when script returns options)
- *   - `document.getElementById('x')` → `self.$el.querySelector('#x')`
- *   - `document.`  → `self.$el.`
+ * Convert a raw Atvise widget script so it runs inside a Vue component.
+ *
+ * Two script patterns exist in atvise:
+ *
+ * A) "Return-options" scripts — start with `return {` and return a Vue
+ *    options object `{ data, mounted, methods, computed }`.  Inside the
+ *    returned lifecycle hooks `this` is the component instance, so all
+ *    DOM and webMI references must use `this`.
+ *
+ * B) "Mounted-hook" scripts — run directly as a mounted hook body.
+ *    A `var self = this` alias is injected at the top so the script can
+ *    use `self` to refer to the component instance.
  */
 function convertScript (script: string): string {
-  if (script.substring(0, 10).includes('return')) {
-    // Script returns Vue component options — uses `this` context
+  const isReturnOptions = script.trimStart().substring(0, 10).includes('return')
+
+  if (isReturnOptions) {
+    // webMI references inside returned hooks use `this`
     script = script.replaceAll(' webMI.', ' this.webMI.')
+    // document.xxx inside returned mounted/methods also uses `this.$el`
+    script = script.replaceAll("document.getElementById('", "this.$el.querySelector('#")
+    script = script.replaceAll('document.getElementById("', 'this.$el.querySelector("#')
+    script = script.replaceAll('document.', 'this.$el.')
   } else {
-    // Script runs as a mounted hook — uses `self` alias for the component
+    // Mounted-hook scripts: `self` alias is injected by the caller
     script = script.replace(/(?<!\.)webMI\./g, 'self.webMI.')
+    script = script.replaceAll("document.getElementById('", "self.$el.querySelector('#")
+    script = script.replaceAll('document.getElementById("', 'self.$el.querySelector("#')
+    script = script.replaceAll('document.', 'self.$el.')
   }
-  script = script.replaceAll("document.getElementById('", "self.$el.querySelector('#")
-  script = script.replaceAll('document.getElementById("', 'self.$el.querySelector("#')
-  script = script.replaceAll('document.', 'self.$el.')
+
   return script
 }
 

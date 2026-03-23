@@ -27,7 +27,6 @@
 <script>
 import { defineAsyncComponent, markRaw } from 'vue'
 import atviseDialog from '@/components/dialogs/atviseDialog'
-import { widget } from '@/global/mixin.js'
 
 let webMI = {}
 import('@/global/webMI_mixin').then((data) => {
@@ -283,87 +282,138 @@ const options = {
       const translatedScript = this.$store.getters['translation/translateText'](script)
       console.debug('[atviseVisuV3] building Vue component for', widgetName)
 
-      // Build the widget's behaviour function from the processed script
-      let visuFuncError = null
+      // Build the widget's behaviour function from the processed script.
+      // Pattern A ("return-options"): script starts with `return {` and
+      //   yields `{ data, mounted, methods, computed }` — wrap in an IIFE.
+      // Pattern B (mounted-hook): script body runs directly; inject `var self = this`.
+      const isReturnOptions = translatedScript.trimStart().startsWith('return')
+      let atvOptions = {}
+      let scriptError = null
       try {
-        // eslint-disable-next-line no-new-func
-        this.visuFunc = new Function('self', 'var self = this\n' + translatedScript)
+        if (isReturnOptions) {
+          // eslint-disable-next-line no-new-func
+          const fn = new Function(translatedScript)
+          atvOptions = fn() ?? {}
+        } else {
+          // eslint-disable-next-line no-new-func
+          this.visuFunc = new Function('self', 'var self = this\n' + translatedScript)
+        }
       } catch (err) {
-        visuFuncError = err
-        console.error('[atviseVisuV3] new Function() failed:', err, '\nScript was:\n', translatedScript)
+        scriptError = err
+        console.error('[atviseVisuV3] script compile failed:', err, '\nScript was:\n', translatedScript)
       }
 
       let vueComp
       try {
-        vueComp = this.buildComponent(translatedTemplate)
+        vueComp = this.buildComponent(translatedTemplate, parameters, atvOptions)
       } catch (err) {
         console.error('[atviseVisuV3] buildComponent() failed:', err, '\nTemplate was:\n', translatedTemplate)
         resolve({ template: '<div>ERROR: buildComponent failed</div>', data: () => ({}) })
         return
       }
-      console.debug('[atviseVisuV3] component ready', widgetName, visuFuncError ? '(visuFunc errored)' : '(visuFunc OK)')
+      console.debug('[atviseVisuV3] component ready', widgetName, scriptError ? '(script error: ' + scriptError.message + ')' : '(OK)')
       vueComp.name = 'widget'
       resolve(vueComp)
     },
 
     /**
      * Assemble the final Vue component options from the server-provided template.
-     * Applies {{substitute}} replacements (needs runtime argument values from the
-     * component hierarchy, so must stay client-side).
+     *
+     * @param {string}  template   - Processed HTML template string from the server.
+     * @param {Array}   parameters - atv:parameter definitions extracted from SVG.
+     * @param {Object}  atvOptions - Vue options returned by a "return-options" script
+     *                               (`{ data, mounted, methods, computed }`).
+     *                               Empty object for "mounted-hook" scripts.
      */
-    buildComponent (template) {
-      let options
+    buildComponent (template, parameters, atvOptions) {
+      // ── 1. Build the merged data payload ──────────────────────────────────
+      // Start with data from the atvise script's own data() function.
+      const mergedData = {}
       try {
-        if (!this.preview) {
-          options = this.visuFunc()
+        if (typeof atvOptions.data === 'function') {
+          Object.assign(mergedData, atvOptions.data())
         }
-      } catch (error) {
-        options = undefined
+      } catch (err) {
+        console.warn('[buildComponent] atvOptions.data() threw:', err)
       }
 
-      if (!options) {
-        options = {
-          data () { return {} },
-          created () {},
-          mounted: this.visuFunc
-        }
-      }
-
-      const funcData = options.data()
-
-      // Apply substitute replacements now that we have the runtime argument values
-      options.template = this.replaceSubstitute(template)
-      options.mixins = [widget, webMI]
-
-      // Merge atv:parameter defaults into component data
-      this.parameters.forEach((param) => {
+      // Overlay atv:parameter defaults (skip theme colours — provided by computed).
+      const params = parameters || this.parameters
+      params.forEach((param) => {
         if (param.name !== 'darkColor' && param.name !== 'lightColor') {
-          funcData[param.name] = this.getSetting(param)
+          mergedData[param.name] = this.getSetting(param)
         }
       })
 
-      // Merge atv:argument values (may override parameter defaults)
-      if (this.arguments) {
-        this.arguments.forEach((arg) => {
-          if (arg.name === 'base') {
-            this.myBase = (this[arg.prefix] || '') + (arg.value || '')
-          } else {
-            const prefix = arg.prefix || undefined
-            if (prefix) {
-              funcData[arg.name] = this.$parent[prefix] + (arg.value || '')
-            } else {
-              funcData[arg.name] =
-                Number(arg.value) ||
-                (arg.value === 'true' ? true : arg.value === 'false' ? false : undefined) ||
-                arg.value
-            }
-          }
-        })
-      }
+      // Overlay atv:argument values (runtime overrides from the caller).
+      const args = this.arguments || []
+      args.forEach((arg) => {
+        if (arg.name === 'base') {
+          this.myBase = (this[arg.prefix] || '') + (arg.value || '')
+        } else if (arg.prefix) {
+          mergedData[arg.name] = (this.$parent?.[arg.prefix] ?? '') + (arg.value ?? '')
+        } else {
+          const v = arg.value
+          mergedData[arg.name] =
+            (v === 'true' ? true : v === 'false' ? false : (Number(v) || v))
+        }
+      })
 
-      // eslint-disable-next-line no-new-func
-      options.data = new Function('', 'return ' + JSON.stringify(funcData))
-      return options
+      // Serialize once so each component instance gets its own deep copy via
+      // JSON parse — avoids shared mutable nested objects between instances.
+      const mergedDataJson = JSON.stringify(mergedData)
+
+      // ── 2. Capture mounted / methods / computed from atvise script ─────────
+      const atvMounted = typeof atvOptions.mounted === 'function' ? atvOptions.mounted : null
+      const atvMethods = atvOptions.methods ?? {}
+      const atvComputed = atvOptions.computed ?? {}
+
+      // Self reference for "mounted-hook" pattern (visuFunc used as mounted body)
+      const visuFuncRef = this.visuFunc
+
+      // ── 3. Assemble final component options ────────────────────────────────
+      return {
+        template: this.replaceSubstitute(template),
+
+        // Only the webMI mixin — it provides this.webMI, cleanup on unmount, etc.
+        // The `widget` mixin is intentionally excluded: displays manage their own
+        // data via BrowseNodes / OPC-UA reads in their own script; layering the
+        // subscription widget mixin on top causes conflicts and noise.
+        mixins: [webMI],
+
+        // Explicit props keep the contract clear and avoid mixin conflicts.
+        props: {
+          base: { type: String, default: undefined },
+          preview: { type: Boolean, default: false },
+          hover: { type: Boolean, default: false },
+          settings: { type: [Object, String], default: undefined },
+          eventBus: { default: undefined }
+        },
+
+        inject: ['theme'],
+
+        data () {
+          return JSON.parse(mergedDataJson)
+        },
+
+        computed: {
+          ...atvComputed,
+          darkColor () { return this.theme?.isDark ? '#ffffff' : 'rgba(0,0,0,0.7)' },
+          lightColor () { return this.theme?.isDark ? 'rgba(0,0,0,0.7)' : '#ffffff' }
+        },
+
+        methods: atvMethods,
+
+        mounted () {
+          // "Return-options" pattern: call the script's mounted hook.
+          if (atvMounted) {
+            try { atvMounted.call(this) } catch (err) { console.error('[widget mounted] error:', err) }
+          } else if (typeof visuFuncRef === 'function') {
+            // "Mounted-hook" pattern: run the script body directly with self = this.
+            try { visuFuncRef.call(this, this) } catch (err) { console.error('[widget visuFunc] error:', err) }
+          }
+        }
+      }
     },
 
     replaceSubstitute (text) {
