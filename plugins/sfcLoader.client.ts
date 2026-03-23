@@ -52,8 +52,12 @@ export default defineNuxtPlugin((nuxtApp) => {
   const options = {
     moduleCache: { vue: vueApp },
     getFile: (filename: string) => {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         top.webMI.data.read(`SYSTEM.LIBRARY.ATVISE.RESOURCES/vueComponents/${filename}`, (data: any) => {
+          if (!data?.value) {
+            reject(new Error(`[sfcLoader] Could not load component "${filename}": ${data?.error ?? 'no value'}`))
+            return
+          }
           resolve(hex2String(data.value))
         })
       })

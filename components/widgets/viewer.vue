@@ -470,7 +470,7 @@ export default {
         }
         this.items = items
       } catch (err) {
-        // console.log(err)
+        console.error('[viewer] init() failed:', err)
       }
     },
     getDisable (address) {
