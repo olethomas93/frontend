@@ -173,15 +173,39 @@ const options = {
         return
       }
 
-      // Send the widget name to the server; the server fetches CtrlGetWidget
-      // directly from ATVISE_PROXY (no browser proxy needed).
+      // Step 1: fetch raw HTML+script from atvise using the browser's webMI
+      // session (the server cannot forward the /webMI/ cookie to the proxy).
+      console.debug('[atviseVisuV3] fetching CtrlGetWidget via webMI.customRequest for', widgetName)
+      let rawHtml = ''
+      let rawScript = ''
+      try {
+        const widgetData: any = await new Promise((res, rej) => {
+          top.webMI.data.customRequest(
+            'GET',
+            `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`,
+            (data: any) => {
+              if (!data) { rej(new Error('empty response from CtrlGetWidget')) } else { res(data) }
+            }
+          )
+        })
+        rawHtml = widgetData.html ?? widgetData.result ?? ''
+        rawScript = widgetData.script ?? ''
+      } catch (err) {
+        console.error('[atviseVisuV3] CtrlGetWidget fetch failed for', widgetName, err)
+        resolve({ template: '<div>ERROR: CtrlGetWidget fetch failed</div>', data: () => ({}) })
+        return
+      }
+
+      // Step 2: send raw HTML to server for DOM processing (linkedom — no
+      // DOMParser needed in Node; server needs no auth for this step).
       console.debug('[atviseVisuV3] posting to /api/webmi/widget-template for', widgetName)
       let fetchResult
       try {
         fetchResult = await $fetch('/api/webmi/widget-template', {
           method: 'POST',
           body: {
-            widget: widgetName,
+            html: rawHtml,
+            script: rawScript,
             scaleToMax: this.scaleToMax
           }
         })
