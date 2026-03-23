@@ -391,7 +391,6 @@ export default {
     }
   },
   mounted () {
-    console.log('[viewer] mounted – base prop:', JSON.stringify(this.base))
     if (this.base.length > 0) {
       this.init()
     }
@@ -426,17 +425,10 @@ export default {
           // eslint-disable-next-line vue/no-mutating-props
           this.showTypes.push('VariableTypes.PROJECT.measurement')
         }
-        console.log('[viewer] before showTypes filter – items:', items.length, 'showTypes:', this.showTypes)
         items = items.filter((item) => {
-          let found = false
-          this.showTypes.forEach((type) => {
-            if (item.typeDefinition.includes(type)) {
-              found = true
-            }
-          })
-          return found
+          if (!item.typeDefinition) { return false }
+          return this.showTypes.some(type => item.typeDefinition.includes(type))
         })
-        console.log('[viewer] after showTypes filter – items:', items.length)
         if (sortOrder) {
           await items.forEach((item) => {
             item.index = sortOrder.indexOf(item.browsename)
@@ -513,9 +505,7 @@ export default {
           vTypes,
           mapping: ['browsename:browsename', 'displayname:displayname', 'nodeid:nodeid:splitnamespace', 'description:description', 'typeDefinition:typedefinition:splitnamespace', 'value:value']
         }
-        console.log('[viewer] getItems() – base:', this.base, 'filter:', JSON.stringify(filter))
         top.webMI.data.call('BrowseNodes', filter, (data) => {
-          console.log('[viewer] BrowseNodes raw result – type:', typeof data, 'keys:', Object.keys(data || {}), 'data:', JSON.stringify(data)?.slice(0, 500))
           resolve(this.toArray(data))
         })
       })
