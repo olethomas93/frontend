@@ -183,7 +183,7 @@ const options = {
           top.webMI.data.customRequest(
             'GET',
             `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`,
-            (data: any) => {
+            (data) => {
               if (!data) { rej(new Error('empty response from CtrlGetWidget')) } else { res(data) }
             }
           )
