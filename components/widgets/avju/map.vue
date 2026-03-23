@@ -43,15 +43,13 @@
     </map-general>
     <v-navigation-drawer
       ref="drawer"
-      v-model="drawer"
+      v-model:rail="drawer"
       absolute
-      right
-      clipped
+      location="right"
       style="z-index:100"
-      :mini-variant.sync="drawer"
       permanent
-      mini-variant-width="0"
-      width="1140"
+      :rail-width="0"
+      :width="1140"
       :style="{opacity: opacity}"
     >
       <slot name="content">

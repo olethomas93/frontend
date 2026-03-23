@@ -1,6 +1,6 @@
 <template>
   <div style="height:100%">
-    <v-toolbar v-if="type === 'private ' || rights.engineer || dashboards.length > 1" tabs dense style="z-index:2">
+    <v-toolbar v-if="type === 'private ' || rights.engineer || dashboards.length > 1" density="compact" style="z-index:2">
       <v-tabs :key="key" v-model="tab" style="max-width:80%">
         <v-tab v-for="(dash,index) in dashboards" :key="index">
           <v-btn v-if="edit && (tab === index)" icon :disabled="index === 0" @click.stop="moveItem(index, index - 1)">
@@ -8,33 +8,20 @@
               mdi-arrow-left
             </v-icon>
           </v-btn>
-          {{ $T(dash.name) }}
-          <v-edit-dialog
+          <v-text-field
             v-if="edit && (tab === index)"
-            :return-value.sync="dash.name"
-            large
-            style="z-index:11000;"
-            _save="save"
-            _cancel="cancel"
-            _open="open"
-            _close="close"
-          >
-            <v-btn icon>
-              <v-icon>
-                mdi-pencil
-              </v-icon>
-            </v-btn>
-            <template #input>
-              <v-text-field
-                v-model="dash.name"
-                label="Edit"
-                single-line
-                @keydown.stop=""
-                @keypress.stop=""
-                @keyup.stop=""
-              />
-            </template>
-          </v-edit-dialog>
+            v-model="dash.name"
+            label="Edit"
+            single-line
+            density="compact"
+            hide-details
+            variant="underlined"
+            style="max-width:120px"
+            @keydown.stop=""
+            @keypress.stop=""
+            @keyup.stop=""
+          />
+          <span v-else>{{ $T(dash.name) }}</span>
           <v-btn v-if="edit && (tab === index)" icon :disabled="dashboards.length === 1" color="critical" @click.stop="deleteDashboard(index)">
             <v-icon>
               mdi-delete
@@ -71,11 +58,11 @@
         </v-btn>
       </div>
     </v-toolbar>
-    <v-tabs-items v-model="tab" style="height:calc(100% - 48px); overflow: auto;">
-      <v-tab-item v-for="(dash,index) in dashboards" :key="index">
+    <v-window v-model="tab" style="height:calc(100% - 48px); overflow: auto;">
+      <v-window-item v-for="(dash,index) in dashboards" :key="index">
         <dashboard-grid v-if="tab == index" :base="base" :items="dash.items" :edit-mode="edit" />
-      </v-tab-item>
-    </v-tabs-items>
+      </v-window-item>
+    </v-window>
     <!-- <dashboard-editor v-model="editMode" @save="saveDashboard" @addCard="addCard" /> -->
   </div>
 </template>
@@ -144,10 +131,6 @@ export default {
   },
   methods: {
     async getDashboards () {
-      // WIP...
-      // this.public = await this.getDashboards('public')
-      // this.private = await this.getDashboards()
-      // this.dashboards = [...this.public, ...this.private]
       this.dashboards = await this.getDashboard(this.type)
     },
     getDashboard (type = 'private') {
@@ -158,12 +141,8 @@ export default {
             reject(data)
           }
           resolve(JSON.parse(data.result))
-          // this.dashboards = JSON.parse(data.result)
         })
       })
-      // top.webMI.data.call('JMH_getDashboard', { base: this.base }, (data) => {
-      //   this.dashboards = JSON.parse(data.result)
-      // })
     },
     addDashboard () {
       this.dashboards.push({
@@ -176,7 +155,6 @@ export default {
     },
     save () {
       this.edit = false
-      // top.webMI.data.write('AGENT.OBJECTS.dash2', JSON.stringify(this.dashboards))
       const dashboardBase = this.dashboardBase || this.base
       top.webMI.data.call('JMH_saveDashboard', { type: this.type, base: dashboardBase, dash: JSON.stringify(this.dashboards) })
     },
@@ -185,21 +163,10 @@ export default {
       this.getDashboards()
     },
     moveItem (from, to) {
-      // remove `from` item and store it
       const f = this.dashboards.splice(from, 1)[0]
-      // insert stored item into position `to`
       this.dashboards.splice(to, 0, f)
       this.tab = to
     }
   }
 }
 </script>
-
-<style>
-.theme--light.v-tabs-items{
-  background-color: transparent
-}
-.theme--dark.v-tabs-items{
-  background-color: transparent
-}
-</style>

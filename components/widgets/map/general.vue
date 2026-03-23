@@ -45,7 +45,6 @@ export default {
   components: {
     'v-marker-cluster': MarkerCluster
   },
-  inject: ['theme'],
   props: {
     items: {
       type: Array,
@@ -77,7 +76,7 @@ export default {
     }
   },
   watch: {
-    'theme.isDark': {
+    '$vuetify.theme.current.dark': {
       immediate: true,
       handler (isDark) {
         this.setStyle(isDark)

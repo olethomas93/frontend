@@ -2,7 +2,7 @@
   <div style="width:100%;height:100%;" class="ma-auto">
     <grid-layout
       ref="grid"
-      :layout.sync="items"
+      v-model:layout="items"
       :col-num="24"
       :row-height="40"
       _breakpoints="{ lg: 1000, xs: 0 }"
@@ -33,8 +33,9 @@
         style="background:#ffffff;border-radius:5px;"
         _container-resized="resize"
       >
-        <v-hover v-slot="{ hover }">
+        <v-hover v-slot="{ isHovering, props: hoverProps }">
           <dash-card
+            v-bind="hoverProps"
             :title="$T(item.label)"
             :offline="false"
             :base="getBase(item.base)"
@@ -70,11 +71,11 @@
                 v-else-if="item.html"
                 :base="item.base"
               />
-              <v-overlay :value="editMode && hover" absolute>
+              <v-overlay :model-value="editMode && !!isHovering" absolute>
                 <v-container>
                   <v-row>
                     <v-col v-for="(btn,i) in buttons" :key="i" cols="4">
-                      <v-tooltip top :color="btn.color">
+                      <v-tooltip location="top" :color="btn.color">
                         <template #activator="{ props }">
                           <v-btn
                             :color="btn.color"
@@ -102,11 +103,10 @@
     </grid-layout>
     <v-btn
       v-if="editMode"
-      fab
-      bottom
-      right
-      fixed
+      icon
+      size="x-large"
       color="primary"
+      style="position:fixed;bottom:16px;right:16px;z-index:10;"
       @click="addCard"
     >
       <v-icon>

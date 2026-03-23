@@ -1,18 +1,16 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <v-dialog
-    v-if="value"
-    :value="value"
+    v-model="internalValue"
     height="600"
     width="1000"
     fullscreen
-    @input="$emit('input', !value)"
   >
     <v-card>
       <v-card-title>
         Edit
         <v-spacer />
-        <v-btn icon @click="$emit('input', false)">
+        <v-btn icon @click="$emit('update:modelValue', false)">
           <v-icon>
             mdi-close
           </v-icon>
@@ -24,10 +22,10 @@
             <v-col cols="6">
               <v-expansion-panels v-model="panels" accordion multiple>
                 <v-expansion-panel>
-                  <v-expansion-panel-header>
+                  <v-expansion-panel-title>
                     Basic
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content v-if="object">
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text v-if="object">
                     <div class="d-flex flex-row">
                       <v-text-field
                         v-model="object.item.icon"
@@ -56,10 +54,10 @@
                       :types="['VariableTypes.ATVISE.Display']"
                     />
                     <v-text-field
-                      :value="object.item.html"
+                      :model-value="object.item.html"
                       label="html"
                       variant="outlined"
-                      @change="object.item.html = $event"
+                      @update:model-value="object.item.html = $event"
                       @keydown.8.stop=""
                     />
                     <editor-input-color v-model="object.item.color" :label="$T('Color')" />
@@ -79,7 +77,7 @@
                         Light
                       </v-btn>
                     </v-btn-toggle>
-                  </v-expansion-panel-content>
+                  </v-expansion-panel-text>
                 </v-expansion-panel>
                 <v-expansion-panel
                   v-if="object.item.html"
@@ -103,10 +101,10 @@
                     v-for="(param,i) in _params"
                     :key="i"
                   >
-                    <v-expansion-panel-header>
+                    <v-expansion-panel-title>
                       {{ i }}
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
                       <template v-for="(item,index) in param.items">
                         <editor-input-color v-if="item.valuetype === 'color'" :key="`color-${param.name || i}-${index}`" v-model="object.item.query[item.name]" :label="item.desc || item.name" :hint="item.scope" />
                         <dashboard-input-address v-else-if="item.valuetype === 'address'" :key="`address-${param.name || i}-${index}`" v-model="object.item.query[item.name]" :label="item.desc || item.name" />
@@ -114,26 +112,26 @@
                           v-else-if="item.valuetype === 'enum'"
                           :key="`enum-${param.name || i}-${index}`"
                           _model="object.item.query[item.name]"
-                          :value="object.item.query[item.name] || item.defaultvalue"
+                          :model-value="object.item.query[item.name] || item.defaultvalue"
                           :label="item.desc || item.name"
                           :items="item.config.split(';')"
                           variant="outlined"
-                          @change="object.item.query[item.name] = $event"
+                          @update:model-value="object.item.query[item.name] = $event"
                         />
                         <v-text-field
                           v-else
                           :key="`input-${param.name || i}-${index}`"
-                          :value="object.item.query[item.name] || item.defaultvalue"
+                          :model-value="object.item.query[item.name] || item.defaultvalue"
                           :label="item.desc || item.name"
                           :type="item.valuetype === 'number' ? 'number' : undefined"
                           variant="outlined"
                           density="compact"
                           clearable
-                          @change="object.item.query[item.name] = $event"
+                          @update:model-value="object.item.query[item.name] = $event"
                           @keydown.stop=""
                         />
                       </template>
-                    </v-expansion-panel-content>
+                    </v-expansion-panel-text>
                   </v-expansion-panel>
                 </div>
               </v-expansion-panels>
@@ -203,12 +201,13 @@ export default {
     dashCard,
     MonacoEditor
   },
+  emits: ['update:modelValue'],
   props: {
     base: {
       type: String,
       default: 'AGENT.OBJECTS'
     },
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -253,6 +252,10 @@ export default {
     }
   },
   computed: {
+    internalValue: {
+      get () { return this.modelValue },
+      set (val) { this.$emit('update:modelValue', val) }
+    },
     _params () {
       const items = {
         root: {
@@ -293,14 +296,14 @@ export default {
     // 'object.item.widget': {
     //   handler () {
     //     setTimeout(() => {
-    //       this.$set(this.object, 'parameters', this.$refs.widget.parametersObj)
+    //       this.object.parameters = this.$refs.widget.parametersObj
     //     }, 500)
     //   }
     // },
     // value: {
     //   handler () {
     //     setTimeout(() => {
-    //       this.$set(this.object, 'parameters', this.$refs.widget.parametersObj)
+    //       this.object.parameters = this.$refs.widget.parametersObj
     //     }, 500)
     //   }
     // }
@@ -312,7 +315,7 @@ export default {
       this.object.item.widget = item.nodeid
     },
     getParameters () {
-      this.$set(this.object, 'parameters', this.$refs.widget.parametersObj)
+      this.object.parameters = this.$refs.widget.parametersObj
     },
     getProps () {
       this.props = JSON.stringify(this.$refs.html.$props, null, 2)
