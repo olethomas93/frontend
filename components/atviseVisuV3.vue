@@ -179,7 +179,7 @@ const options = {
       let rawHtml = ''
       let rawScript = ''
       try {
-        const widgetData: any = await new Promise((res, rej) => {
+        const widgetData = await new Promise((res, rej) => {
           top.webMI.data.customRequest(
             'GET',
             `/customScripts/CtrlGetWidget?widget=${encodeURIComponent(widgetName)}`,
