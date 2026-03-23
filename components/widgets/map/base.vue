@@ -61,7 +61,7 @@
       ref="map"
       :center="center"
       :zoom="8"
-      style="z-index:2;"
+      style="z-index:2;height:100%;width:100%"
       @movestart="$emit('movestart')"
       @moveend="$emit('moveend')"
       @ready="onReady"
@@ -172,6 +172,7 @@ export default {
        * Emits leaflet map when ready
        */
       this.map = map
+      this.$nextTick(() => map.invalidateSize())
       this.$emit('mapReady', this.map)
     },
     toggleEdit () {

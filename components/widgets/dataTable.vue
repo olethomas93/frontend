@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  <div :style="$vuetify.breakpoint.smAndDown ? '' : 'margin:0px'">
+  <div :style="$vuetify.display.smAndDown ? '' : 'margin:0px'">
     <!-- <crud-widget-v2
       can-add
       can-edit
@@ -203,7 +203,7 @@ export default {
   },
   computed: {
     computedHeaders () {
-      return this.$vuetify.breakpoint.smAndDown ? this.mobileHeaders : this.headers
+      return this.$vuetify.display.smAndDown ? this.mobileHeaders : this.headers
     },
     filteredItems () {
       return this.items.filter((item) => {
@@ -224,13 +224,8 @@ export default {
   watch: {
     items: {
       immediate: true,
-      handler (items) {
+      handler () {
         this.loading = false
-        if (this.tableProps.expandAll) {
-          this.items.forEach((item) => {
-            this.$set(this.$refs.dTable.expansion, item.nodeid, true)
-          })
-        }
       }
     },
     headers: {
@@ -239,9 +234,8 @@ export default {
         value.forEach((item) => {
           if (item.customFilter) {
             this.hasFilters = true
-            const value = item.customFilter.value || ''
-            // console.log('register filter:', item.value)
-            this.$set(this.filters, item.value, value)
+            const val = item.customFilter.value || ''
+            this.filters[item.value] = val
           }
         })
       }
