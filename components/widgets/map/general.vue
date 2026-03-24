@@ -76,7 +76,7 @@ export default {
     }
   },
   watch: {
-    '$vuetify.theme.current.dark': {
+    '$vuetify.theme.dark': {
       immediate: true,
       handler (isDark) {
         this.setStyle(isDark)

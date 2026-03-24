@@ -128,6 +128,15 @@ export default defineNuxtConfig({
     '@mdi/font/css/materialdesignicons.css',
     'splitpanes/dist/splitpanes.css'
   ],
+  // Register map widget components with 'map-' prefix so they can be
+  // resolved by name (e.g. map-general, map-test) from viewer.vue's :is="map" binding.
+  // Without this, Nuxt 3 auto-registers them as 'widgets-map-*' which doesn't match.
+  components: {
+    dirs: [
+      '~/components',
+      { path: '~/components/widgets/map', prefix: 'map', pathPrefix: false }
+    ]
+  },
   modules: ['@pinia/nuxt'],
   plugins: [
     '~/plugins/pinia.client',

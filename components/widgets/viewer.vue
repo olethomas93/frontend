@@ -1,5 +1,5 @@
 <template>
-  <v-container :fluid="true" :style="{height: height, padding: large && showMap ? null : '0px'}" :fill-height="true">
+  <v-container :fluid="true" :style="{height: height, padding: large && showMap ? null : '0px'}" class="fill-height">
     <splitpanes ref="row" class="default-theme">
       <pane :size="listSize" :style="{maxHeight: height, padding: large && showMap ? null : '0px' }">
         <data-table

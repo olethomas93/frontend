@@ -115,8 +115,8 @@ export default {
     refreshMap () {
       console.log('REFRESH MAP')
       // Used to refresh map when new objcts is loaded
-      const zoom = this.$refs.map.mapObject.getZoom()
-      this.$refs.map.mapObject.setZoom(zoom)
+      const zoom = this.$refs.map.leafletObject.getZoom()
+      this.$refs.map.leafletObject.setZoom(zoom)
       // this.$refs.map.mapObject.zoomOut()
       // this.$refs.map.mapObject.zoomIn()
     }
