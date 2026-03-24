@@ -1,9 +1,22 @@
 <template>
   <v-container :fluid="true" :style="{height: height, padding: large && showMap ? null : '0px'}" class="fill-height">
-    <splitpanes ref="row" class="default-theme">
+    <div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
+    <v-btn-toggle
+      v-if="large"
+      v-model="localViewType"
+      density="compact"
+      variant="outlined"
+      class="mb-1"
+    >
+      <v-btn value="list" icon="mdi-view-list" size="small" />
+      <v-btn value="grid" icon="mdi-view-grid" size="small" />
+      <v-btn value="customGrid" icon="mdi-view-module" size="small" />
+      <v-btn value="dashboard" icon="mdi-view-dashboard" size="small" />
+    </v-btn-toggle>
+    <splitpanes ref="row" class="default-theme" style="flex: 1;">
       <pane :size="listSize" :style="{maxHeight: height, padding: large && showMap ? null : '0px' }">
         <data-table
-          v-if="showList || viewType === 'list'"
+          v-if="showList || localViewType === 'list'"
           v-model="selected"
           :show-search="showSearch"
           :items="items"
@@ -20,7 +33,7 @@
           </template>
         </data-table>
         <dashboard-dashboards
-          v-else-if="viewType==='dashboard'"
+          v-else-if="localViewType==='dashboard'"
           :base="base"
           :dashboard-base="dashboardBase"
           type="public"
@@ -30,7 +43,7 @@
           :width="widgetWidth"
           :address="base"
           :items="items"
-          :responsive="viewType === 'customGrid'"
+          :responsive="localViewType === 'customGrid'"
           display="widget"
           :description-in-title="descriptionInTitle"
           @click="click"
@@ -75,6 +88,7 @@
         <!-- <map-general :items="mapItems" @click="click" /> -->
       </pane>
     </splitpanes>
+    </div>
   </v-container>
 </template>
 
@@ -255,8 +269,9 @@ export default {
       default: undefined
     }
   },
-  data: () => {
+  data () {
     return {
+      localViewType: this.viewType,
       addDialog: false,
       items: [],
       selected: [],
@@ -370,6 +385,9 @@ export default {
     }
   },
   watch: {
+    viewType (val) {
+      this.localViewType = val
+    },
     'rights.write' (value) {
       // eslint-disable-next-line vue/no-mutating-props
       this.tableProps.showSelect = value && this.canEdit
