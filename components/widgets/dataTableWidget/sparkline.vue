@@ -22,7 +22,7 @@ export default {
     this.getHistory()
     this.int = setInterval(this.getHistory, 30000)
   },
-  destroyed () {
+  unmounted () {
     clearInterval(this.int)
   },
   methods: {

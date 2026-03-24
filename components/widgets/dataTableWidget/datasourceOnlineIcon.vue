@@ -1,5 +1,5 @@
 <template>
-  <v-tooltip open-delay="500" :right="true" :color="color">
+  <v-tooltip open-delay="500" location="end" :color="color">
     <template #activator="{ props }">
       <v-icon :color="color" v-bind="props">
         {{ icon }}
@@ -62,7 +62,7 @@ export default {
     this.checkOnline()
     this.int = setInterval(this.checkOnline, 30000)
   },
-  destroyed () {
+  unmounted () {
     clearInterval(this.int)
   },
   methods: {

@@ -1,6 +1,6 @@
 <template>
   <div v-if="getTrend()">
-    <v-tooltip open-delay="500" top dark>
+    <v-tooltip open-delay="500" location="top">
       <template #activator="{ props }">
         <v-btn icon v-bind="props" @click.stop="dialog = true">
           <v-icon>
