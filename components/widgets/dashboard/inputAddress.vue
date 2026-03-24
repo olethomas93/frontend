@@ -2,7 +2,7 @@
   <v-dialog
     ref="dialog"
     v-model="modal"
-    :return-value.sync="value"
+    :return-value="value"
     persistent
     width="800px"
     @update:return-value="$emit('input', value)"
@@ -12,7 +12,6 @@
         :value="value"
         :label="label"
         :readonly="false"
-        outlined
         variant="filled"
         density="compact"
         @change="$emit('input', $event)"

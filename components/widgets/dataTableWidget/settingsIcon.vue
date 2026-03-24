@@ -37,11 +37,11 @@
               {{ $T(tab.text) }}
             </v-tab>
           </v-tabs>
-          <v-tabs-items v-model="tab" touchless style="height:calc(100% - 48px)">
-            <v-tab-item v-for="(tab,key) in tabs" :key="key" style="height:100%">
+          <v-window v-model="tab" style="height:calc(100% - 48px)">
+            <v-window-item v-for="(tab,key) in tabs" :key="key" style="height:100%">
               <component v-bind="tab.props" :is="tab.component" :items="tab.items" :base="tab.base || item.nodeid" :settings="item.typeDefinition + '._settings'" />
-            </v-tab-item>
-          </v-tabs-items>
+            </v-window-item>
+          </v-window>
         </v-card-text>
       </v-card>
     </v-dialog>

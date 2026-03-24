@@ -129,7 +129,7 @@ export default {
     //   this.getUnit()
     // }
   },
-  destroyed () {
+  unmounted () {
     clearInterval(this.int)
   },
   methods: {

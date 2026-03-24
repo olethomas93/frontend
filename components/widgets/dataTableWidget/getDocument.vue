@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  <v-btn :dark="true" :icon="true" color="success" target="_blank" @click="getDocument(item.nodeid, item.displayname, item.childs.type.value)">
+  <v-btn icon color="success" target="_blank" @click="getDocument(item.nodeid, item.displayname, item.childs.type.value)">
     <v-icon>mdi-download-circle</v-icon>
   </v-btn>
 </template>

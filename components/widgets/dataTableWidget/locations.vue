@@ -6,7 +6,7 @@
     @click="click(item.nodeid + '.locations')"
   >
     <v-badge :color="items.length > 0 ? 'primary' : 'transparent'" :overlap="true">
-      <span slot="badge">{{ items.length > 0 ? items.length: '' }}</span>
+      <template #badge>{{ items.length > 0 ? items.length: '' }}</template>
       <v-icon>{{ icon }}</v-icon>
     </v-badge>
   </v-btn>
