@@ -277,6 +277,13 @@ export default {
     }
   },
   computed: {
+    activeShowTypes () {
+      const types = [...this.showTypes]
+      if (this.showMeasurements) {
+        types.push('VariableTypes.PROJECT.measurement')
+      }
+      return types
+    },
     mapItems () {
       return this.currentItems.map((item) => {
         // const posNode = this.$lodash.get(item, 'item.childs.position.nodeid')
@@ -420,13 +427,9 @@ export default {
         //   items = items.filter((item) => { return item.typeDefinition.includes('ObjectTypes') })
         // }
 
-        if (this.showMeasurements) {
-          // eslint-disable-next-line vue/no-mutating-props
-          this.showTypes.push('VariableTypes.PROJECT.measurement')
-        }
         items = items.filter((item) => {
           if (!item.typeDefinition) { return false }
-          return this.showTypes.some(type => item.typeDefinition.includes(type))
+          return this.activeShowTypes.some(type => item.typeDefinition.includes(type))
         })
         if (sortOrder) {
           await items.forEach((item) => {
