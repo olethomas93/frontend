@@ -202,7 +202,7 @@ if (process.client) {
 
 const isDark = ref(false)
 watch(isDark, (value) => {
-  theme.change(value ? 'dark' : 'light')
+  theme.global.name.value = value ? 'dark' : 'light'
 }, { immediate: true })
 
 if (process.client) {

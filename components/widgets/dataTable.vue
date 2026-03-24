@@ -82,8 +82,8 @@
       <template #item="{ item, internalItem, columns, isExpanded, toggleExpand, isSelected, toggleSelect }">
         <tr
           @click="$emit('click:row', item)"
-          @mouseenter="$nuxt.$emit('table:mouseenter', item)"
-          @mouseleave="$nuxt.$emit('table:mouseleave', item)"
+          @mouseenter="$eventBus.$emit('table:mouseenter', item)"
+          @mouseleave="$eventBus.$emit('table:mouseleave', item)"
         >
           <td v-for="(header, key) in columns" :key="key">
             <div v-if="header.value === 'data-table-select'">
