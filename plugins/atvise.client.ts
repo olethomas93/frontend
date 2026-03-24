@@ -95,6 +95,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         handleClientVariablesChange({
           event,
           atviseStore,
+          authStore,
           translationStore,
           alertsStore,
           webMI
@@ -115,12 +116,14 @@ export default defineNuxtPlugin((nuxtApp) => {
 function handleClientVariablesChange ({
   event,
   atviseStore,
+  authStore,
   translationStore,
   alertsStore,
   webMI
 }: {
   event: any
   atviseStore: ReturnType<typeof useAtviseStore>
+  authStore: ReturnType<typeof useAuthStore>
   translationStore: ReturnType<typeof useTranslationStore>
   alertsStore: ReturnType<typeof useAlertsStore>
   webMI: WebMI
@@ -144,9 +147,25 @@ function handleClientVariablesChange ({
     } catch (error) {
       // Fail silently
     }
+    // Restore auth state after a page refresh when the WebMI session cookie is
+    // still valid.  On a fresh load the auth plugin's restoreSession() returns
+    // null for atviseLocal (cookie-based), so authStore stays logged-out until
+    // webMI fires clientvariableschange confirming the session is alive.
+    if (!authStore.isLoggedIn) {
+      authStore.setStrategy('atviseLocal')
+      authStore.setUser({ name: event.username, email: event.username })
+      authStore.setLoggedIn(true)
+    }
   } else if (event.username === '') {
     atviseStore.setUserData({})
     atviseStore.setLoggedIn(false)
+    // If the session expired or the user was logged out from the Atvise side,
+    // also reset the auth store so the login page is shown.
+    if (authStore.currentStrategy === 'atviseLocal') {
+      authStore.setLoggedIn(false)
+      authStore.setUser(null)
+      authStore.setStrategy(null)
+    }
     alertsStore.setCustomAlert({ message: 'Login failed!' })
   }
 }
