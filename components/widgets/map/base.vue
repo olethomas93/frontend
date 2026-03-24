@@ -122,7 +122,7 @@ export default {
     }
   },
   watch: {
-    '$vuetify.theme.current.dark': {
+    '$vuetify.theme.dark': {
       immediate: true,
       handler (value) {
         this.isDark = value
