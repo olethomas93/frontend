@@ -24,6 +24,10 @@ export default {
     defaultBase: {
       type: String,
       default: 'AGENT.OBJECTS'
+    },
+    iframePath: {
+      type: String,
+      default: ''
     }
   },
   data: () => ({
@@ -59,14 +63,7 @@ export default {
       }
     },
     navigate (data) {
-      // const display = data.to.query.display
-      // const parameters = JSON.parse(data.to.query.parameters)
-      if (this.$config.atvise.local) {
-        // top.webMI.display.openDisplay(display, data.to.query, 'content')
-        this.$router.push({ query: data.to.query })
-      } else {
-        this.$router.push({ query: data.to.query })
-      }
+      this.$router.push({ query: data.to.query })
     },
     buildBreadcrumbs (url, _base) {
       top.webMI.data.call('JMH_getCrumbs', { address: _base, home: JSON.stringify(top.webMIConfig.nuxt.home) }, (e) => {
